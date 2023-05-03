@@ -49,16 +49,6 @@ public interface UserAPI {
     Response userLogin(LoginData data);
 
     /**
-     * Changes a user password
-     * @param data the new password
-     * @param tokenObjStr Token object to authenticate the user
-     * @return 400 if the password isn't valid
-     */
-    @PUT
-    @Consumes(MediaType.APPLICATION_JSON)
-    Response changePwd(PasswordData data, @QueryParam("tokenObj") String tokenObjStr);
-
-    /**
      * Logouts a user
      * @param tokenObjStr Token object to authenticate the user
      * @return 400 if the token has expired
@@ -68,15 +58,16 @@ public interface UserAPI {
      Response doLogout(@QueryParam("tokenObj") String tokenObjStr);
 
     /**
-     *
-     * @param data
-     * @param tokenObjStr
-     * @return
+     * Updates the users information
+     * @param data the new user data
+     * @param tokenObjStr Token object to authenticate the user
+     * @return 406 if the user doesn't have permissions to change the field
+     * 200 if it was successful
      */
      @PUT
      @Consumes(MediaType.APPLICATION_JSON)
      @Produces(MediaType.APPLICATION_JSON)
-     Response updateOwnUser(ProfileClass data, @QueryParam("tokenObj") String tokenObjStr)
+     Response updateOwnUser(ProfileClass data, @QueryParam("tokenObj") String tokenObjStr);
 
 
 }

@@ -1,29 +1,28 @@
 	package pt.unl.fct.di.apdc.firstwebapp.resources;
 	
-	import java.time.ZoneId;
-	import java.time.format.DateTimeFormatter;
-	import java.util.ArrayList;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-	import java.util.logging.Logger;
-	import javax.ws.rs.GET;
-	import javax.ws.rs.Path;
-	import javax.ws.rs.Produces;
+import java.util.logging.Logger;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-	import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import com.google.cloud.datastore.Datastore;
-	import com.google.cloud.datastore.DatastoreOptions;
-	import com.google.cloud.datastore.Entity;
+import com.google.cloud.datastore.DatastoreOptions;
+import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Query;
-	import com.google.cloud.datastore.QueryResults;
+import com.google.cloud.datastore.QueryResults;
 import com.google.gson.Gson;
-
 import pt.unl.fct.di.apdc.firstwebapp.util.TokenClass;
 
 	
