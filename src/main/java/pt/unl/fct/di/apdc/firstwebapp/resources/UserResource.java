@@ -5,12 +5,11 @@ import com.google.cloud.datastore.*;
 
 import pt.unl.fct.di.apdc.firstwebapp.api.UserAPI;
 import org.apache.commons.codec.digest.DigestUtils;
-import pt.unl.fct.di.apdc.firstwebapp.util.Authorization;
-import pt.unl.fct.di.apdc.firstwebapp.util.LoginData;
-import pt.unl.fct.di.apdc.firstwebapp.util.ProfileClass;
+import pt.unl.fct.di.apdc.firstwebapp.util.*;
 
 
 import com.google.gson.Gson;
+
 import java.util.logging.Logger;
 import javax.ws.rs.core.Response;
 
@@ -83,11 +82,70 @@ public class UserResource implements UserAPI {
 
     @Override
     public Response doLogout(String tokenObjStr) {
-        return null;
+        TokenClass tokenObj = g.fromJson(tokenObjStr, TokenClass.class);
+
+        LOG.fine("Attempt to logout user: " + tokenObj.getUsername());
+
+        Key tokenKey = tokenKeyFactory.newKey(tokenObj.getTokenID());
+
+        Entity tokenEntity = datastore.get(tokenKey);
+
+        Transaction txn = datastore.newTransaction();
+        try {
+            if (tokenEntity != null) {
+                datastore.delete(tokenKey);
+                txn.commit();
+                return Response.ok().build();
+            } else {
+                txn.rollback();
+                LOG.warning("Failed logout attempt! Token " + tokenObj.getTokenID() + " does not exist");
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+        } finally {
+            if (txn.isActive()) {
+                txn.rollback();
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            }
+        }
     }
 
     @Override
     public Response updateOwnUser(ProfileClass data, String tokenObjStr) {
         return null;
+    }
+
+    @Override
+    public Response deleteAccount(String tokenObjStr) {
+        TokenClass tokenObj = g.fromJson(tokenObjStr, TokenClass.class);
+
+        LOG.fine("Attempting to delete user: " + tokenObj.getUsername());
+
+        Transaction txn = datastore.newTransaction();
+        try {
+            Key userKey = datastore.newKeyFactory().setKind("Users").newKey(tokenObj.getUsername());
+            Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(tokenObj.getTokenID());
+
+            Entity user = txn.get(userKey);
+            Entity token = txn.get(tokenKey);
+
+            if (user == null) {
+                txn.rollback();
+                return Response.status(Response.Status.NOT_FOUND).entity("User is null").build();
+            } else if (token == null) {
+                txn.rollback();
+                return Response.status(Response.Status.NOT_FOUND).entity("Null token").build();
+            } else {
+                {
+                    txn.delete(userKey);
+                    LOG.info("User deleted: " + tokenObj.getUsername());
+                    txn.commit();
+                    return Response.ok().build();
+                }
+            } finally{
+                if (txn.isActive()) {
+                    txn.rollback();
+                }
+            }
+        }
     }
 }

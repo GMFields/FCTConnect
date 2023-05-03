@@ -69,5 +69,13 @@ public interface UserAPI {
      @Produces(MediaType.APPLICATION_JSON)
      Response updateOwnUser(ProfileClass data, @QueryParam("tokenObj") String tokenObjStr);
 
+    /**
+     * Deletes the user's account
+     * @param tokenObjStr Token object to authenticate the user
+     * @return 200 if it was successful
+     * 500 if there was a server error
+     */
+     Response deleteAccount(@QueryParam("tokenObj") String tokenObjStr);
+
 
 }
