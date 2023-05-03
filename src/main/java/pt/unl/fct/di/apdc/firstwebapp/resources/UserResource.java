@@ -138,14 +138,16 @@ public class UserResource implements UserAPI {
                 {
                     txn.delete(userKey);
                     LOG.info("User deleted: " + tokenObj.getUsername());
+                    txn.delete(tokenKey);
                     txn.commit();
                     return Response.ok().build();
                 }
+            }
             } finally{
                 if (txn.isActive()) {
                     txn.rollback();
                 }
             }
-        }
+
     }
 }
