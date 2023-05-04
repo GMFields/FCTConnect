@@ -1,8 +1,7 @@
 package pt.unl.fct.di.apdc.firstwebapp.api;
 
-import pt.unl.fct.di.apdc.firstwebapp.util.LoginData;
-import pt.unl.fct.di.apdc.firstwebapp.util.ProfileClass;
-import pt.unl.fct.di.apdc.firstwebapp.util.TokenClass;
+import pt.unl.fct.di.apdc.firstwebapp.util.AuthToken;
+import pt.unl.fct.di.apdc.firstwebapp.util.ProfileData;
 
 import javax.ws.rs.Path;
 import javax.ws.rs.Consumes;
@@ -31,7 +30,7 @@ public interface UserAPI {
      */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    Response registerUser(LoginData data);
+    Response registerUser(ProfileData data);
 
 
     /**
@@ -56,7 +55,7 @@ public interface UserAPI {
      */
      @POST
      @Consumes(MediaType.APPLICATION_JSON)
-     Response userLogout(TokenClass tokenObjStr);
+     Response userLogout(AuthToken tokenObjStr);
 
     /**
      * Updates the users information
@@ -70,7 +69,7 @@ public interface UserAPI {
      @PUT
      @Consumes(MediaType.APPLICATION_JSON)
      @Produces(MediaType.APPLICATION_JSON)
-     Response updateOwnUser(ProfileClass data, TokenClass tokenObj);
+     Response updateOwnUser(ProfileData data, AuthToken tokenObj);
 
     /**
      * Deletes the user's account
@@ -81,7 +80,7 @@ public interface UserAPI {
      *          500: if there was a server error.
      */
      @DELETE
-     Response deleteAccount(TokenClass tokenObj);
+     Response deleteAccount(AuthToken tokenObj);
 
 
 }

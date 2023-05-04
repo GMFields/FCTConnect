@@ -25,7 +25,7 @@ import com.google.gson.Gson;
 
 import pt.unl.fct.di.apdc.firstwebapp.util.Authorization;
 import pt.unl.fct.di.apdc.firstwebapp.util.LoginData;
-import pt.unl.fct.di.apdc.firstwebapp.util.ProfileClass;
+import pt.unl.fct.di.apdc.firstwebapp.util.ProfileData;
 import pt.unl.fct.di.apdc.firstwebapp.util.TokenClass;
 
 
@@ -95,7 +95,7 @@ public class EditResource {
 	
 		@PUT
 		@Path("/{username}")
-		public Response updateUser(@PathParam("username") String username, ProfileClass data, @QueryParam("tokenObj") String tokenObjStr) {
+		public Response updateUser(@PathParam("username") String username, ProfileData data, @QueryParam("tokenObj") String tokenObjStr) {
 		    LOG.fine(ATTEMPTING_UPDATE + username);
 		    
 		    TokenClass tokenObj = g.fromJson(tokenObjStr, TokenClass.class);
@@ -161,7 +161,7 @@ public class EditResource {
 		}
 		
 		@PUT
-		public Response updateOwnUser(ProfileClass data, @QueryParam("tokenObj") String tokenObjStr) {
+		public Response updateOwnUser(ProfileData data, @QueryParam("tokenObj") String tokenObjStr) {
 		    
 		    TokenClass tokenObj = g.fromJson(tokenObjStr, TokenClass.class);
 		    Transaction txn = datastore.newTransaction();

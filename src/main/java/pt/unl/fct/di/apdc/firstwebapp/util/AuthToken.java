@@ -1,6 +1,5 @@
 package pt.unl.fct.di.apdc.firstwebapp.util;
 	
-
 import java.util.UUID;
 	
 	public class AuthToken {
@@ -21,6 +20,14 @@ import java.util.UUID;
 			this.tokenID = UUID.randomUUID().toString();
 			this.creationData = System.currentTimeMillis();
 			this.expirationData = this.creationData + AuthToken.EXPIRATION_TIME;
+		}
+
+		public AuthToken(String username, int role, String tokenID, long creationData, long expirationData) {
+			this.username = username;
+			this.role = role;
+			this.tokenID = tokenID;
+			this.creationData = creationData;
+			this.expirationData = expirationData;
 		}
 		
 		public String getUsername() {
@@ -62,6 +69,5 @@ import java.util.UUID;
 		public void setExpirationData(long expirationData) {
 			this.expirationData = expirationData;
 		}
-
 
 	}

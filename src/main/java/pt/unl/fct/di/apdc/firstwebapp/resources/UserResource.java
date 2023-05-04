@@ -1,6 +1,5 @@
 package pt.unl.fct.di.apdc.firstwebapp.resources;
 
-import com.google.appengine.repackaged.org.apache.http.protocol.ResponseServer;
 import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.*;
 
@@ -23,11 +22,11 @@ public class UserResource implements UserAPI {
     KeyFactory userKeyFactory = datastore.newKeyFactory().setKind("Users");
     KeyFactory tokenKeyFactory = datastore.newKeyFactory().setKind("Token");
 
-    private final Gson g = new Gson();
-    private static String INVALID_LOGIN = "Missing or wrong parameter.";
-    private static String INVALID_EMAIL = "Invalid email address";
-    private static String INVALID_PASSWORD = "Invalid password";
-    private static String ATTEMPTING_REGISTER = "Attempting to register the user: ";
+    //private final Gson g = new Gson();
+    //private static String INVALID_LOGIN = "Missing or wrong parameter.";
+    //private static String INVALID_EMAIL = "Invalid email address";
+    //private static String INVALID_PASSWORD = "Invalid password";
+    //private static String ATTEMPTING_REGISTER = "Attempting to register the user: ";
     private static String USER_EXISTS = "User already exists";
     private static long USER_ROLE = 1;
     private static String INATIVO_STATE = "INATIVO";
@@ -37,7 +36,7 @@ public class UserResource implements UserAPI {
     public UserResource() {}
 
     @Override
-    public Response registerUser(LoginData data) {
+    public Response registerUser(ProfileData data) {
         /* Deveria ser verificado do lado do cliente?
 
         if(!Authorization.isValid(data.getUsername(), data.getPassword(), data.getName(), data.getEmail())) {
@@ -63,7 +62,7 @@ public class UserResource implements UserAPI {
                 return Response.status(Status.CONFLICT).entity(USER_EXISTS).build();
             }
 
-            user = Entity.newBuilder(userKey) //TODO faltam itens a serem adicionados na base de dados - a ser discutido!
+            user = Entity.newBuilder(userKey) //TODO @GMFields faltam itens a serem adicionados na base de dados - a ser discutido!
                     .set("user_name", data.getName())
                     .set("user_pwd", DigestUtils.sha512Hex(data.getPassword()))
                     .set("user_email", data.getEmail())
@@ -75,7 +74,7 @@ public class UserResource implements UserAPI {
             txn.add(user);
             LOG.info("User registered: "+ data.getUsername());
             txn.commit();
-            return Response.status(Status.CREATED).entity(data).build(); //TODO verificar se é preciso enviar "data" - método não tem tag @produces
+            return Response.status(Status.CREATED).entity(data).build(); //TODO @GMFields verificar se é preciso enviar "data" - método não tem tag @produces
         } catch(Exception e) {
             txn.rollback();
 			LOG.severe(e.getMessage());
@@ -109,7 +108,7 @@ public class UserResource implements UserAPI {
             }
 
             AuthToken token = new AuthToken(username, 1);
-            Key tokenKey = tokenKeyFactory.newKey(token.getTokenID()); //TODO pode mudar a chave do token no futuro
+            Key tokenKey = tokenKeyFactory.newKey(token.getTokenID()); //TODO @GMFields pode mudar a chave do token no futuro
             Entity tokenE = Entity.newBuilder(tokenKey).set("token_owner", username)
                                                         .set("creation_date", String.valueOf(token.getCreationData()))
                                                         .set("expiration_date", String.valueOf(token.getExpirationData()))
@@ -132,8 +131,7 @@ public class UserResource implements UserAPI {
     }
 
     @Override
-    public Response userLogout(TokenClass tokenObj) {
-        //TokenClass tokenObj = g.fromJson(tokenObjStr, TokenClass.class);
+    public Response userLogout(AuthToken tokenObj) {
         LOG.fine("Attempt to logout user: " + tokenObj.getUsername());
 
         Key tokenKey = tokenKeyFactory.newKey(tokenObj.getTokenID());
@@ -163,7 +161,7 @@ public class UserResource implements UserAPI {
     }
 
     @Override
-    public Response updateOwnUser(ProfileClass data, TokenClass tokenObj) {
+    public Response updateOwnUser(ProfileData data, AuthToken tokenObj) {
         LOG.fine("Attempting to update user :" + data.getName());
 
         Key userKey = userKeyFactory.newKey(tokenObj.getUsername());
@@ -183,18 +181,18 @@ public class UserResource implements UserAPI {
                 return Response.status(Status.FORBIDDEN).build();
             }
 
-            user = Entity.newBuilder(userKey) //TODO faltam itens a serem adicionados na base de dados - a ser discutido!
+            user = Entity.newBuilder(userKey) //TODO @GMFields faltam itens a serem adicionados na base de dados - a ser discutido!
                     .set("user_name", data.getName())
                     .set("user_pwd", DigestUtils.sha512Hex(data.getPassword()))
                     .set("user_email", data.getEmail())
-                    .set("user_role", data.getRole()) //TODO ver se vale a pena manter isto
-                    .set("user_state", data.getState()) //TODO ver se vale a pena manter isto
+                    .set("user_role", data.getRole()) //TODO @GMFields ver se vale a pena manter isto
+                    .set("user_state", data.getState()) //TODO @GMFields ver se vale a pena manter isto
                     .set("user_creation_time", user.getString("user_creation_time"))
                     .build();
 
             datastore.put(user);
             txn.commit();
-            return Response.ok().entity(user).build(); //TODO verificar do lado do cliente se está a receber o user em formato json
+            return Response.ok().entity(user).build(); //TODO @GMFields verificar do lado do cliente se está a receber o user em formato json
         } catch(Exception e) {
             txn.rollback();
 			LOG.severe(e.getMessage());
@@ -209,8 +207,7 @@ public class UserResource implements UserAPI {
     }
 
     @Override
-    public Response deleteAccount(TokenClass tokenObj) {
-        //TokenClass tokenObj = g.fromJson(tokenObjStr, TokenClass.class);
+    public Response deleteAccount(AuthToken tokenObj) {
         LOG.fine("Attempting to delete user: " + tokenObj.getUsername());
 
         Key userKey = datastore.newKeyFactory().setKind("Users").newKey(tokenObj.getUsername());
