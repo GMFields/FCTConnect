@@ -1,4 +1,4 @@
-	package pt.unl.fct.di.apdc.firstwebapp.resources;
+	package pt.unl.fct.di.apdc.firstwebapp.resources.old;
 	
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
