@@ -109,7 +109,7 @@ public class UserResource implements UserAPI {
             }
 
             AuthToken token = new AuthToken(username, 1);
-            Key tokenKey = tokenKeyFactory.newKey(token.getTokenID()); //TODO pode mudar a chave do token
+            Key tokenKey = tokenKeyFactory.newKey(token.getTokenID()); //TODO pode mudar a chave do token no futuro
             Entity tokenE = Entity.newBuilder(tokenKey).set("token_owner", username)
                                                         .set("creation_date", String.valueOf(token.getCreationData()))
                                                         .set("expiration_date", String.valueOf(token.getExpirationData()))
