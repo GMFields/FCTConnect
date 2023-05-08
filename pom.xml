@@ -18,6 +18,7 @@
 		<maven.compiler.source>11</maven.compiler.source>
 		<maven.compiler.target>11</maven.compiler.target>
 		<maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
+
   </properties>
 
   	<dependencyManagement>
@@ -122,6 +123,11 @@
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-storage</artifactId>
         </dependency>
+		<dependency>
+			<groupId>org.webjars.npm</groupId>
+			<artifactId>react</artifactId>
+			<version>18.2.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -132,7 +138,77 @@
 				<groupId>com.google.cloud.tools</groupId>
 				<artifactId>appengine-maven-plugin</artifactId>
 				<version>${appengine.maven.plugin.version}</version>
+
+		</plugin>
+
+			<!-- Copy static resources to the webapp directory -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.2.0</version>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/Firstwebapp-0.0.1</outputDirectory>
+							<resources>
+								<resource>
+									<directory>src/main/webapp/react-app/dist</directory>
+									<filtering>false</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
+
+			<plugin>
+			<groupId>com.github.eirslett</groupId>
+			<artifactId>frontend-maven-plugin</artifactId>
+			<version>1.12.1</version>
+				<configuration>
+					<workingDirectory>${project.basedir}/src/main/webapp/react-app</workingDirectory>
+					<installDirectory>target</installDirectory>
+				</configuration>
+			<executions>
+				<execution>
+					<id>install node and npm</id>
+					<goals>
+						<goal>install-node-and-npm</goal>
+					</goals>
+					<configuration>
+						<nodeVersion>v14.16.0</nodeVersion>
+						<npmVersion>6.14.11</npmVersion>
+					</configuration>
+				</execution>
+				<execution>
+					<id>npm install</id>
+					<goals>
+						<goal>npm</goal>
+					</goals>
+					<configuration>
+						<arguments>install</arguments>
+					</configuration>
+				</execution>
+				<execution>
+					<id>npm run build</id>
+					<goals>
+						<goal>npm</goal>
+					</goals>
+					<configuration>
+						<arguments>run build</arguments>
+					</configuration>
+				</execution>
+			</executions>
+		</plugin>
+
+
+
+
 		</plugins>
 	</build>
 </project>

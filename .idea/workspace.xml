@@ -4,7 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5e849600-42ce-4297-a52f-e565245338d1" name="Changes" comment="" />
+    <list default="true" id="5e849600-42ce-4297-a52f-e565245338d1" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/webapp/WEB-INF/appengine-web.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/WEB-INF/appengine-web.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/webapp/WEB-INF/web.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/WEB-INF/web.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -32,21 +40,30 @@
   "keyToString": {
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "C:/Users/Afonso/IdeaProjects/DiscipulosAMD/src/main/java/pt/unl/fct/di/apdc/firstwebapp/resources",
+    "jdk.selected.JAVA_MODULE": "11",
+    "last_opened_file_path": "/Users/tiagofrancisco/Documents/Universidade/3_Ano/2_semestre/ADC/DiscipulosAMD",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.0",
     "project.structure.side.proportion": "0.2",
+    "ts.external.directory.path": "/Users/tiagofrancisco/Documents/Universidade/3_Ano/2_semestre/ADC/DiscipulosAMD/src/main/webapp/src/main/resources/my-react-app/my-react-app/node_modules/typescript/lib",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/main/webapp" />
       <recent name="C:\Users\Afonso\IdeaProjects\DiscipulosAMD\src\main\java\pt\unl\fct\di\apdc\firstwebapp\resources" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/main/webapp/app/src" />
+      <recent name="$PROJECT_DIR$/src/main/webapp/src/main" />
     </key>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -58,6 +75,9 @@
       <option name="presentableId" value="Default" />
       <updated>1683121750416</updated>
       <workItem from="1683121752696" duration="3248000" />
+      <workItem from="1683391112052" duration="570000" />
+      <workItem from="1683391699080" duration="22585000" />
+      <workItem from="1683542314283" duration="6143000" />
     </task>
     <servers />
   </component>
