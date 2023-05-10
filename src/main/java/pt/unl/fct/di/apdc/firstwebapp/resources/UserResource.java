@@ -102,7 +102,7 @@ public class UserResource implements UserAPI {
             Entity user = txn.get(userKey);
             if(user == null){
                 txn.rollback();
-                return Response.status(Status.FORBIDDEN).build();
+                return Response.status(Status.NOT_FOUND).build();
             }
 
             if(user.getString("user_pwd").equals(password)){
