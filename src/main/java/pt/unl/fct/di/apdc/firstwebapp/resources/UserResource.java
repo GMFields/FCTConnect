@@ -11,13 +11,15 @@ import pt.unl.fct.di.apdc.firstwebapp.util.*;
 import com.google.gson.Gson;
 
 import java.util.logging.Logger;
+
+import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-
-
+@Path("/users")
 public class UserResource implements UserAPI {
-    private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+    //private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+    Datastore datastore = DatastoreOptions.newBuilder().setHost("http://localhost:8081").setProjectId("helical-ascent-385614").build().getService();
 
     KeyFactory userKeyFactory = datastore.newKeyFactory().setKind("Users");
     KeyFactory tokenKeyFactory = datastore.newKeyFactory().setKind("Token");
@@ -83,6 +85,7 @@ public class UserResource implements UserAPI {
         finally {
             if(txn.isActive()) {
                 txn.rollback();
+                return Response.status(Status.INTERNAL_SERVER_ERROR).build();
             }
         }
     }
@@ -99,7 +102,7 @@ public class UserResource implements UserAPI {
             Entity user = txn.get(userKey);
             if(user == null){
                 txn.rollback();
-                return Response.status(Status.NOT_FOUND).build();
+                return Response.status(Status.FORBIDDEN).build();
             }
 
             if(user.getString("user_pwd").equals(password)){
@@ -161,8 +164,10 @@ public class UserResource implements UserAPI {
     }
 
     @Override
-    public Response updateOwnUser(ProfileData data, AuthToken tokenObj) {
+    public Response updateOwnUser(ProfileData data) {
         LOG.fine("Attempting to update user :" + data.getName());
+
+        AuthToken tokenObj = data.getToken();
 
         Key userKey = userKeyFactory.newKey(tokenObj.getUsername());
         Key tokenKey = tokenKeyFactory.newKey(tokenObj.getTokenID());
