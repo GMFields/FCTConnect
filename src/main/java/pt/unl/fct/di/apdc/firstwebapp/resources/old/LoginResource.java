@@ -46,7 +46,9 @@ import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 		KeyFactory tokenKeyFactory = datastore.newKeyFactory().setKind("Token");
 		
 	
-		public LoginResource() {}
+		public LoginResource() {
+
+		}
 		
 		@POST
 		@Consumes(MediaType.APPLICATION_JSON)

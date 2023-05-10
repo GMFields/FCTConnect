@@ -44,7 +44,7 @@ public interface UserAPI {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    Response userLogin(@PathParam("username") String username, @QueryParam("password") String password);
+    Response userLogin(@QueryParam("username") String username, @QueryParam("password") String password);
 
     /**
      * Logouts a user

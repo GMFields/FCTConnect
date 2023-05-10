@@ -4,7 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5e849600-42ce-4297-a52f-e565245338d1" name="Changes" comment="" />
+    <list default="true" id="5e849600-42ce-4297-a52f-e565245338d1" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/pt/unl/fct/di/apdc/firstwebapp/api/UserAPI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pt/unl/fct/di/apdc/firstwebapp/api/UserAPI.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -32,8 +37,9 @@
   "keyToString": {
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "C:/Users/Afonso/IdeaProjects/DiscipulosAMD/src/main/java/pt/unl/fct/di/apdc/firstwebapp/resources",
+    "last_opened_file_path": "/Users/tiagofrancisco/Documents/Universidade/3_Ano/2_semestre/ADC/DiscipulosAMD",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -58,6 +64,7 @@
       <option name="presentableId" value="Default" />
       <updated>1683121750416</updated>
       <workItem from="1683121752696" duration="5651000" />
+      <workItem from="1683712830754" duration="1464000" />
     </task>
     <servers />
   </component>
