@@ -8,23 +8,24 @@ public class Authorization {
 	private static int GS = 4;
 	private static int SU = 5;
 
-
-
 	public Authorization() {}
 
+	public static boolean isDataFormatted(String username, String password, String name, String email){
+		return isValid(username, password, name, email) && isValidEmail(email) && isValidPassword(password);
+	}
 
-	public static boolean isValid(String username, String password, String name, String email) {
+	private static boolean isValid(String username, String password, String name, String email) {
 		//Verifies if a user doesn't have any null fields
 		return (username != null && password != null && name != null && email != null);
 	}
 
-	public static boolean isValidEmail(String email) {
+	private static boolean isValidEmail(String email) {
 		//Regular expression pattern to validate the email address
 		String emailPattern = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
 		return email != null && email.matches(emailPattern);
 	}
 
-	public static boolean isValidPassword(String password) {
+	private static boolean isValidPassword(String password) {
 		/* 	Regular expression pattern to validate the password.
 		 *  Password must contain at least 6 characters, including one upper case letter,
 		 *  one lower case letter, one number and one special character
