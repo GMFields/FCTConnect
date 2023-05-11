@@ -14,6 +14,8 @@ public class ProfileData {
 	public String occupation;
 	public String address;
 	public String nif;
+
+	private AuthToken token;
 	
 	public ProfileData() {}
 	
@@ -31,6 +33,23 @@ public class ProfileData {
 		this.occupation = occupation;
 		this.address = address;
 		this.nif = nif;	
+	}
+
+	public ProfileData(String email, String username, String password, String name, int role, String state, String profile, 
+			String landline, String phoneNumber, String occupation, String address, String nif, AuthToken token) {
+		this.email = email;
+		this.username = username;
+		this.password = password;
+		this.name = name;
+		this.role = role;
+		this.state = state;
+		this.profile = profile;
+		this.landline = landline;
+		this.phoneNumber = phoneNumber;
+		this.occupation = occupation;
+		this.address = address;
+		this.nif = nif;	
+		this.token = token;
 	}
 
 
@@ -128,6 +147,10 @@ public class ProfileData {
 
 	public void setNif(String nif) {
 		this.nif = nif;
+	}
+
+	public AuthToken getToken(){
+		return token;
 	}
 
 }

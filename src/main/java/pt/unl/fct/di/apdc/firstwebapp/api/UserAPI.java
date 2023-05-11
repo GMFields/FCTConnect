@@ -8,16 +8,29 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Path(UserAPI.PATH)
+//@Path(UserAPI.PATH)
 public interface UserAPI {
 
     String PATH = "/users";
+
+    /**
+     * 
+     * @param username
+     * @param password
+     * @return 200: the token of the user logged in;
+     *         404: if the user credential doesn't match any existing users;
+     *         403: if the token given doesn't match any existing token;
+     *         500: if there is a server error.
+     */
+    @POST
+    @Path("/login")
+    @Produces(MediaType.APPLICATION_JSON)
+    Response userLogin(@QueryParam("username") String username, @QueryParam("password") String password);
 
     /**
      * Registers a new user on the system
@@ -29,22 +42,9 @@ public interface UserAPI {
      *         500: if there is a server error.
      */
     @POST
+    @Path("/register")
     @Consumes(MediaType.APPLICATION_JSON)
     Response registerUser(ProfileData data);
-
-
-    /**
-     * Logins a user
-     * @param data the user data
-     * @return 200: the token of the user logged in;
-     *         404: if the user credential doesn't match any existing users;
-     *         403: if the token given doesn't match any existing token;
-     *         500: if there is a server error.
-     */
-    @POST
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    Response userLogin(@QueryParam("username") String username, @QueryParam("password") String password);
 
     /**
      * Logouts a user
@@ -53,8 +53,10 @@ public interface UserAPI {
      *         400: if the token has expired;
      *         500: if there was a server error.
      */
-     @POST
+     @DELETE
+     @Path("/logout")
      @Consumes(MediaType.APPLICATION_JSON)
+     @Produces(MediaType.APPLICATION_JSON)
      Response userLogout(AuthToken tokenObjStr);
 
     /**
@@ -67,9 +69,10 @@ public interface UserAPI {
      *          500: if there was a server error.
      */
      @PUT
+     @Path("/update")
      @Consumes(MediaType.APPLICATION_JSON)
      @Produces(MediaType.APPLICATION_JSON)
-     Response updateOwnUser(ProfileData data, AuthToken tokenObj);
+     Response updateOwnUser(ProfileData data);
 
     /**
      * Deletes the user's account
@@ -80,6 +83,8 @@ public interface UserAPI {
      *          500: if there was a server error.
      */
      @DELETE
+     @Path("/delete")
+     @Consumes(MediaType.APPLICATION_JSON)
      Response deleteAccount(AuthToken tokenObj);
 
 

@@ -7,16 +7,19 @@ import pt.unl.fct.di.apdc.firstwebapp.api.UserAPI;
 import org.apache.commons.codec.digest.DigestUtils;
 import pt.unl.fct.di.apdc.firstwebapp.util.*;
 
+
 import com.google.gson.Gson;
 
 import java.util.logging.Logger;
+
+import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-
-
+@Path("/users")
 public class UserResource implements UserAPI {
-    private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+    //private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+    Datastore datastore = DatastoreOptions.newBuilder().setHost("http://localhost:8081").setProjectId("helical-ascent-385614").build().getService();
 
     KeyFactory userKeyFactory = datastore.newKeyFactory().setKind("Users");
     KeyFactory tokenKeyFactory = datastore.newKeyFactory().setKind("Token");
@@ -36,9 +39,20 @@ public class UserResource implements UserAPI {
 
     @Override
     public Response registerUser(ProfileData data) {
-        if(!Authorization.isDataFormatted(data.getUsername(), data.getPassword(), data.getName(), data.getEmail()))
-            return Response.status(Status.BAD_REQUEST).build();
+        /* Deveria ser verificado do lado do cliente?
 
+        if(!Authorization.isValid(data.getUsername(), data.getPassword(), data.getName(), data.getEmail())) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(INVALID_LOGIN).build();
+        }
+
+        if(!Authorization.isValidEmail(data.getEmail())) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(INVALID_EMAIL).build();
+        }
+
+        if(!Authorization.isValidPassword(data.getPassword())) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(INVALID_PASSWORD).build();
+        }
+        */
         Key userKey = userKeyFactory.newKey(data.getUsername());
 
         Transaction txn = datastore.newTransaction();
@@ -71,6 +85,7 @@ public class UserResource implements UserAPI {
         finally {
             if(txn.isActive()) {
                 txn.rollback();
+                return Response.status(Status.INTERNAL_SERVER_ERROR).build();
             }
         }
     }
@@ -149,8 +164,10 @@ public class UserResource implements UserAPI {
     }
 
     @Override
-    public Response updateOwnUser(ProfileData data, AuthToken tokenObj) {
+    public Response updateOwnUser(ProfileData data) {
         LOG.fine("Attempting to update user :" + data.getName());
+
+        AuthToken tokenObj = data.getToken();
 
         Key userKey = userKeyFactory.newKey(tokenObj.getUsername());
         Key tokenKey = tokenKeyFactory.newKey(tokenObj.getTokenID());
