@@ -13,13 +13,16 @@ import com.google.gson.Gson;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 @Path("/users")
+@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 public class UserResource implements UserAPI {
-    //private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-    Datastore datastore = DatastoreOptions.newBuilder().setHost("http://localhost:8081").setProjectId("helical-ascent-385614").build().getService();
+    private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+    //Datastore datastore = DatastoreOptions.newBuilder().setHost("http://localhost:8081").setProjectId("helical-ascent-385614").build().getService();
 
     KeyFactory userKeyFactory = datastore.newKeyFactory().setKind("Users");
     KeyFactory tokenKeyFactory = datastore.newKeyFactory().setKind("Token");
@@ -79,8 +82,8 @@ public class UserResource implements UserAPI {
             return Response.status(Status.CREATED).entity(data).build(); //TODO @GMFields verificar se é preciso enviar "data" - método não tem tag @produces
         } catch(Exception e) {
             txn.rollback();
-			LOG.severe(e.getMessage());
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+            LOG.severe(e.getMessage());
+            return Response.status(Status.INTERNAL_SERVER_ERROR).build();
         }
         finally {
             if(txn.isActive()) {
@@ -113,24 +116,24 @@ public class UserResource implements UserAPI {
             AuthToken token = new AuthToken(username, 1);
             Key tokenKey = tokenKeyFactory.newKey(token.getTokenID()); //TODO @GMFields pode mudar a chave do token no futuro
             Entity tokenE = Entity.newBuilder(tokenKey).set("token_owner", username)
-                                                        .set("creation_date", String.valueOf(token.getCreationData()))
-                                                        .set("expiration_date", String.valueOf(token.getExpirationData()))
-                                                        .build();
+                    .set("creation_date", String.valueOf(token.getCreationData()))
+                    .set("expiration_date", String.valueOf(token.getExpirationData()))
+                    .build();
 
             txn.put(tokenE);
             LOG.fine("Created token " + token.getTokenID() + " bound to user " + username);
             txn.commit();
             return Response.ok().entity(tokenE).build();
         } catch(Exception e) {
-			txn.rollback();
-			LOG.severe(e.getMessage());
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-		} finally {
-			if(txn.isActive()){
-				txn.rollback();
-				return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-			}
-		}
+            txn.rollback();
+            LOG.severe(e.getMessage());
+            return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            if(txn.isActive()){
+                txn.rollback();
+                return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+            }
+        }
     }
 
     @Override
@@ -153,8 +156,8 @@ public class UserResource implements UserAPI {
             return Response.ok().build();
         } catch(Exception e) {
             txn.rollback();
-			LOG.severe(e.getMessage());
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+            LOG.severe(e.getMessage());
+            return Response.status(Status.INTERNAL_SERVER_ERROR).build();
         } finally {
             if (txn.isActive()) {
                 txn.rollback();
@@ -200,8 +203,8 @@ public class UserResource implements UserAPI {
             return Response.ok().entity(user).build(); //TODO @GMFields verificar do lado do cliente se está a receber o user em formato json
         } catch(Exception e) {
             txn.rollback();
-			LOG.severe(e.getMessage());
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+            LOG.severe(e.getMessage());
+            return Response.status(Status.INTERNAL_SERVER_ERROR).build();
         } finally {
             if (txn.isActive()) {
                 txn.rollback();
@@ -239,11 +242,11 @@ public class UserResource implements UserAPI {
             return Response.ok().build();
         } catch(Exception e) {
             txn.rollback();
-			LOG.severe(e.getMessage());
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+            LOG.severe(e.getMessage());
+            return Response.status(Status.INTERNAL_SERVER_ERROR).build();
         } finally{
             if (txn.isActive()) {
-               txn.rollback();
+                txn.rollback();
             }
         }
 

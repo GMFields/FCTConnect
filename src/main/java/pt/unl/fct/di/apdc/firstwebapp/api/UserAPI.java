@@ -15,12 +15,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 //@Path(UserAPI.PATH)
+
 public interface UserAPI {
 
     String PATH = "/users";
 
     /**
-     * 
+     *
      * @param username
      * @param password
      * @return 200: the token of the user logged in;
@@ -54,11 +55,11 @@ public interface UserAPI {
      *         400: if the token has expired;
      *         500: if there was a server error.
      */
-     @DELETE
-     @Path("/logout")
-     @Consumes(MediaType.APPLICATION_JSON)
-     @Produces(MediaType.APPLICATION_JSON)
-     Response userLogout(AuthToken tokenObjStr);
+    @DELETE
+    @Path("/logout")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    Response userLogout(AuthToken tokenObjStr);
 
     /**
      * Updates the users information
@@ -69,11 +70,11 @@ public interface UserAPI {
      *          404: if the user given doesn't match any existing user;
      *          500: if there was a server error.
      */
-     @PUT
-     @Path("/update")
-     @Consumes(MediaType.APPLICATION_JSON)
-     @Produces(MediaType.APPLICATION_JSON)
-     Response updateOwnUser(ProfileData data);
+    @PUT
+    @Path("/update")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    Response updateOwnUser(ProfileData data);
 
     /**
      * Deletes the user's account
@@ -83,10 +84,10 @@ public interface UserAPI {
      *          404: if the user given doesn't match any existing user;
      *          500: if there was a server error.
      */
-     @DELETE
-     @Path("/delete")
-     @Consumes(MediaType.APPLICATION_JSON)
-     Response deleteAccount(AuthToken tokenObj);
+    @DELETE
+    @Path("/delete")
+    @Consumes(MediaType.APPLICATION_JSON)
+    Response deleteAccount(AuthToken tokenObj);
 
 
 }
