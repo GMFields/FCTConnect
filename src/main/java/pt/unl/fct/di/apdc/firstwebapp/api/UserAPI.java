@@ -37,7 +37,8 @@ public interface UserAPI {
     /**
      * Registers a new user on the system
      * @param data the user
-     * @return 400: if the user enters an invalid email;
+     * @return 201: if the user was successfully registered;
+     *         400: if the user enters an invalid email;
      *              if the user enters an invalid password;
      *              if the user doesn't fill in the fields;
      *         409: if the user already exists;

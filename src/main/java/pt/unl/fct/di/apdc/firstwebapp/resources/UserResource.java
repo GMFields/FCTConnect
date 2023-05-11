@@ -27,11 +27,11 @@ public class UserResource implements UserAPI {
     KeyFactory userKeyFactory = datastore.newKeyFactory().setKind("Users");
     KeyFactory tokenKeyFactory = datastore.newKeyFactory().setKind("Token");
 
-    //private final Gson g = new Gson();
-    //private static String INVALID_LOGIN = "Missing or wrong parameter.";
-    //private static String INVALID_EMAIL = "Invalid email address";
-    //private static String INVALID_PASSWORD = "Invalid password";
-    //private static String ATTEMPTING_REGISTER = "Attempting to register the user: ";
+    private final Gson g = new Gson();
+    private static String INVALID_LOGIN = "Missing or wrong parameter.";
+    private static String INVALID_EMAIL = "Invalid email address";
+    private static String INVALID_PASSWORD = "Invalid password";
+    private static String ATTEMPTING_REGISTER = "Attempting to register the user: ";
     private static String USER_EXISTS = "User already exists";
     private static long USER_ROLE = 1;
     private static String INATIVO_STATE = "INATIVO";
@@ -42,7 +42,7 @@ public class UserResource implements UserAPI {
 
     @Override
     public Response registerUser(ProfileData data) {
-        /* Deveria ser verificado do lado do cliente?
+
 
         if(!Authorization.isValid(data.getUsername(), data.getPassword(), data.getName(), data.getEmail())) {
             return Response.status(Response.Status.BAD_REQUEST).entity(INVALID_LOGIN).build();
@@ -55,7 +55,7 @@ public class UserResource implements UserAPI {
         if(!Authorization.isValidPassword(data.getPassword())) {
             return Response.status(Response.Status.BAD_REQUEST).entity(INVALID_PASSWORD).build();
         }
-        */
+
         Key userKey = userKeyFactory.newKey(data.getUsername());
 
         Transaction txn = datastore.newTransaction();
@@ -95,45 +95,50 @@ public class UserResource implements UserAPI {
 
     @Override
     public Response userLogin(String username, String password) {
-        LOG.fine("Attempting to login user: " + username);
+        LOG.fine("Attempt to login user: " + username);
 
         Key userKey = userKeyFactory.newKey(username);
 
-        Transaction txn = datastore.newTransaction();
-        try{
+        // Retrieve the entity using the key
+        Entity user = datastore.get(userKey);
 
-            Entity user = txn.get(userKey);
-            if(user == null){
+        Transaction txn = datastore.newTransaction();
+        try {
+            if (user != null) {
+                String hashedPWD = user.getString("user_pwd");
+                if (hashedPWD.equals(DigestUtils.sha512Hex(password))) {
+                    int userRole = (int) user.getLong("user_role");
+                    AuthToken token = new AuthToken(username, userRole);
+
+                    // Create a new token entity
+                    Key tokenkey = tokenKeyFactory.newKey(token.getTokenID());
+
+                    Entity tokenid = Entity.newBuilder(tokenkey)
+                            .set("username", token.getUsername())
+                            .set("user_role", token.getRole())
+                            .set("token_creationdata", token.creationData)
+                            .set("token_expirationdata", token.expirationData)
+                            .build();
+                    txn.add(tokenid);
+
+                    txn.commit();
+                    return Response.ok(g.toJson(token)).build();
+                } else {
+                    txn.rollback();
+                    return Response.status(Status.FORBIDDEN).build();
+                }
+            } else {
                 txn.rollback();
+                LOG.warning("Failed login attempt! User " + username + " does not exist");
                 return Response.status(Status.NOT_FOUND).build();
             }
-
-            if(user.getString("user_pwd").equals(password)){
-                txn.rollback();
-                return Response.status(Status.FORBIDDEN).build();
-            }
-
-            AuthToken token = new AuthToken(username, 1);
-            Key tokenKey = tokenKeyFactory.newKey(token.getTokenID()); //TODO @GMFields pode mudar a chave do token no futuro
-            Entity tokenE = Entity.newBuilder(tokenKey).set("token_owner", username)
-                    .set("creation_date", String.valueOf(token.getCreationData()))
-                    .set("expiration_date", String.valueOf(token.getExpirationData()))
-                    .build();
-
-            txn.put(tokenE);
-            LOG.fine("Created token " + token.getTokenID() + " bound to user " + username);
-            txn.commit();
-            return Response.ok().entity(tokenE).build();
-        } catch(Exception e) {
-            txn.rollback();
-            LOG.severe(e.getMessage());
-            return Response.status(Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            if(txn.isActive()){
+            if (txn.isActive()) {
                 txn.rollback();
-                return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
             }
         }
+
     }
 
     @Override
