@@ -15,8 +15,11 @@ import java.util.logging.Logger;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.Context;
+
 
 @Path("/users")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -27,16 +30,21 @@ public class UserResource implements UserAPI {
     KeyFactory userKeyFactory = datastore.newKeyFactory().setKind("Users");
     KeyFactory tokenKeyFactory = datastore.newKeyFactory().setKind("Token");
 
+    KeyFactory emailKeyFactory = datastore.newKeyFactory().setKind("Email");
+
     private final Gson g = new Gson();
-    private static String INVALID_LOGIN = "Missing or wrong parameter.";
-    private static String INVALID_EMAIL = "Invalid email address";
-    private static String INVALID_PASSWORD = "Invalid password";
-    private static String ATTEMPTING_REGISTER = "Attempting to register the user: ";
-    private static String USER_EXISTS = "User already exists";
-    private static long USER_ROLE = 1;
-    private static String INATIVO_STATE = "INATIVO";
+    private static final String INVALID_LOGIN = "Missing or wrong parameter.";
+    private static final String INVALID_EMAIL = "Invalid email address";
+    private static final String INVALID_PASSWORD = "Invalid password";
+    private static final String ATTEMPTING_REGISTER = "Attempting to register the user: ";
+    private static final String USER_EXISTS = "User already exists";
+    private static final long USER_ROLE =   1;
+    private static final String INATIVO_STATE = "INATIVO";
 
     private static final Logger LOG = Logger.getLogger(UserResource.class.getName());
+
+  //  @Context
+   // private Request requestContext;
 
     public UserResource() {}
 
@@ -56,10 +64,31 @@ public class UserResource implements UserAPI {
             return Response.status(Response.Status.BAD_REQUEST).entity(INVALID_PASSWORD).build();
         }
 
-        Key userKey = userKeyFactory.newKey(data.getUsername());
-
         Transaction txn = datastore.newTransaction();
+
+        Key emailKey = emailKeyFactory.newKey(data.getEmail());
+
         try {
+            Entity email = txn.get(emailKey);
+
+            if(email != null){
+                txn.rollback();
+                return Response.status(Status.CONFLICT).entity("Email already exists.").build();
+            }
+            else {
+                email = Entity.newBuilder(emailKey)
+                        .set("user_username", data.getUsername())
+                        .build();
+                txn.add(email);
+                LOG.info("Email entity created");
+            }
+
+            LOG.info("Deu erro antes de ir buscar a userKey");
+
+            Key userKey = userKeyFactory.newKey(email.getString("user_username"));
+
+            LOG.info("Deu erro depois de ir buscar a userKey");
+
             Entity user = txn.get(userKey);
 
             if(user != null){
@@ -94,10 +123,14 @@ public class UserResource implements UserAPI {
     }
 
     @Override
-    public Response userLogin(String username, String password) {
-        LOG.fine("Attempt to login user: " + username);
+    public Response userLogin(String email, String password) {
+        LOG.fine("Attempt to login user with e-mail: " + email);
 
-        Key userKey = userKeyFactory.newKey(username);
+        Key emailKey = emailKeyFactory.newKey(email);
+
+        Entity emailEntity = datastore.get(emailKey);
+
+        Key userKey = userKeyFactory.newKey(emailEntity.getString("user_username"));
 
         // Retrieve the entity using the key
         Entity user = datastore.get(userKey);
@@ -108,7 +141,7 @@ public class UserResource implements UserAPI {
                 String hashedPWD = user.getString("user_pwd");
                 if (hashedPWD.equals(DigestUtils.sha512Hex(password))) {
                     int userRole = (int) user.getLong("user_role");
-                    AuthToken token = new AuthToken(username, userRole);
+                    AuthToken token = new AuthToken(emailEntity.getString("user_username"), userRole);
 
                     // Create a new token entity
                     Key tokenkey = tokenKeyFactory.newKey(token.getTokenID());
@@ -129,7 +162,7 @@ public class UserResource implements UserAPI {
                 }
             } else {
                 txn.rollback();
-                LOG.warning("Failed login attempt! User " + username + " does not exist");
+                LOG.warning("Failed login attempt! User with email: " + email + " does not exist");
                 return Response.status(Status.NOT_FOUND).build();
             }
         } finally {

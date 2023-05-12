@@ -32,7 +32,7 @@ public interface UserAPI {
     @POST
     @Path("/login")
     @Produces(MediaType.APPLICATION_JSON)
-    Response userLogin(@QueryParam("username") String username, @QueryParam("password") String password);
+    Response userLogin(@QueryParam("username") String email, @QueryParam("password") String password);
 
     /**
      * Registers a new user on the system
