@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:discipulos_flutter/presentation/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:discipulos_flutter/constants/constants.dart';
@@ -248,7 +250,7 @@ Widget _buildRegisterBtn() {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(30.0),
             ),
-            backgroundColor: Colors.white,
+            backgroundColor: Color(0xFFEDEDED),
           ),
           child: const Text(
             'REGISTER',
@@ -346,28 +348,44 @@ Future<void> registerButtonPressed(BuildContext context, String name, String use
         },
       );
     }
-
-  else if (await Authentication.registerUser(name, username, email, password)) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => Login()),
-      );
-    } else {
-      // Wrong credentials
-      showDialog(
-        context: context,
-        builder: (context) {
+    else {
+    String res = await Authentication.registerUser(name, username, email, password);
+    switch(res) {
+      case "success":
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => Login()),
+        );
+        break;
+      case "user already exists": 
+        await showDialog(
+          context: context,
+          builder: (context) {
+            return const AlertDialog(
+              content: Text("Username already exists!"),
+            );
+          },
+        );
+        break;
+      case "email already exists":
+      await showDialog(context: context, builder: (context) {
+        return const AlertDialog(
+          content: Text("Email already exists!"),
+        );
+      });
+      break;
+      case "error": {
+        await showDialog(context: context, builder: (context) {
           return const AlertDialog(
-            content: Text("Wrong Password!"),
+            content: Text("Something went wrong!"),
           );
-        },
-      );
-    }
+        });
+      }
+    } 
+  }
 
   }
 
-  // Rest of the code
-  // ...
 
 @override
 Widget build(BuildContext context) {
@@ -381,6 +399,8 @@ Widget build(BuildContext context) {
               fit: BoxFit.cover,
             ),
           ),
+        width: double.infinity,
+        height: 60,
         ),
         Container(
           decoration: BoxDecoration(

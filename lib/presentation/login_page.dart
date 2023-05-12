@@ -135,7 +135,7 @@ Widget _buildLoginBtn() {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(30.0),
             ),
-            backgroundColor: Colors.white,
+            backgroundColor: Color(0xFFEDEDED),
           ),
           child: const Text(
             'LOGIN',
@@ -238,6 +238,8 @@ Widget build(BuildContext context) {
               fit: BoxFit.cover,
             ),
           ),
+          width: double.infinity,
+          height: 130,
         ),
         Container(
           decoration: BoxDecoration(
