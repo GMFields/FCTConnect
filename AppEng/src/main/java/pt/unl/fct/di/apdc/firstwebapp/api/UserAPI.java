@@ -11,6 +11,8 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -22,7 +24,7 @@ public interface UserAPI {
 
     /**
      *
-     * @param username
+     * @param email
      * @param password
      * @return 200: the token of the user logged in;
      *         404: if the user credential doesn't match any existing users;
@@ -32,7 +34,7 @@ public interface UserAPI {
     @POST
     @Path("/login")
     @Produces(MediaType.APPLICATION_JSON)
-    Response userLogin(@QueryParam("username") String username, @QueryParam("password") String password);
+    Response userLogin(@Context HttpHeaders headers, @QueryParam("email") String email, @QueryParam("password") String password);
 
     /**
      * Registers a new user on the system
@@ -51,7 +53,7 @@ public interface UserAPI {
 
     /**
      * Logouts a user
-     * @param tokenObj Token object to authenticate the user
+     * @param tokenObjStr Token object to authenticate the user
      * @return 200: if the user seccessfully logged out;
      *         400: if the token has expired;
      *         500: if there was a server error.

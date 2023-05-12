@@ -10,7 +10,7 @@
 		<welcome-file>index.html</welcome-file>
 	</welcome-file-list>
 
-	
+
 
 	<servlet>
 		<servlet-name>MainServices</servlet-name>
