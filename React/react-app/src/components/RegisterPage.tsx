@@ -3,7 +3,6 @@ import "./LoginPage.css";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faCrow } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Link } from "react-router-dom";
 
 function LoginPage() {
   useEffect(() => {
@@ -14,6 +13,8 @@ function LoginPage() {
 
   const [password, setPassword] = useState("");
   const [validPassword, setValidPassword] = useState(true);
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordsMatch, setPasswordsMatch] = useState(true);
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -22,6 +23,13 @@ function LoginPage() {
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
     setValidPassword(validatePassword(e.target.value));
+  };
+
+  const handleConfirmPasswordChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setConfirmPassword(e.target.value);
+    setPasswordsMatch(e.target.value === password);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -73,7 +81,7 @@ function LoginPage() {
                   className="fw-normal mb-3 pb-3"
                   style={{ letterSpacing: "1px" }}
                 >
-                  Log in
+                  Sign in
                 </h3>
                 <div className="form-outline mb-4">
                   <input
@@ -104,6 +112,32 @@ function LoginPage() {
                     </div>
                   )}
                 </div>
+                <div className="form-outline mb-4">
+                  <input
+                    type="password"
+                    id="form2Example28"
+                    className={`form-control form-control-lg ${
+                      !passwordsMatch ? "is-invalid" : ""
+                    }`}
+                    placeholder="Confirm Password"
+                    value={confirmPassword}
+                    onChange={handleConfirmPasswordChange}
+                  />
+
+                  {password.length > 0 && (
+                    <div
+                      className={`${
+                        password === confirmPassword
+                          ? "valid-feedback"
+                          : "invalid-feedback"
+                      }`}
+                    >
+                      {password === confirmPassword
+                        ? "Passwords match!"
+                        : "Passwords do not match. Try again."}
+                    </div>
+                  )}
+                </div>
                 <div className="pt-1 mb-4">
                   <button
                     className="btn btn-info btn-lg btn-block btn-blue"
@@ -112,17 +146,6 @@ function LoginPage() {
                     Login
                   </button>
                 </div>
-                <p className="small mb-5 pb-lg-2">
-                  <a className="text-muted" href="#!">
-                    Forgot password?
-                  </a>
-                </p>
-                <p>
-                  Don't have an account?{" "}
-                  <Link to="/register" className="link-blue">
-                    Register here
-                  </Link>
-                </p>
               </form>
             </div>
           </div>

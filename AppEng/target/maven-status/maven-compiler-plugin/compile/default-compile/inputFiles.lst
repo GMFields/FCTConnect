@@ -1,8 +1,8 @@
-/Users/tiagofrancisco/Documents/Universidade/3_Ano/2_semestre/ADC/DiscipulosAMD/src/main/java/pt/unl/fct/di/apdc/firstwebapp/util/ProfileData.java
-/Users/tiagofrancisco/Documents/Universidade/3_Ano/2_semestre/ADC/DiscipulosAMD/src/main/java/pt/unl/fct/di/apdc/firstwebapp/api/UserAPI.java
-/Users/tiagofrancisco/Documents/Universidade/3_Ano/2_semestre/ADC/DiscipulosAMD/src/main/java/pt/unl/fct/di/apdc/firstwebapp/util/PasswordData.java
-/Users/tiagofrancisco/Documents/Universidade/3_Ano/2_semestre/ADC/DiscipulosAMD/src/main/java/pt/unl/fct/di/apdc/firstwebapp/util/AuthToken.java
-/Users/tiagofrancisco/Documents/Universidade/3_Ano/2_semestre/ADC/DiscipulosAMD/src/main/java/pt/unl/fct/di/apdc/firstwebapp/util/LoginData.java
-/Users/tiagofrancisco/Documents/Universidade/3_Ano/2_semestre/ADC/DiscipulosAMD/src/main/java/pt/unl/fct/di/apdc/firstwebapp/util/Authorization.java
-/Users/tiagofrancisco/Documents/Universidade/3_Ano/2_semestre/ADC/DiscipulosAMD/src/main/java/pt/unl/fct/di/apdc/firstwebapp/resources/UserResource.java
-/Users/tiagofrancisco/Documents/Universidade/3_Ano/2_semestre/ADC/DiscipulosAMD/src/main/java/pt/unl/fct/di/apdc/firstwebapp/util/TokenClass.java
+/Users/tiagofrancisco/Documents/Universidade/3_Ano/2_semestre/ADC/DiscipulosAMD/AppEng/src/main/java/pt/unl/fct/di/apdc/firstwebapp/util/AuthToken.java
+/Users/tiagofrancisco/Documents/Universidade/3_Ano/2_semestre/ADC/DiscipulosAMD/AppEng/src/main/java/pt/unl/fct/di/apdc/firstwebapp/resources/UserResource.java
+/Users/tiagofrancisco/Documents/Universidade/3_Ano/2_semestre/ADC/DiscipulosAMD/AppEng/src/main/java/pt/unl/fct/di/apdc/firstwebapp/util/ProfileData.java
+/Users/tiagofrancisco/Documents/Universidade/3_Ano/2_semestre/ADC/DiscipulosAMD/AppEng/src/main/java/pt/unl/fct/di/apdc/firstwebapp/api/UserAPI.java
+/Users/tiagofrancisco/Documents/Universidade/3_Ano/2_semestre/ADC/DiscipulosAMD/AppEng/src/main/java/pt/unl/fct/di/apdc/firstwebapp/util/LoginData.java
+/Users/tiagofrancisco/Documents/Universidade/3_Ano/2_semestre/ADC/DiscipulosAMD/AppEng/src/main/java/pt/unl/fct/di/apdc/firstwebapp/util/TokenClass.java
+/Users/tiagofrancisco/Documents/Universidade/3_Ano/2_semestre/ADC/DiscipulosAMD/AppEng/src/main/java/pt/unl/fct/di/apdc/firstwebapp/util/Authorization.java
+/Users/tiagofrancisco/Documents/Universidade/3_Ano/2_semestre/ADC/DiscipulosAMD/AppEng/src/main/java/pt/unl/fct/di/apdc/firstwebapp/util/PasswordData.java
