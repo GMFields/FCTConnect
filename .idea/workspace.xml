@@ -4,11 +4,24 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5e849600-42ce-4297-a52f-e565245338d1" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
+    <list default="true" id="5e849600-42ce-4297-a52f-e565245338d1" name="Changes" comment="API update. Login and Regist">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/pt/unl/fct/di/apdc/firstwebapp/api/UserAPI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pt/unl/fct/di/apdc/firstwebapp/api/UserAPI.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/pt/unl/fct/di/apdc/firstwebapp/resources/UserResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pt/unl/fct/di/apdc/firstwebapp/resources/UserResource.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LICENSE" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/pt/unl/fct/di/apdc/firstwebapp/api/UserAPI.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/pt/unl/fct/di/apdc/firstwebapp/resources/UserResource.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/pt/unl/fct/di/apdc/firstwebapp/util/AuthToken.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/pt/unl/fct/di/apdc/firstwebapp/util/Authorization.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/pt/unl/fct/di/apdc/firstwebapp/util/LoginData.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/pt/unl/fct/di/apdc/firstwebapp/util/PasswordData.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/pt/unl/fct/di/apdc/firstwebapp/util/ProfileData.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/pt/unl/fct/di/apdc/firstwebapp/util/TokenClass.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/webapp/META-INF/MANIFEST.MF" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/webapp/WEB-INF/appengine-web.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/webapp/WEB-INF/logging.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/webapp/WEB-INF/web.xml" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,7 +82,16 @@
       <workItem from="1683733631077" duration="2000" />
       <workItem from="1683733636721" duration="735000" />
       <workItem from="1683797714845" duration="1375000" />
+      <workItem from="1683812480683" duration="4607000" />
     </task>
+    <task id="LOCAL-00001" summary="API update. Login and Regist">
+      <created>1683819438633</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1683819438633</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -85,5 +107,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="API update. Login and Regist" />
+    <option name="LAST_COMMIT_MESSAGE" value="API update. Login and Regist" />
   </component>
 </project>
