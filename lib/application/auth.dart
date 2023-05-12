@@ -56,6 +56,11 @@ static Future<bool> fetchAuthenticateGAE(String email, String password) async {
     url,
     headers: <String, String>{
       'Content-Type': 'application/json',
+      'Access-Control-Allow-Headers':
+          'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+        'Access-Control-Allow-Methods': 'OPTIONS,POST',
+        'Access-Control-Allow-Origin': '*',
+        'X-Requested-With': '*',
     },
   );
 

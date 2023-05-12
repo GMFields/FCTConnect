@@ -43,7 +43,7 @@ Widget _buildEmail() {
             controller: emailController,
             keyboardType: TextInputType.emailAddress,
             style: const TextStyle(
-              color: Colors.white,
+              color: Colors.black,
               fontFamily: 'RobotoSlab',
             ),
             decoration: InputDecoration(
@@ -51,7 +51,7 @@ Widget _buildEmail() {
               contentPadding: const EdgeInsets.only(top: 14.0),
               prefixIcon: const Icon(
                 Icons.email,
-                color: Colors.white,
+                color: Colors.black,
               ),
               hintText: 'Enter your Email',
               hintStyle: kHintTextStyle,
@@ -85,7 +85,7 @@ Widget _buildPassword() {
             enableSuggestions: false,
             autocorrect: false,
             style: const TextStyle(
-              color: Colors.white,
+              color: Colors.black,
               fontFamily: 'RobotoSlab',
             ),
             decoration: InputDecoration(
@@ -93,7 +93,7 @@ Widget _buildPassword() {
               contentPadding: const EdgeInsets.only(top: 14.0),
               prefixIcon: const Icon(
                 Icons.password,
-                color: Colors.white,
+                color: Colors.black,
               ),
               hintText: 'Enter your password',
               hintStyle: kHintTextStyle,
@@ -140,7 +140,7 @@ Widget _buildLoginBtn() {
           child: const Text(
             'LOGIN',
             style: TextStyle(
-              color: Color(0xFF527DAA),
+              color: Colors.black,
               letterSpacing: 1.5,
               fontSize: 18.0,
               fontWeight: FontWeight.bold,
@@ -169,7 +169,7 @@ Widget _buildLoginBtn() {
             TextSpan(
               text: 'Don\'t have an Account? ',
               style: TextStyle(
-                color: Colors.white,
+                color: Colors.black,
                 fontSize: 18.0,
                 fontWeight: FontWeight.w400,
               ),
@@ -177,7 +177,7 @@ Widget _buildLoginBtn() {
             TextSpan(
               text: 'Sign Up',
               style: TextStyle(
-                color: Colors.white,
+                color: Colors.black,
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
               ),
@@ -193,19 +193,8 @@ Widget _buildLoginBtn() {
  Future<void> logInButtonPressed(BuildContext context, String email, String password) async {
     bool emailCompliant = Authentication.isEmailCompliant(email);
     bool pwCompliant = Authentication.isPasswordCompliant(password);
-  /*
-    if (!pwCompliant && !emailCompliant) {
-      await showDialog(
-        context: context,
-        builder: (context) {
-          return const AlertDialog(
-            content: Text("Invalid information!"),
-          );
-        },
-      );
-    }
-
-    else if (!pwCompliant) {
+  
+    if (!pwCompliant) {
       await showDialog(
         context: context,
         builder: (context) {
@@ -216,25 +205,14 @@ Widget _buildLoginBtn() {
       );
     }
 
-   else  if (!emailCompliant) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return const AlertDialog(
-            content: Text("Invalid email!"),
-          );
-        },
-      );
-    }
-*/
-   /* else */ if (await Authentication.loginUser(email, password)) {
+ 
+  else if (await Authentication.loginUser(email, password)) {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const MainScreen()),
       );
     } else {
       // Wrong credentials
-      // ignore: use_build_context_synchronously
       showDialog(
         context: context,
         builder: (context) {
@@ -248,38 +226,40 @@ Widget _buildLoginBtn() {
 
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-     body: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-              Color(0xFFBBE1FA),
-              Color(0xFF3282B8),
-              Color(0xFF0F4C75),
-              Color(0xFF1B262C),
-              ],
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    body: Stack(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/FCT.png'), // Replace 'assets/images/FCT.png' with the path to your background image
+              fit: BoxFit.cover,
             ),
           ),
-          width: double.infinity,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget> [
-              const Padding(
-              padding: EdgeInsets.only(top: 80),
-              child: Text("Sign In",
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w500,
-                fontFamily: 'RobotoSlab',
-                color: Colors.white,
+        ),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.4),
+          ),
+        ),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(top: 80),
+              child: Text(
+                "Sign In",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w500,
+                  fontFamily: 'RobotoSlab',
+                  color: Colors.black,
                 ),
               ),
-             ),
-             const SizedBox(height: 30.0),
+            ),
+            const SizedBox(height: 30.0),
             _buildEmail(),
             const SizedBox(height: 30.0),
             _buildPassword(),
@@ -287,9 +267,11 @@ Widget _buildLoginBtn() {
             _buildLoginBtn(),
             const SizedBox(height: 50.0),
             _buildSignupBtn(),
-            ],
-          )
+          ],
         ),
-      );
-  }
+      ],
+    ),
+  );
+}
+
   }

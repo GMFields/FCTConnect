@@ -46,7 +46,7 @@ class _RegisterPageState extends State<RegisterPage> {
               controller: nameController,
               keyboardType: TextInputType.name,
               style: const TextStyle(
-                color: Colors.white,
+                color: Colors.black,
                 fontFamily: 'RobotoSlab',
               ),
               decoration: InputDecoration(
@@ -54,7 +54,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 contentPadding: const EdgeInsets.only(top: 12.0),
                 prefixIcon: const Icon(
                   Icons.person,
-                  color: Colors.white,
+                  color: Colors.black,
                 ),
                 hintText: 'Enter your name',
                 hintStyle: kHintTextStyle,
@@ -85,7 +85,7 @@ class _RegisterPageState extends State<RegisterPage> {
               controller: usernameController,
               keyboardType: TextInputType.name,
               style: const TextStyle(
-                color: Colors.white,
+                color: Colors.black,
                 fontFamily: 'RobotoSlab',
               ),
               decoration: InputDecoration(
@@ -93,7 +93,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 contentPadding: const EdgeInsets.only(top: 12.0),
                 prefixIcon: const Icon(
                   Icons.person_outline_rounded,
-                  color: Colors.white,
+                  color: Colors.black,
                 ),
                 hintText: 'Enter your username',
                 hintStyle: kHintTextStyle,
@@ -124,7 +124,7 @@ class _RegisterPageState extends State<RegisterPage> {
               controller: emailController,
               keyboardType: TextInputType.emailAddress,
               style: const TextStyle(
-                color: Colors.white,
+                color: Colors.black,
                 fontFamily: 'RobotoSlab',
               ),
               decoration: InputDecoration(
@@ -132,7 +132,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 contentPadding: const EdgeInsets.only(top: 12.0),
                 prefixIcon: const Icon(
                   Icons.email,
-                  color: Colors.white,
+                  color: Colors.black,
                 ),
                 hintText: 'Enter your email',
                 hintStyle: kHintTextStyle,
@@ -166,7 +166,7 @@ Widget _buildPassword() {
             enableSuggestions: false,
             autocorrect: false,
             style: const TextStyle(
-              color: Colors.white,
+              color: Colors.black,
               fontFamily: 'RobotoSlab',
             ),
             decoration: InputDecoration(
@@ -174,7 +174,7 @@ Widget _buildPassword() {
               contentPadding: const EdgeInsets.only(top: 12.0),
               prefixIcon: const Icon(
                 Icons.password,
-                color: Colors.white,
+                color: Colors.black,
               ),
               hintText: 'Enter your password',
               hintStyle: kHintTextStyle,
@@ -208,7 +208,7 @@ Widget _buildPasswordConfirmation() {
             enableSuggestions: false,
             autocorrect: false,
             style: const TextStyle(
-              color: Colors.white,
+              color: Colors.black,
               fontFamily: 'RobotoSlab',
             ),
             decoration: InputDecoration(
@@ -216,7 +216,7 @@ Widget _buildPasswordConfirmation() {
               contentPadding: const EdgeInsets.only(top: 12.0),
               prefixIcon: const Icon(
                 Icons.password,
-                color: Colors.white,
+                color: Colors.black,
               ),
               hintText: 'Confirm your password',
               hintStyle: kHintTextStyle,
@@ -253,7 +253,7 @@ Widget _buildRegisterBtn() {
           child: const Text(
             'REGISTER',
             style: TextStyle(
-              color: Color(0xFF527DAA),
+              color: Colors.black,
               letterSpacing: 1.5,
               fontSize: 18.0,
               fontWeight: FontWeight.bold,
@@ -280,7 +280,7 @@ Widget _buildSigninBTN() {
             TextSpan(
               text: 'Already have an Account? ',
               style: TextStyle(
-                color: Colors.white,
+                color: Colors.black,
                 fontSize: 18.0,
                 fontWeight: FontWeight.w400,
               ),
@@ -288,7 +288,7 @@ Widget _buildSigninBTN() {
             TextSpan(
               text: 'Sign In',
               style: TextStyle(
-                color: Colors.white,
+                color: Colors.black,
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
               ),
@@ -372,52 +372,55 @@ Future<void> registerButtonPressed(BuildContext context, String name, String use
 @override
 Widget build(BuildContext context) {
   return Scaffold(
-    body: Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFFBBE1FA),
-            Color(0xFF3282B8),
-            Color(0xFF0F4C75),
-            Color(0xFF1B262C),
-          ],
-        ),
-      ),
-      width: double.infinity,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(top: 25),
-            child: Text(
-              "Register",
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w500,
-                fontFamily: 'RobotoSlab',
-                color: Colors.white,
-              ),
+    body: Stack(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/FCT.png'), 
+              fit: BoxFit.cover,
             ),
           ),
-          const SizedBox(height: 5.0),
-          _buildName(),
-          _buildUserName(),
-          const SizedBox(height: 5.0),
-          _buildEmail(),
-          const SizedBox(height: 5.0),
-          _buildPassword(),
-          const SizedBox(height: 5.0),
-          _buildPasswordConfirmation(),
-          const SizedBox(height: 5.0),
-          _buildRegisterBtn(),
-          const SizedBox(height: 30.0),
-          _buildSigninBTN(),
-        ],
-      ),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.4),
+          ),
+        ),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(top: 25),
+              child: Text(
+                "Register",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w500,
+                  fontFamily: 'RobotoSlab',
+                  color: Colors.black,
+                ),
+              ),
+            ),
+            const SizedBox(height: 5.0),
+            _buildName(),
+            _buildUserName(),
+            const SizedBox(height: 5.0),
+            _buildEmail(),
+            const SizedBox(height: 5.0),
+            _buildPassword(),
+            const SizedBox(height: 5.0),
+            _buildPasswordConfirmation(),
+            const SizedBox(height: 5.0),
+            _buildRegisterBtn(),
+            const SizedBox(height: 30.0),
+            _buildSigninBTN(),
+          ],
+        ),
+      ],
     ),
   );
 }
+
 
 }
