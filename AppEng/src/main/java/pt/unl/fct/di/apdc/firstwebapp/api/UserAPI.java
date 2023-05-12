@@ -22,7 +22,7 @@ public interface UserAPI {
 
     /**
      *
-     * @param username
+     * @param email
      * @param password
      * @return 200: the token of the user logged in;
      *         404: if the user credential doesn't match any existing users;
@@ -32,7 +32,7 @@ public interface UserAPI {
     @POST
     @Path("/login")
     @Produces(MediaType.APPLICATION_JSON)
-    Response userLogin(@QueryParam("username") String email, @QueryParam("password") String password);
+    Response userLogin(@QueryParam("email") String email, @QueryParam("password") String password);
 
     /**
      * Registers a new user on the system

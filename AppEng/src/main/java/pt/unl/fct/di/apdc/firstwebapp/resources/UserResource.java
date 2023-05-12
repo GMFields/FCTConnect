@@ -38,6 +38,8 @@ public class UserResource implements UserAPI {
     private static final String INVALID_PASSWORD = "Invalid password";
     private static final String ATTEMPTING_REGISTER = "Attempting to register the user: ";
     private static final String USER_EXISTS = "User already exists";
+    private static final String EMAIL_EXISTS = "Email already exists";
+    private static final String USER_DOESNT_EXIST = "User doesn't exist";
     private static final long USER_ROLE =   1;
     private static final String INATIVO_STATE = "INATIVO";
 
@@ -50,7 +52,7 @@ public class UserResource implements UserAPI {
 
     @Override
     public Response registerUser(ProfileData data) {
-
+        LOG.info(ATTEMPTING_REGISTER + data.getUsername());
 
         if(!Authorization.isValid(data.getUsername(), data.getPassword(), data.getName(), data.getEmail())) {
             return Response.status(Response.Status.BAD_REQUEST).entity(INVALID_LOGIN).build();
@@ -73,7 +75,7 @@ public class UserResource implements UserAPI {
 
             if(email != null){
                 txn.rollback();
-                return Response.status(Status.CONFLICT).entity("Email already exists.").build();
+                return Response.status(Status.CONFLICT).entity(EMAIL_EXISTS).build();
             }
             else {
                 email = Entity.newBuilder(emailKey)
@@ -83,11 +85,7 @@ public class UserResource implements UserAPI {
                 LOG.info("Email entity created");
             }
 
-            LOG.info("Deu erro antes de ir buscar a userKey");
-
             Key userKey = userKeyFactory.newKey(email.getString("user_username"));
-
-            LOG.info("Deu erro depois de ir buscar a userKey");
 
             Entity user = txn.get(userKey);
 
@@ -124,16 +122,28 @@ public class UserResource implements UserAPI {
 
     @Override
     public Response userLogin(String email, String password) {
-        LOG.fine("Attempt to login user with e-mail: " + email);
+        LOG.info("Attempt to login user with e-mail: " + email);
 
         Key emailKey = emailKeyFactory.newKey(email);
 
         Entity emailEntity = datastore.get(emailKey);
 
+
+        if (emailEntity == null) {
+            LOG.info("Failed login attempt! User with email: " + email + " does not exist");
+            return Response.status(Status.NOT_FOUND).build();
+        }
+
         Key userKey = userKeyFactory.newKey(emailEntity.getString("user_username"));
+
+        if (userKey == null) {
+            LOG.warning("Failed login attempt! User with email: " + email + " does not exist");
+            return Response.status(Status.NOT_FOUND).build();
+        }
 
         // Retrieve the entity using the key
         Entity user = datastore.get(userKey);
+
 
         Transaction txn = datastore.newTransaction();
         try {
@@ -171,7 +181,6 @@ public class UserResource implements UserAPI {
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
             }
         }
-
     }
 
     @Override
