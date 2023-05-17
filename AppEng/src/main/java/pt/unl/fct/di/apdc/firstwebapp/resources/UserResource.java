@@ -3,6 +3,7 @@ package pt.unl.fct.di.apdc.firstwebapp.resources;
 import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.*;
 
+import com.google.gson.Gson;
 import pt.unl.fct.di.apdc.firstwebapp.api.UserAPI;
 import org.apache.commons.codec.digest.DigestUtils;
 import pt.unl.fct.di.apdc.firstwebapp.util.*;
