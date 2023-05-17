@@ -39,20 +39,10 @@ public class UserResource implements UserAPI {
 
     @Override
     public Response registerUser(ProfileData data) {
-        /* Deveria ser verificado do lado do cliente?
 
-        if(!Authorization.isValid(data.getUsername(), data.getPassword(), data.getName(), data.getEmail())) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(INVALID_LOGIN).build();
-        }
+        if(!Authorization.isDataFormatted(data.getUsername(), data.getPassword(), data.getName(), data.getEmail()))
+            return Response.status(Status.BAD_REQUEST).build();
 
-        if(!Authorization.isValidEmail(data.getEmail())) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(INVALID_EMAIL).build();
-        }
-
-        if(!Authorization.isValidPassword(data.getPassword())) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(INVALID_PASSWORD).build();
-        }
-        */
         Key userKey = userKeyFactory.newKey(data.getUsername());
 
         Transaction txn = datastore.newTransaction();
