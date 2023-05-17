@@ -50,9 +50,8 @@ public class UserResource implements UserAPI {
     public Response registerUser(ProfileData data) {
         LOG.info(ATTEMPTING_REGISTER + data.getUsername());
 
-        if(!Authorization.isDataFormatted) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(INVALID_LOGIN).build();
-        }
+        if(!Authorization.isDataFormatted(data.getUsername(), data.getPassword(), data.getName(), data.getEmail()))
+            return Response.status(Status.BAD_REQUEST).build();
 
         Transaction txn = datastore.newTransaction();
 
