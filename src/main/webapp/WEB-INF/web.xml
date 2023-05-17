@@ -49,7 +49,7 @@
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 
-	<servlet> <!-- @GMFields Cloud Storage part, change if name of class or package changes -->>
+	<servlet> <!-- @GMFields Cloud Storage part, change if name of class or package changes -->
 		<servlet-name>servlet-storage</servlet-name>
 		<servlet-class>pt.unl.fct.di.apdc.firstwebapp.resources.StaticMediaResource</servlet-class>
 	</servlet>
@@ -59,12 +59,12 @@
 		<url-pattern>/rest/*</url-pattern>
 	</servlet-mapping>
 
-	<servlet-mapping> <!-- @GMFields path used for http requests to cloud storage -->>
+	<servlet-mapping> <!-- @GMFields path used for http requests to cloud storage -->
 		<servlet-name>servlet-storage</servlet-name>
 		<url-pattern>/gcs/*</url-pattern>
 	</servlet-mapping>
 
-	<security-constraint> <!-- TODO @GMFields used in classes to create restricted area, must see later-->>
+	<security-constraint> <!-- TODO @GMFields used in classes to create restricted area, must see later-->
     	<web-resource-collection>
       		<web-resource-name>Restricted Area</web-resource-name>
       		<url-pattern>/secret/*</url-pattern>

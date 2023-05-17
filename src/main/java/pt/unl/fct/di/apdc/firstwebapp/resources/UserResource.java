@@ -5,12 +5,14 @@ import com.google.cloud.datastore.*;
 
 import pt.unl.fct.di.apdc.firstwebapp.api.UserAPI;
 import org.apache.commons.codec.digest.DigestUtils;
+
 import pt.unl.fct.di.apdc.firstwebapp.util.*;
 
 
 //import com.google.gson.Gson;
 
 import java.util.logging.Logger;
+
 
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
