@@ -8,7 +8,6 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
@@ -17,7 +16,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 //@Path(UserAPI.PATH)
-
 public interface UserAPI {
 
     String PATH = "/users";
@@ -25,6 +23,7 @@ public interface UserAPI {
     /**
      *
      * @param email
+     * @param username
      * @param password
      * @return 200: the token of the user logged in;
      *         404: if the user credential doesn't match any existing users;
@@ -41,6 +40,8 @@ public interface UserAPI {
      * @param data the user
      * @return 201: if the user was successfully registered;
      *         400: if the user enters an invalid email;
+     * 
+     * @return 400: if the user enters an invalid email;
      *              if the user enters an invalid password;
      *              if the user doesn't fill in the fields;
      *         409: if the user already exists;
@@ -64,6 +65,7 @@ public interface UserAPI {
     @Produces(MediaType.APPLICATION_JSON)
     Response userLogout(AuthToken tokenObjStr);
 
+
     /**
      * Updates the users information
      * @param data the new user data
@@ -79,6 +81,7 @@ public interface UserAPI {
     @Produces(MediaType.APPLICATION_JSON)
     Response updateOwnUser(ProfileData data);
 
+
     /**
      * Deletes the user's account
      * @param tokenObj Token object to authenticate the user
@@ -91,6 +94,4 @@ public interface UserAPI {
     @Path("/delete")
     @Consumes(MediaType.APPLICATION_JSON)
     Response deleteAccount(AuthToken tokenObj);
-
-
 }

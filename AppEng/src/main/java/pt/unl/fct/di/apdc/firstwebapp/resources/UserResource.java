@@ -7,8 +7,7 @@ import pt.unl.fct.di.apdc.firstwebapp.api.UserAPI;
 import org.apache.commons.codec.digest.DigestUtils;
 import pt.unl.fct.di.apdc.firstwebapp.util.*;
 
-
-import com.google.gson.Gson;
+//import com.google.gson.Gson;
 
 import java.util.logging.Logger;
 
@@ -18,11 +17,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.Status;
 
+import javax.ws.rs.Path;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+
 @Path("/users")
-@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 public class UserResource implements UserAPI {
-    private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-    //Datastore datastore = DatastoreOptions.newBuilder().setHost("http://localhost:8081").setProjectId("helical-ascent-385614").build().getService();
+    //private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+    Datastore datastore = DatastoreOptions.newBuilder().setHost("http://localhost:8081").setProjectId("helical-ascent-385614").build().getService();
 
     KeyFactory userKeyFactory = datastore.newKeyFactory().setKind("Users");
     KeyFactory tokenKeyFactory = datastore.newKeyFactory().setKind("Token");
@@ -48,16 +50,8 @@ public class UserResource implements UserAPI {
     public Response registerUser(ProfileData data) {
         LOG.info(ATTEMPTING_REGISTER + data.getUsername());
 
-        if(!Authorization.isValid(data.getUsername(), data.getPassword(), data.getName(), data.getEmail())) {
+        if(!Authorization.isDataFormatted) {
             return Response.status(Response.Status.BAD_REQUEST).entity(INVALID_LOGIN).build();
-        }
-
-        if(!Authorization.isValidEmail(data.getEmail())) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(INVALID_EMAIL).build();
-        }
-
-        if(!Authorization.isValidPassword(data.getPassword())) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(INVALID_PASSWORD).build();
         }
 
         Transaction txn = datastore.newTransaction();
