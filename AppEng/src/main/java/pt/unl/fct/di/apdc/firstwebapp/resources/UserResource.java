@@ -12,14 +12,11 @@ import com.google.gson.Gson;
 
 import java.util.logging.Logger;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Request;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.Context;
-
 
 @Path("/users")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -44,9 +41,6 @@ public class UserResource implements UserAPI {
     private static final String INATIVO_STATE = "INATIVO";
 
     private static final Logger LOG = Logger.getLogger(UserResource.class.getName());
-
-    //  @Context
-    // private Request requestContext;
 
     public UserResource() {}
 
@@ -98,9 +92,10 @@ public class UserResource implements UserAPI {
                     .set("user_name", data.getName())
                     .set("user_pwd", DigestUtils.sha512Hex(data.getPassword()))
                     .set("user_email", data.getEmail())
-                    .set("user_role", USER_ROLE)
+                    .set("user_role", data.getRole())
                     .set("user_state", INATIVO_STATE)
                     .set("user_creation_time", Timestamp.now())
+                    .set("user_department", data.getDepartment())
                     .build();
 
             txn.add(user);
@@ -123,11 +118,8 @@ public class UserResource implements UserAPI {
     @Override
     public Response userLogin(String email, String password) {
         LOG.info("Attempt to login user with e-mail: " + email);
-
         Key emailKey = emailKeyFactory.newKey(email);
-
         Entity emailEntity = datastore.get(emailKey);
-
 
         if (emailEntity == null) {
             LOG.info("Failed login attempt! User with email: " + email + " does not exist");
@@ -140,8 +132,6 @@ public class UserResource implements UserAPI {
             LOG.warning("Failed login attempt! User with email: " + email + " does not exist");
             return Response.status(Status.NOT_FOUND).build();
         }
-
-        // Retrieve the entity using the key
         Entity user = datastore.get(userKey);
 
 
@@ -182,6 +172,7 @@ public class UserResource implements UserAPI {
             }
         }
     }
+
 
     @Override
     public Response userLogout(AuthToken tokenObj) {

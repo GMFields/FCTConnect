@@ -1,7 +1,7 @@
 package pt.unl.fct.di.apdc.firstwebapp.util;
 
 public class ProfileData {
-	
+
 	public String email;
 	public String username;
 	public String password;
@@ -14,13 +14,14 @@ public class ProfileData {
 	public String occupation;
 	public String address;
 	public String nif;
+	public String department;
 
 	private AuthToken token;
-	
+
 	public ProfileData() {}
-	
-	public ProfileData(String email, String username, String password, String name, int role, String state, String profile, 
-			String landline, String phoneNumber, String occupation, String address, String nif) {
+
+	public ProfileData(String email, String username, String password, String name, int role, String state, String profile,
+					   String landline, String phoneNumber, String occupation, String address, String nif, String department) {
 		this.email = email;
 		this.username = username;
 		this.password = password;
@@ -32,11 +33,12 @@ public class ProfileData {
 		this.phoneNumber = phoneNumber;
 		this.occupation = occupation;
 		this.address = address;
-		this.nif = nif;	
+		this.nif = nif;
+		this.department = department;
 	}
 
-	public ProfileData(String email, String username, String password, String name, int role, String state, String profile, 
-			String landline, String phoneNumber, String occupation, String address, String nif, AuthToken token) {
+	public ProfileData(String email, String username, String password, String name, int role, String state, String profile,
+					   String landline, String phoneNumber, String occupation, String address, String nif, AuthToken token, String department) {
 		this.email = email;
 		this.username = username;
 		this.password = password;
@@ -48,8 +50,9 @@ public class ProfileData {
 		this.phoneNumber = phoneNumber;
 		this.occupation = occupation;
 		this.address = address;
-		this.nif = nif;	
+		this.nif = nif;
 		this.token = token;
+		this.department = department;
 	}
 
 
@@ -152,5 +155,9 @@ public class ProfileData {
 	public AuthToken getToken(){
 		return token;
 	}
+
+	public String getDepartment() {return department; }
+
+	public void setDepartment(String department) {this.department = department;}
 
 }

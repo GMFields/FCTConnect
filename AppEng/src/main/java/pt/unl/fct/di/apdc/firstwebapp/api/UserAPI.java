@@ -11,6 +11,8 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -51,7 +53,7 @@ public interface UserAPI {
 
     /**
      * Logouts a user
-     * @param tokenObj Token object to authenticate the user
+     * @param tokenObjStr Token object to authenticate the user
      * @return 200: if the user seccessfully logged out;
      *         400: if the token has expired;
      *         500: if there was a server error.
@@ -65,7 +67,7 @@ public interface UserAPI {
     /**
      * Updates the users information
      * @param data the new user data
-     * @param tokenObj Token object to authenticate the user
+     * @param  Token object to authenticate the user
      * @return  200: if the user data was successfully updated;
      *          403: if the token given doesn't match any existing token;
      *          404: if the user given doesn't match any existing user;

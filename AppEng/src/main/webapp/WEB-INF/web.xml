@@ -10,6 +10,8 @@
 		<welcome-file>index.html</welcome-file>
 	</welcome-file-list>
 
+
+
 	<servlet>
 		<servlet-name>MainServices</servlet-name>
 		<servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
