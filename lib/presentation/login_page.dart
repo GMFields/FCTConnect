@@ -1,4 +1,6 @@
 
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:discipulos_flutter/presentation/register_page.dart';
 import 'package:flutter/material.dart';
 import 'package:discipulos_flutter/constants/constants.dart';
@@ -92,7 +94,7 @@ Widget _buildPassword() {
               border: InputBorder.none,
               contentPadding: const EdgeInsets.only(top: 14.0),
               prefixIcon: const Icon(
-                Icons.password,
+                Icons.key,
                 color: Colors.black,
               ),
               hintText: 'Enter your password',
@@ -206,24 +208,43 @@ Widget _buildLoginBtn() {
     }
 
  
-  else if (await Authentication.loginUser(email, password)) {
+  String res = await Authentication.loginUser(email, password);
+
+  if (res == "success") {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const MainScreen()),
       );
-    } else {
-      // Wrong credentials
+  } else if (res == "User not found") {
       showDialog(
         context: context,
         builder: (context) {
           return const AlertDialog(
-            content: Text("Wrong Password!"),
+            content: Text("User not found!"),
           );
         },
       );
-    }
-
-
+  }
+  else if(res == "Wrong password") {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return const AlertDialog(
+            content: Text("Wrong password!"),
+          );
+        },
+      );
+  }
+  else {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return const AlertDialog(
+            content: Text("Something went wrong!"),
+          );
+        },
+      );
+  }
   }
 
 @override
@@ -255,7 +276,7 @@ Widget build(BuildContext context) {
                 "Sign In",
                 style: TextStyle(
                   fontSize: 24,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.bold,
                   fontFamily: 'RobotoSlab',
                   color: Colors.black,
                 ),

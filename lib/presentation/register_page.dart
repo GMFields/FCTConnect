@@ -17,6 +17,9 @@ class _RegisterPageState extends State<RegisterPage> {
   late TextEditingController emailController;
   late TextEditingController passwordController;
   late TextEditingController confirmPasswordController;
+  String? _selectedDepartmentDropdownValue;
+  String? _selectedRoleDropdownValue;
+
 
   @override
   void initState() {
@@ -43,7 +46,7 @@ class _RegisterPageState extends State<RegisterPage> {
           Container(
             alignment: Alignment.centerLeft,
             decoration: kBoxDecorationStyle,
-            height: 40.0,
+            height: 50.0,
             child: TextField(
               controller: nameController,
               keyboardType: TextInputType.name,
@@ -53,7 +56,7 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
               decoration: InputDecoration(
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.only(top: 12.0),
+                contentPadding: const EdgeInsets.only(top: 14.0),
                 prefixIcon: const Icon(
                   Icons.person,
                   color: Colors.black,
@@ -82,7 +85,7 @@ class _RegisterPageState extends State<RegisterPage> {
           Container(
             alignment: Alignment.centerLeft,
             decoration: kBoxDecorationStyle,
-            height: 40.0,
+            height: 50.0,
             child: TextField(
               controller: usernameController,
               keyboardType: TextInputType.name,
@@ -92,7 +95,7 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
               decoration: InputDecoration(
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.only(top: 12.0),
+                contentPadding: const EdgeInsets.only(top: 14.0),
                 prefixIcon: const Icon(
                   Icons.person_outline_rounded,
                   color: Colors.black,
@@ -121,7 +124,7 @@ class _RegisterPageState extends State<RegisterPage> {
           Container(
             alignment: Alignment.centerLeft,
             decoration: kBoxDecorationStyle,
-            height: 40.0,
+            height: 50.0,
             child: TextField(
               controller: emailController,
               keyboardType: TextInputType.emailAddress,
@@ -131,7 +134,7 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
               decoration: InputDecoration(
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.only(top: 12.0),
+                contentPadding: const EdgeInsets.only(top: 14.0),
                 prefixIcon: const Icon(
                   Icons.email,
                   color: Colors.black,
@@ -160,7 +163,7 @@ Widget _buildPassword() {
         Container(
           alignment: Alignment.centerLeft,
           decoration: kBoxDecorationStyle,
-          height: 40.0,
+          height: 50.0,
           child: TextField(
             controller: passwordController,
             keyboardType: TextInputType.visiblePassword,
@@ -173,9 +176,9 @@ Widget _buildPassword() {
             ),
             decoration: InputDecoration(
               border: InputBorder.none,
-              contentPadding: const EdgeInsets.only(top: 12.0),
+              contentPadding: const EdgeInsets.only(top: 14.0),
               prefixIcon: const Icon(
-                Icons.password,
+                Icons.key,
                 color: Colors.black,
               ),
               hintText: 'Enter your password',
@@ -202,7 +205,7 @@ Widget _buildPasswordConfirmation() {
         Container(
           alignment: Alignment.centerLeft,
           decoration: kBoxDecorationStyle,
-          height: 40.0,
+          height: 50.0,
           child: TextField(
             controller: confirmPasswordController,
             keyboardType: TextInputType.visiblePassword,
@@ -215,9 +218,9 @@ Widget _buildPasswordConfirmation() {
             ),
             decoration: InputDecoration(
               border: InputBorder.none,
-              contentPadding: const EdgeInsets.only(top: 12.0),
+              contentPadding: const EdgeInsets.only(top: 14.0),
               prefixIcon: const Icon(
-                Icons.password,
+                Icons.key,
                 color: Colors.black,
               ),
               hintText: 'Confirm your password',
@@ -243,7 +246,12 @@ Widget _buildRegisterBtn() {
               usernameController.text,
               emailController.text,
               passwordController.text,
-              confirmPasswordController.text),
+              confirmPasswordController.text,
+            _selectedRoleDropdownValue ?? '',
+            _selectedDepartmentDropdownValue ?? '',
+
+
+          ),
           style: ElevatedButton.styleFrom(
             elevation: 5.0,
             padding: const EdgeInsets.all(10.0),
@@ -302,7 +310,8 @@ Widget _buildSigninBTN() {
   );
 }
 
-Future<void> registerButtonPressed(BuildContext context, String name, String username, String email, String password, String confirmedPassword) async {
+Future<void> registerButtonPressed(BuildContext context, String name, String username, String email, String password, String? confirmedPassword,
+    String role, String department, ) async {
   bool emailCompliant = Authentication.isEmailCompliant(email);
   bool pwCompliant = Authentication.isPasswordCompliant(password);
 
@@ -349,7 +358,7 @@ Future<void> registerButtonPressed(BuildContext context, String name, String use
       );
     }
     else {
-    String res = await Authentication.registerUser(name, username, email, password);
+    String res = await Authentication.registerUser(name, username, email, password, role, department);
     switch(res) {
       case "success":
         Navigator.push(
@@ -386,8 +395,126 @@ Future<void> registerButtonPressed(BuildContext context, String name, String use
 
   }
 
+  Widget _buildDropdownDepartmentButton() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 30.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            'Departamento',
+            style: kLabelStyle,
+          ),
+          const SizedBox(height: 10.0),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            decoration: kBoxDecorationStyle,
+            child: DropdownButton<String>(
+              value: _selectedDepartmentDropdownValue,
+              isExpanded: true,
+              icon: const Icon(
+                Icons.arrow_drop_down,
+                color: Colors.black,
+              ),
+              iconSize: 24,
+              elevation: 16,
+              style: const TextStyle(
+                color: Colors.black,
+                fontFamily: 'RobotoSlab',
+              ),
+              underline: Container(
+                height: 2,
+                color: Colors.transparent,
+              ),
+              onChanged: (String? newValue) {
+                setState(() {
+                  _selectedDepartmentDropdownValue = newValue;
+                });
+              },
+              items: <String>[
+                'DI',
+                'DF',
+                'DQ',
+                'DM',
+                'DEMI',
+                'DEC',
+                'DCV',
+                'DCT',
+                'DCSA',
+                'DCM',
+                'DCEA'
 
-@override
+                // Add more options as needed
+              ].map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDropdownRoleButton() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 30.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            'Departamento',
+            style: kLabelStyle,
+          ),
+          const SizedBox(height: 10.0),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            decoration: kBoxDecorationStyle,
+            child: DropdownButton<String>(
+              value: _selectedRoleDropdownValue,
+              isExpanded: true,
+              icon: const Icon(
+                Icons.arrow_drop_down,
+                color: Colors.black,
+              ),
+              iconSize: 24,
+              elevation: 16,
+              style: const TextStyle(
+                color: Colors.black,
+                fontFamily: 'RobotoSlab',
+              ),
+              underline: Container(
+                height: 2,
+                color: Colors.transparent,
+              ),
+              onChanged: (String? newValue) {
+                setState(() {
+                  _selectedRoleDropdownValue = newValue;
+                });
+              },
+              items: <String>[
+                'Aluno',
+                'Funcionário',
+                'Docente',
+
+                // Add more options as needed
+              ].map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
+  @override
 Widget build(BuildContext context) {
   return Scaffold(
     body: Stack(
@@ -400,42 +527,47 @@ Widget build(BuildContext context) {
             ),
           ),
         width: double.infinity,
-        height: 60,
+        height: 90,
         ),
         Container(
           decoration: BoxDecoration(
             color: Colors.white.withOpacity(0.4),
           ),
         ),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(top: 25),
-              child: Text(
-                "Register",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w500,
-                  fontFamily: 'RobotoSlab',
-                  color: Colors.black,
+        SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(top: 50),
+                child: Text(
+                  "Register",
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'RobotoSlab',
+                    color: Colors.black,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 5.0),
-            _buildName(),
-            _buildUserName(),
-            const SizedBox(height: 5.0),
-            _buildEmail(),
-            const SizedBox(height: 5.0),
-            _buildPassword(),
-            const SizedBox(height: 5.0),
-            _buildPasswordConfirmation(),
-            const SizedBox(height: 5.0),
-            _buildRegisterBtn(),
-            const SizedBox(height: 30.0),
-            _buildSigninBTN(),
-          ],
+              const SizedBox(height: 5.0),
+              _buildName(),
+              _buildUserName(),
+              const SizedBox(height: 5.0),
+              _buildEmail(),
+              const SizedBox(height: 5.0),
+              _buildPassword(),
+              const SizedBox(height: 5.0),
+              _buildPasswordConfirmation(),
+              const SizedBox(height: 5.0),
+              _buildDropdownDepartmentButton(),
+              _buildDropdownRoleButton(),
+              const SizedBox(height: 5.0),
+              _buildRegisterBtn(),
+              const SizedBox(height: 30.0),
+              _buildSigninBTN(),
+            ],
+          ),
         ),
       ],
     ),

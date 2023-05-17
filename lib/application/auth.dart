@@ -31,18 +31,18 @@ class Authentication {
     return validEmail && hasMinLength;
   }
 
-    static Future<bool> loginUser(String email, String password) async {
+    static Future<String> loginUser(String email, String password) async {
     // Call the fetchAuthenticateGAE function to authenticate the user
-    bool authenticated = await fetchAuthenticateGAE(email, password);
+    String res = await fetchAuthenticateGAE(email, password);
 
     // Return the authentication status
-    return authenticated;
+    return res;
   }
 
 
-  static Future<String> registerUser(String name, String username, String email, String password) async {
+  static Future<String> registerUser(String name, String username, String email, String password, String role, String department) async {
     // Call the fetchAuthenticateGAE function to authenticate the user
-    String res = await registerGAE(name, username, email, password);
+    String res = await registerGAE(name, username, email, password, role, department);
 
     // Return the authentication status
     return res;
@@ -50,45 +50,57 @@ class Authentication {
 
 
 // tem que retornar um token
-static Future<bool> fetchAuthenticateGAE(String email, String password) async {
+static Future<String> fetchAuthenticateGAE(String email, String password) async {
   final url = Uri.parse('https://helical-ascent-385614.oa.r.appspot.com/rest/users/login?email=$email&password=$password');
 
   final response = await http.post(
     url,
     headers: <String, String>{
       'Content-Type': 'application/json',
-      'Access-Control-Allow-Headers':
-          'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
-        'Access-Control-Allow-Methods': 'OPTIONS,POST',
-        'Access-Control-Allow-Origin': '*',
-        'X-Requested-With': '*',
     },
   );
 
   if (response.statusCode == 200) {
     final token = response.body;
-    return true;
+    return "success";
   } else if (response.statusCode == 404) {
-    print('User does not exist');
-    return false;
+    return "User not found";
+  } else if(response.statusCode == 403) {
+    return "Wrong password";
   } else {
-    print('Server error: ${response.statusCode}');
-    return false;
+    return "Server error";
   }
 }
 
-  static Future<String> registerGAE(String name, String username, String email, String password) async {
+  static Future<String> registerGAE(String name, String username, String email, String password, String role, String department) async {
   final url = Uri.parse('https://helical-ascent-385614.oa.r.appspot.com/rest/users/register');
 
     final headers = {
       'Content-Type': 'application/json',
     };
 
+  String roleValue;
+
+  // Check the value of the 'role' string and assign the appropriate role value
+  if (role == 'Aluno') {
+    roleValue = '1';
+  } else if (role == 'Funcionário') {
+    roleValue = '2';
+  } else if (role == 'Docente') {
+    roleValue = '3';
+  } else {
+    // Handle other cases or set a default value if needed
+    roleValue = '0';
+  }
+  print(roleValue);
+
     final body = jsonEncode({
       'name': name,
       'username': username,
       'email': email,
       'password': password,
+      'role': roleValue,
+      'department':department
     });
 
     final response = await http.post(
@@ -96,25 +108,6 @@ static Future<bool> fetchAuthenticateGAE(String email, String password) async {
       headers: headers,
       body: body,
     );
-/*
-   switch(response.statusCode) {
-    case 201: 
-      return "success";
-    case 409: 
-      final responseJson = jsonDecode(response.body);
-      final errorMessage = responseJson['message'];
-       if (errorMessage == 'User already exists') {
-        return "user already exists";
-    } else if (errorMessage == 'Email already exists') {
-        return "email already exists";
-    }
-    break;
-    case 500:
-      return "error";
-    default :
-      return "err";
-   }
-   */
 
   if(response.statusCode == 201) {
     return "success";
