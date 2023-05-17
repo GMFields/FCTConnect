@@ -1,7 +1,8 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "../node_modules/@firebase/app";
-import { getAnalytics } from "../node_modules/@firebase/analytics";
-import { getMessaging, onMessage } from "../node_modules/@firebase/messaging";
+importScripts('https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js');
+importScripts('https://www.gstatic.com/firebasejs/8.6.5/firebase-messaging.js');
+//import { getAnalytics } from "https://www.gstatic.com/firebasejs/8.6.5/firebase-analytics.js";
+
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -19,9 +20,9 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
+const app = firebase.initializeApp(firebaseConfig);
 //const analytics = getAnalytics(app);
-const messaging = getMessaging(app);
+const messaging = firebase.getMessaging(app);
 
 function requestPermission() {
   console.log('Requesting permission...');
@@ -29,7 +30,7 @@ function requestPermission() {
     if (permission === 'granted') {
       console.log('Notification permission granted.');
 
-      getToken(messaging, { vapidKey: 'BMDwkCrKQflcfiTD2U1mxLTjv-nfFmqxG6iTxMB8K1XweOhuB5X_TWLgOlGcndQ8neiupmJj9MPGxFRO3NxxIsI' })
+      messaging.getToken(messaging, { vapidKey: 'BMDwkCrKQflcfiTD2U1mxLTjv-nfFmqxG6iTxMB8K1XweOhuB5X_TWLgOlGcndQ8neiupmJj9MPGxFRO3NxxIsI' })
       .then((currentToken) => {
         if (currentToken) {
           console.log('currentToken: ', currentToken)
@@ -49,7 +50,7 @@ function requestPermission() {
 
 requestPermission();
 
-onMessage(function(payload){
+messaging.onMessage(function(payload){
   console.log('on Message ', payload)
 });
 
