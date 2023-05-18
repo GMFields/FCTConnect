@@ -35,8 +35,8 @@ public class UserResource implements UserAPI {
 
     private final Gson g = new Gson();
     private static final String INVALID_LOGIN = "Missing or wrong parameter.";
-    private static final String INVALID_EMAIL = "Invalid email address";
-    private static final String INVALID_PASSWORD = "Invalid password";
+    private static final String INACTIVE_ACCOUNT  = "Account is not active, contact an admin!";
+    private static final String WRONG_PASSWORD = "Wrong password";
     private static final String ATTEMPTING_REGISTER = "Attempting to register the user: ";
     private static final String USER_EXISTS = "User already exists";
     private static final String EMAIL_EXISTS = "Email already exists";
@@ -53,7 +53,7 @@ public class UserResource implements UserAPI {
         LOG.info(ATTEMPTING_REGISTER + data.getUsername());
 
         if(!Authorization.isDataFormatted(data.getUsername(), data.getPassword(), data.getName(), data.getEmail()))
-            return Response.status(Status.BAD_REQUEST).build();
+            return Response.status(Status.BAD_REQUEST).entity("Invalid Data").build();
 
         Transaction txn = datastore.newTransaction();
 
@@ -129,6 +129,11 @@ public class UserResource implements UserAPI {
         }
         Entity user = datastore.get(userKey);
 
+        boolean isActive = user.getString("user_state").equals("ATIVO");
+
+        if(!isActive) {
+            return Response.status(Status.FORBIDDEN).entity(INACTIVE_ACCOUNT).build();
+        }
 
         Transaction txn = datastore.newTransaction();
         try {
@@ -153,7 +158,7 @@ public class UserResource implements UserAPI {
                     return Response.ok(g.toJson(token)).build();
                 } else {
                     txn.rollback();
-                    return Response.status(Status.FORBIDDEN).build();
+                    return Response.status(Status.FORBIDDEN).entity(WRONG_PASSWORD).build();
                 }
             } else {
                 txn.rollback();
