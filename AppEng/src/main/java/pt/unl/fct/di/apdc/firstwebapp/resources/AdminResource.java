@@ -1,9 +1,8 @@
 package pt.unl.fct.di.apdc.firstwebapp.resources;
-import com.google.api.Property;
 import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.*;
 
-import com.google.datastore.v1.PropertyFilter;
+import org.apache.commons.logging.Log;
 import pt.unl.fct.di.apdc.firstwebapp.api.AdminAPI;
 import pt.unl.fct.di.apdc.firstwebapp.api.UserAPI;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -12,6 +11,8 @@ import pt.unl.fct.di.apdc.firstwebapp.util.*;
 
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -69,9 +70,13 @@ public class AdminResource implements AdminAPI {
                 String hashedPWD = user.getString("user_pwd");
                 if (hashedPWD.equals(DigestUtils.sha512Hex(password))) {
                     int userRole = (int) user.getLong("user_role");
-                    if(userRole != 4) {
-                        return Response.status(Status.METHOD_NOT_ALLOWED).build();
+
+                    if (userRole != 4) {
+                        txn.rollback();
+                        return Response.status(Status.FORBIDDEN).build();
                     }
+
+
                     AuthToken token = new AuthToken(emailEntity.getString("user_username"), userRole);
 
                     Key tokenkey = tokenKeyFactory.newKey(token.getTokenID());
@@ -103,15 +108,26 @@ public class AdminResource implements AdminAPI {
         }
     }
 
+
     @Override
     public Response listInactiveUsers() {
-
+        LOG.info("Teste");
         Query<Entity> query =
                 Query.newEntityQueryBuilder()
                         .setKind("Users")
                         .setFilter(StructuredQuery.PropertyFilter.eq("user_state", "INATIVO"))
                         .build();
-        return Response.ok(g.toJson(query)).build();
+
+        QueryResults<Entity> results = datastore.run(query);
+        List<Entity> resultList = new ArrayList<>();
+        while (results.hasNext()) {
+            Entity entity = results.next();
+
+            resultList.add(results.next());
+        }
+
+        return Response.ok(g.toJson(resultList)).build();
     }
+
 
 }

@@ -23,9 +23,10 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 @Path("/users")
+@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 public class UserResource implements UserAPI {
-    //private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-    Datastore datastore = DatastoreOptions.newBuilder().setHost("http://localhost:8081").setProjectId("helical-ascent-385614").build().getService();
+    Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+    //Datastore datastore = DatastoreOptions.newBuilder().setHost("http://localhost:8081").setProjectId("helical-ascent-385614").build().getService();
 
     KeyFactory userKeyFactory = datastore.newKeyFactory().setKind("Users");
     KeyFactory tokenKeyFactory = datastore.newKeyFactory().setKind("Token");
