@@ -66,7 +66,11 @@ static Future<String> fetchAuthenticateGAE(String email, String password) async 
   } else if (response.statusCode == 404) {
     return "User not found";
   } else if(response.statusCode == 403) {
-    return "Wrong password";
+    final errorMessage = response.body;
+    if(errorMessage.contains("Wrong password")) {
+      return "Wrong password";
+    }
+    else return "Account is not active, contact an admin!";
   } else {
     return "Server error";
   }
