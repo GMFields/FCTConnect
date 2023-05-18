@@ -113,8 +113,13 @@ public class AdminResource implements AdminAPI {
 
 
     @Override
-    public Response listInactiveUsers() {
-        LOG.info("Teste");
+    public Response listInactiveUsers(String tokenObjStr) {
+       Response r = verifyAdmin(tokenObjStr);
+
+       if(r != null) {
+           return r;
+       }
+
         Query<Entity> query =
                 Query.newEntityQueryBuilder()
                         .setKind("Users")
@@ -122,6 +127,9 @@ public class AdminResource implements AdminAPI {
                         .build();
 
         QueryResults<Entity> results = datastore.run(query);
+        if(!results.hasNext()) {
+            return Response.status(Status.NOT_FOUND).entity("There are no inactive users!").build();
+        }
         List<Entity> resultList = new ArrayList<>();
         while (results.hasNext()) {
             resultList.add(results.next());
@@ -130,43 +138,36 @@ public class AdminResource implements AdminAPI {
         return Response.ok(g.toJson(resultList)).build();
     }
 
-    public Response activateUsers(List<String> userEmails) {
+    public Response activateUsers(List<String> userEmails, String tokenObjStr) {
+        Response r = verifyAdmin(tokenObjStr);
+
+        if(r != null) {
+            return r;
+        }
+
         Transaction txn = datastore.newTransaction();
-        LOG.info("PASSO 1");
         try {
             for (String email : userEmails) {
-                LOG.info("EMAILS -> "+email);
                 Key emailKey = emailKeyFactory.newKey(email);
-                LOG.info("PASSO 2");
                 Entity emailEntity = txn.get(emailKey);
-                LOG.info("PASSO 3");
 
                 if (emailEntity == null) {
-                    // User email not found
                     return Response.status(Status.NOT_FOUND).entity("User email not found: " + email).build();
                 }
-                LOG.info("PASSO 4");
                 String username = emailEntity.getString("user_username");
-                LOG.info("PASSO 5");
                 Key userKey = userKeyFactory.newKey(username);
                 Entity userEntity = txn.get(userKey);
-                LOG.info("PASSO 6");
                 if (userEntity == null) {
                     // User entity not found
                     return Response.status(Status.NOT_FOUND).entity("User not found for email: " + email).build();
                 }
 
-                // Update user state to ATIVO_STATE
-                LOG.info("PASSO 7");
                 userEntity = Entity.newBuilder(userEntity)
                         .set("user_state", ATIVO_STATE)
                         .build();
-                LOG.info("PASSO 8");
                 txn.update(userEntity);
             }
-            LOG.info("PASSO 9");
             txn.commit();
-            LOG.info("PASSO 10");
             return Response.status(Status.OK).entity("Users activated successfully").build();
         } catch (Exception e) {
             txn.rollback();
@@ -178,6 +179,26 @@ public class AdminResource implements AdminAPI {
                 return Response.status(Status.INTERNAL_SERVER_ERROR).build();
             }
         }
+    }
+
+    private Response verifyAdmin(String tokenObjStr) {
+        TokenClass tokenObj = g.fromJson(tokenObjStr, TokenClass.class);
+
+        Key adminKey = datastore.newKeyFactory().setKind("Users").newKey(tokenObj.getUsername());
+
+        Entity user = datastore.get(adminKey);
+        if (user == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity(USER_DOESNT_EXIST).build();
+        }
+
+        int userRole = (int) user.getLong("user_role");
+        LOG.info("USER ROLE-> "+userRole);
+
+        if(userRole != 4) {
+            return Response.status(Status.FORBIDDEN).entity("User doesn't have permissions").build();
+        }
+
+        return null;
     }
 
 

@@ -24,11 +24,11 @@ public interface AdminAPI {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    Response listInactiveUsers();
+    Response listInactiveUsers(@QueryParam("tokenObj") String tokenObjStr);
 
     @PUT
     @Path("/activate")
     @Consumes(MediaType.APPLICATION_JSON)
-    Response activateUsers(List<String> userEmails);
+    Response activateUsers(List<String> userEmails, @QueryParam("tokenObj") String tokenObjStr);
 
 }
