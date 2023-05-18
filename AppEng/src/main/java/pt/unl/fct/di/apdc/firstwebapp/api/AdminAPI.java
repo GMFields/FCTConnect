@@ -3,6 +3,7 @@ package pt.unl.fct.di.apdc.firstwebapp.api;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 public interface AdminAPI {
 
@@ -24,5 +25,10 @@ public interface AdminAPI {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     Response listInactiveUsers();
+
+    @PUT
+    @Path("/activate")
+    @Consumes(MediaType.APPLICATION_JSON)
+    Response activateUsers(List<String> userEmails);
 
 }

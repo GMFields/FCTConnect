@@ -42,6 +42,9 @@ public class AdminResource implements AdminAPI {
     private static final long USER_ROLE =   1;
     private static final String INATIVO_STATE = "INATIVO";
 
+    private static final String ATIVO_STATE = "ATIVO";
+
+
     private static final Logger LOG = Logger.getLogger(UserResource.class.getName());
 
     @Override
@@ -121,13 +124,62 @@ public class AdminResource implements AdminAPI {
         QueryResults<Entity> results = datastore.run(query);
         List<Entity> resultList = new ArrayList<>();
         while (results.hasNext()) {
-            Entity entity = results.next();
-
             resultList.add(results.next());
         }
 
         return Response.ok(g.toJson(resultList)).build();
     }
+
+    public Response activateUsers(List<String> userEmails) {
+        Transaction txn = datastore.newTransaction();
+        LOG.info("PASSO 1");
+        try {
+            for (String email : userEmails) {
+                LOG.info("EMAILS -> "+email);
+                Key emailKey = emailKeyFactory.newKey(email);
+                LOG.info("PASSO 2");
+                Entity emailEntity = txn.get(emailKey);
+                LOG.info("PASSO 3");
+
+                if (emailEntity == null) {
+                    // User email not found
+                    return Response.status(Status.NOT_FOUND).entity("User email not found: " + email).build();
+                }
+                LOG.info("PASSO 4");
+                String username = emailEntity.getString("user_username");
+                LOG.info("PASSO 5");
+                Key userKey = userKeyFactory.newKey(username);
+                Entity userEntity = txn.get(userKey);
+                LOG.info("PASSO 6");
+                if (userEntity == null) {
+                    // User entity not found
+                    return Response.status(Status.NOT_FOUND).entity("User not found for email: " + email).build();
+                }
+
+                // Update user state to ATIVO_STATE
+                LOG.info("PASSO 7");
+                userEntity = Entity.newBuilder(userEntity)
+                        .set("user_state", ATIVO_STATE)
+                        .build();
+                LOG.info("PASSO 8");
+                txn.update(userEntity);
+            }
+            LOG.info("PASSO 9");
+            txn.commit();
+            LOG.info("PASSO 10");
+            return Response.status(Status.OK).entity("Users activated successfully").build();
+        } catch (Exception e) {
+            txn.rollback();
+            LOG.severe(e.getMessage());
+            return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            if (txn.isActive()) {
+                txn.rollback();
+                return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+            }
+        }
+    }
+
 
 
 }

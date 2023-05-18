@@ -3,13 +3,13 @@ inbound_services:
 - warmup
 auto_id_policy: default
 beta_settings:
-  'source_reference': 'https://github.com/GMFields/DiscipulosAMD.git#286514fbe94b7fe3dc1e341269bb22529a0efcab'
+  'source_reference': 'https://github.com/GMFields/DiscipulosAMD.git#f7f6ee37c689770a48101b06b8d85f865fc9dada'
 handlers:
-- url: (/.*/)
+- url: (/secret/.*/)
   static_files: __static__\1index.html
   upload: __NOT_USED__
   require_matching_file: True
-  login: optional
+  login: admin
   secure: optional
 - url: (/)
   static_files: __static__\1index.html
@@ -17,11 +17,44 @@ handlers:
   require_matching_file: True
   login: optional
   secure: optional
+- url: (/secret/)
+  static_files: __static__\1index.html
+  upload: __NOT_USED__
+  require_matching_file: True
+  login: admin
+  secure: optional
+- url: (/secret/.*\.cur)
+  static_files: __static__\1
+  upload: __NOT_USED__
+  require_matching_file: True
+  login: admin
+  secure: optional
+  expiration: 1m
+- url: (/.*/)
+  static_files: __static__\1index.html
+  upload: __NOT_USED__
+  require_matching_file: True
+  login: optional
+  secure: optional
+- url: (/secret/.*\.ico)
+  static_files: __static__\1
+  upload: __NOT_USED__
+  require_matching_file: True
+  login: admin
+  secure: optional
+  expiration: 1m
 - url: (/.*\.cur)
   static_files: __static__\1
   upload: __NOT_USED__
   require_matching_file: True
   login: optional
+  secure: optional
+  expiration: 1m
+- url: (/secret/.*\.ttf)
+  static_files: __static__\1
+  upload: __NOT_USED__
+  require_matching_file: True
+  login: admin
   secure: optional
   expiration: 1m
 - url: (/.*\.ico)
@@ -31,11 +64,25 @@ handlers:
   login: optional
   secure: optional
   expiration: 1m
+- url: (/secret/.*\.wav)
+  static_files: __static__\1
+  upload: __NOT_USED__
+  require_matching_file: True
+  login: admin
+  secure: optional
+  expiration: 1m
 - url: (/.*\.ttf)
   static_files: __static__\1
   upload: __NOT_USED__
   require_matching_file: True
   login: optional
+  secure: optional
+  expiration: 1m
+- url: (/secret/.*\.mp3)
+  static_files: __static__\1
+  upload: __NOT_USED__
+  require_matching_file: True
+  login: admin
   secure: optional
   expiration: 1m
 - url: (/.*\.wav)
@@ -45,11 +92,25 @@ handlers:
   login: optional
   secure: optional
   expiration: 1m
+- url: (/secret/.*\.png)
+  static_files: __static__\1
+  upload: __NOT_USED__
+  require_matching_file: True
+  login: admin
+  secure: optional
+  expiration: 1m
 - url: (/.*\.mp3)
   static_files: __static__\1
   upload: __NOT_USED__
   require_matching_file: True
   login: optional
+  secure: optional
+  expiration: 1m
+- url: (/secret/.*\.gif)
+  static_files: __static__\1
+  upload: __NOT_USED__
+  require_matching_file: True
+  login: admin
   secure: optional
   expiration: 1m
 - url: (/.*\.png)
@@ -59,11 +120,25 @@ handlers:
   login: optional
   secure: optional
   expiration: 1m
+- url: (/secret/.*\.jpg)
+  static_files: __static__\1
+  upload: __NOT_USED__
+  require_matching_file: True
+  login: admin
+  secure: optional
+  expiration: 1m
 - url: (/.*\.gif)
   static_files: __static__\1
   upload: __NOT_USED__
   require_matching_file: True
   login: optional
+  secure: optional
+  expiration: 1m
+- url: (/secret/.*\.js)
+  static_files: __static__\1
+  upload: __NOT_USED__
+  require_matching_file: True
+  login: admin
   secure: optional
   expiration: 1m
 - url: (/.*\.jpg)
@@ -73,11 +148,25 @@ handlers:
   login: optional
   secure: optional
   expiration: 1m
+- url: (/secret/.*\.css)
+  static_files: __static__\1
+  upload: __NOT_USED__
+  require_matching_file: True
+  login: admin
+  secure: optional
+  expiration: 1m
 - url: (/.*\.js)
   static_files: __static__\1
   upload: __NOT_USED__
   require_matching_file: True
   login: optional
+  secure: optional
+  expiration: 1m
+- url: (/secret/.*\.html)
+  static_files: __static__\1
+  upload: __NOT_USED__
+  require_matching_file: True
+  login: admin
   secure: optional
   expiration: 1m
 - url: (/.*\.css)
@@ -94,23 +183,15 @@ handlers:
   login: optional
   secure: optional
   expiration: 1m
-- url: /
+- url: /secret
   script: unused
-  login: optional
+  login: admin
   secure: optional
-- url: /_ah/.*
+- url: /secret/.*
   script: unused
-  login: optional
+  login: admin
   secure: optional
-- url: /rest
-  script: unused
-  login: optional
-  secure: optional
-- url: /.*/
-  script: unused
-  login: optional
-  secure: optional
-- url: /rest/.*
+- url: /.*
   script: unused
   login: optional
   secure: optional
