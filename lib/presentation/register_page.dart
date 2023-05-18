@@ -324,6 +324,7 @@ Future<void> registerButtonPressed(BuildContext context, String name, String use
         );
       },
     );
+    return;
   }
 
   if (!emailCompliant && !pwCompliant) {
@@ -335,6 +336,7 @@ Future<void> registerButtonPressed(BuildContext context, String name, String use
         );
       },
     );
+    return;
   }
   else if(!emailCompliant) {  
     await showDialog(
@@ -345,6 +347,7 @@ Future<void> registerButtonPressed(BuildContext context, String name, String use
         );
       },
     );
+    return;
   }
 
     else if(!pwCompliant) {
@@ -356,6 +359,7 @@ Future<void> registerButtonPressed(BuildContext context, String name, String use
           );
         },
       );
+      return;
     }
     else {
     String res = await Authentication.registerUser(name, username, email, password, role, department);
@@ -465,7 +469,7 @@ Future<void> registerButtonPressed(BuildContext context, String name, String use
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(
-            'Departamento',
+            'Função',
             style: kLabelStyle,
           ),
           const SizedBox(height: 10.0),
