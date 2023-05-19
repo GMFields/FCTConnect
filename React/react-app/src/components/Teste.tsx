@@ -1,6 +1,6 @@
 import { useState } from "react";
-import "./Teste.css";
 //import MenuIcon from '@material-ui/icons/Menu';
+import "./Teste.css";
 
 function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -40,5 +40,4 @@ function Home() {
     </div>
   );
 }
-
 export default Home;
