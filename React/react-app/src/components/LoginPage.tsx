@@ -1,58 +1,13 @@
-import { useState, useEffect } from "react";
-import "./LoginPage.css";
+import { useEffect } from "react";
+//import "./LoginPage.css";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faCrow } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Link } from "react-router-dom";
 
 function LoginPage() {
   useEffect(() => {
     library.add(faCrow);
   }, []);
-
-  const [email, setEmail] = useState("");
-
-  const [password, setPassword] = useState("");
-  const [validPassword, setValidPassword] = useState(true);
-
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-  };
-
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-    setValidPassword(validatePassword(e.target.value));
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (validPassword) {
-      try {
-        const response = await fetch(
-          `http://localhost:8080/rest/users/login?username=${email}&password=${password}`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (response.status == 200) {
-          console.log("SIUUUUUUUUU");
-        }
-        // handle the response
-      } catch (error) {
-        // handle the error
-      }
-    }
-  };
-
-  const validatePassword = (password: string) => {
-    // regex pattern for password validation (minimum 8 characters)
-    const passwordPattern =
-      /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,}$/;
-    return passwordPattern.test(password);
-  };
 
   return (
     <section className="vh-100">
@@ -65,10 +20,10 @@ function LoginPage() {
                 className="fa-2x me-3 pt-5 mt-xl-4"
                 style={{ color: "#709085" }}
               />
-              <span className="h1 fw-bold mb-0"></span>
+              <span className="h1 fw-bold mb-0">Logo</span>
             </div>
             <div className="d-flex align-items-center h-custom-2 px-5 ms-xl-4 mt-5 pt-5 pt-xl-0 mt-xl-n5">
-              <form style={{ width: "23rem" }} onSubmit={handleSubmit}>
+              <form style={{ width: "23rem" }}>
                 <h3
                   className="fw-normal mb-3 pb-3"
                   style={{ letterSpacing: "1px" }}
@@ -77,37 +32,28 @@ function LoginPage() {
                 </h3>
                 <div className="form-outline mb-4">
                   <input
-                    type="text"
+                    type="email"
                     id="form2Example18"
-                    className={`form-control form-control-lg `}
-                    placeholder="Email address"
-                    value={email}
-                    onChange={handleEmailChange}
+                    className="form-control form-control-lg"
                   />
+                  <label className="form-label" htmlFor="form2Example18">
+                    Email address
+                  </label>
                 </div>
                 <div className="form-outline mb-4">
                   <input
                     type="password"
                     id="form2Example28"
-                    className={`form-control form-control-lg ${
-                      !validPassword ? "is-invalid" : ""
-                    }`}
-                    placeholder="Password"
-                    value={password}
-                    onChange={handlePasswordChange}
+                    className="form-control form-control-lg"
                   />
-                  {!validPassword && (
-                    <div className="invalid-feedback">
-                      Password must have at least 8 characters and contain at
-                      least one uppercase letter, one lowercase letter, and one
-                      number.
-                    </div>
-                  )}
+                  <label className="form-label" htmlFor="form2Example28">
+                    Password
+                  </label>
                 </div>
                 <div className="pt-1 mb-4">
                   <button
-                    className="btn btn-info btn-lg btn-block btn-blue"
-                    type="submit"
+                    className="btn btn-info btn-lg btn-block"
+                    type="button"
                   >
                     Login
                   </button>
@@ -119,18 +65,18 @@ function LoginPage() {
                 </p>
                 <p>
                   Don't have an account?{" "}
-                  <Link to="/register" className="link-blue">
+                  <a href="#!" className="link-info">
                     Register here
-                  </Link>
+                  </a>
                 </p>
               </form>
             </div>
           </div>
           <div className="col-sm-6 px-0 d-none d-sm-block">
             <img
-              src="https://www.fct.unl.pt/sites/default/files/images/nova_4.png"
+              src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/img3.webp"
               alt="Login image"
-              className="w-100 vh-70"
+              className="w-100 vh-100"
               style={{ objectFit: "cover", objectPosition: "left" }}
             />
           </div>
