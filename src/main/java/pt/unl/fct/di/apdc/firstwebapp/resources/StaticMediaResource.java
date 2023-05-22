@@ -1,5 +1,3 @@
-package pt.unl.fct.di.apdc.firstwebapp.resources;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;

@@ -18,6 +18,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+//TODO look later https://cloud.google.com/appengine/docs/legacy/standard/java/datastore/callbacks?hl=pt-br
 @Path("/users")
 public class UserResource implements UserAPI {
     //private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
