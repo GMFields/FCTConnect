@@ -40,8 +40,8 @@ public class ClipIntegrationTest {
         WebElement passwordInput = driver.findElement(By.name("senha"));
         WebElement loginButton = driver.findElement(By.className("button"));
 
-        usernameInput.sendKeys("gm.campos");
-        passwordInput.sendKeys("#Ferrari8215900");
+        usernameInput.sendKeys("username");
+        passwordInput.sendKeys("password");
         loginButton.click();
     }
 }
