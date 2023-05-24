@@ -1,3 +1,5 @@
+package pt.unl.fct.di.apdc.firstwebapp.resources;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
@@ -22,7 +24,7 @@ import pt.unl.fct.di.apdc.firstwebapp.api.StaticMediaAPI;
 // For reference: https://cloud.google.com/storage/docs/uploads-downloads?hl=pt-br#client-libraries
 
 @SuppressWarnings("serial")
-public class StaticMediaResource extends HttpServlet implements StaticMediaAPI    {
+public class StaticMediaResource extends HttpServlet implements StaticMediaAPI {
 	private final String bucketName = "helical-ascent-385614.appspot.com";
 
 	@Override
