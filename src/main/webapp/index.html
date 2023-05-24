@@ -1,36 +1,24 @@
 <!DOCTYPE html>
+<html>
 
 <head>
-    <title>Pusher Test</title>
-    <script src="https://js.pusher.com/7.2/pusher.min.js"></script>
-    <script>
-
-        // Enable pusher logging - don't include this in production
-        Pusher.logToConsole = true;
-
-        var pusher = new Pusher('863de6ade90e73639f5e', {
-            cluster: 'eu'
-        });
-
-        var channel = pusher.subscribe('my-channel');
-        channel.bind("client-my-event", function (data) {
-            alert(JSON.stringify(data));
-        });
-
-        function sendMessage() {
-            channel.trigger("client-my-event", {
-                message: "Hello World"
-            });
-        }
-    </script>
+    <title>FCM Example</title>
+    <script src="https://js.pusher.com/beams/service-worker.js"></script>
+    <script src="https://js.pusher.com/beams/1.0/push-notifications-cdn.js"></script>
 </head>
 
 <body>
-    <h1>Pusher Test</h1>
-    <p>
-        Try publishing an event to channel <code>my-channel</code>
-        with event name <code>my-event</code>.
+    <h1>FCM Example</h1>
+    <script>
+        const beamsClient = new PusherPushNotifications.Client({
+            instanceId: 'a5dd11d2-e829-4a6b-bb1b-4bbd9b4862a4',
+        });
 
-        <input type="button" value="send" onclick="sendMessage()">
-    </p>
+        beamsClient.start()
+            .then(() => beamsClient.addDeviceInterest('debug-hello'))
+            .then(() => console.log('Successfully registered and subscribed!'))
+            .catch(console.error);
+    </script>
 </body>
+
+</html>

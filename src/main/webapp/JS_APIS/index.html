@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>FCM Example</title>
+  <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-messaging.js"></script>
+</head>
+
+<body>
+  <h1>FCM Example</h1>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCdm6bC6PQfAi47Fo8g0FLEOI_gnBSyrpY",
+      authDomain: "discipulosamd.firebaseapp.com",
+      projectId: "discipulosamd",
+      storageBucket: "discipulosamd.appspot.com",
+      messagingSenderId: "642783337455",
+      appId: "1:642783337455:web:d17d478d44eceb6a8ef41a",
+      measurementId: "G-L1EFK4K3H2"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const messaging = firebase.messaging();
+
+    function requestPermission() {
+      console.log('Requesting permission...');
+      Notification.requestPermission().then((permission) => {
+        if (permission === 'granted') {
+          console.log('Notification permission granted.');
+
+          messaging.getToken({ vapidKey: 'BMDwkCrKQflcfiTD2U1mxLTjv-nfFmqxG6iTxMB8K1XweOhuB5X_TWLgOlGcndQ8neiupmJj9MPGxFRO3NxxIsI' })
+            .then((currentToken) => {
+              if (currentToken) {
+                console.log('currentToken: ', currentToken);
+              } else {
+                console.log('No registration token available. Request permission to generate one.');
+              }
+            })
+            .catch((err) => {
+              console.log('An error occurred while retrieving token. ', err);
+            });
+        } else {
+          console.log("Do not have permissions!");
+        }
+      });
+    }
+
+    requestPermission();
+
+    messaging.onMessage((payload) => {
+      console.log('on Message ', payload);
+    });
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/firebase-messaging-sw.js')
+        .then((registration) => {
+          console.log('Service Worker registered:', registration);
+        })
+        .catch((error) => {
+          console.log('Service Worker registration failed:', error);
+        });
+    }
+  </script>
+</body>
+
+</html>
