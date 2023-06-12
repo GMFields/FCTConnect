@@ -81,7 +81,7 @@ public interface UserAPI {
     @Path("/update")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    Response updateOwnUser(ProfileData data);
+    Response updateProfile(ProfileData data, String tokenObjStr);
 
 
     /**

@@ -257,10 +257,10 @@ public class UserResource implements UserAPI {
     }
 
     @Override
-    public Response updateOwnUser(ProfileData data) {
+    public Response updateProfile(ProfileData data, String tokenObjStr) {
         LOG.fine("Attempting to update user :" + data.getName());
 
-        AuthToken tokenObj = data.getToken();
+        TokenClass tokenObj = g.fromJson(tokenObjStr, TokenClass.class);
 
         Key userKey = userKeyFactory.newKey(tokenObj.getUsername());
         Key tokenKey = tokenKeyFactory.newKey(tokenObj.getTokenID());
@@ -279,18 +279,20 @@ public class UserResource implements UserAPI {
                 return Response.status(Status.FORBIDDEN).build();
             }
 
-            user = Entity.newBuilder(userKey) //TODO @GMFields faltam itens a serem adicionados na base de dados - a ser discutido!
+            user = Entity.newBuilder(userKey)
                     .set("user_name", data.getName())
                     .set("user_pwd", DigestUtils.sha512Hex(data.getPassword()))
-                    .set("user_email", data.getEmail())
-                    .set("user_role", data.getRole()) //TODO @GMFields ver se vale a pena manter isto
-                    .set("user_state", data.getState()) //TODO @GMFields ver se vale a pena manter isto
                     .set("user_creation_time", user.getString("user_creation_time"))
+                    .set("profile", data.getProfile())
+                    .set("landline", data.getLandline())
+                    .set("occupation", data.getOccupation())
+                    .set("address", data.getAddress())
+                    .set("nif", data.getNif())
                     .build();
 
             datastore.put(user);
             txn.commit();
-            return Response.ok().entity(user).build(); //TODO @GMFields verificar do lado do cliente se está a receber o user em formato json
+            return Response.ok().entity(user).build();
         } catch(Exception e) {
             txn.rollback();
             LOG.severe(e.getMessage());
@@ -324,7 +326,6 @@ public class UserResource implements UserAPI {
                 txn.rollback();
                 return Response.status(Status.FORBIDDEN).build();
             }
-
             txn.delete(userKey);
             LOG.info("User deleted: " + tokenObj.getUsername());
             txn.delete(tokenKey);
