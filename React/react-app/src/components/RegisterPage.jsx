@@ -16,23 +16,23 @@ function LoginPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordsMatch, setPasswordsMatch] = useState(true);
 
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEmailChange = (e) => {
     setEmail(e.target.value);
   };
 
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePasswordChange = (e) => {
     setPassword(e.target.value);
     setValidPassword(validatePassword(e.target.value));
   };
 
   const handleConfirmPasswordChange = (
-    e: React.ChangeEvent<HTMLInputElement>
+    e
   ) => {
     setConfirmPassword(e.target.value);
     setPasswordsMatch(e.target.value === password);
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validPassword) {
       try {
@@ -55,7 +55,7 @@ function LoginPage() {
     }
   };
 
-  const validatePassword = (password: string) => {
+  const validatePassword = (password) => {
     // regex pattern for password validation (minimum 8 characters)
     const passwordPattern =
       /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,}$/;

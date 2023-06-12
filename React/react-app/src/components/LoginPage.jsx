@@ -15,21 +15,21 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [validPassword, setValidPassword] = useState(true);
 
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEmailChange = (e) => {
     setEmail(e.target.value);
   };
 
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePasswordChange = (e) => {
     setPassword(e.target.value);
     setValidPassword(validatePassword(e.target.value));
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validPassword) {
       try {
         const response = await fetch(
-          `/rest/users/login?email=${email}&password=${password}`,
+          `https://helical-ascent-385614.oa.r.appspot.com/rest/users/login?email=${email}&password=${password}`,
           {
             method: "POST",
             headers: {
@@ -61,7 +61,7 @@ function LoginPage() {
     }
   };
 
-  const validatePassword = (password: string) => {
+  const validatePassword = (password) => {
     // regex pattern for password validation (minimum 8 characters)
     const passwordPattern =
       /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,}$/;
