@@ -205,6 +205,58 @@ public class UserResource implements UserAPI {
     }
 
     @Override
+    public Response getProfile(String tokenObjStr) {
+        TokenClass tokenObj = g.fromJson(tokenObjStr, TokenClass.class);
+
+        Key userKey = datastore.newKeyFactory().setKind("Users").newKey(tokenObj.getUsername());
+
+        Entity user = datastore.get(userKey);
+
+        if (user == null) {
+            return Response.status(Status.NOT_FOUND).entity(USER_DOESNT_EXIST).build();
+        } else {
+
+
+            String email = user.getString("user_email");
+            String password = user.getString("user_pwd");
+            String name = user.getString("user_name");
+            int role = (int) user.getLong("user_role");
+            String state = user.getString("user_state"); //Ativo ou não
+            String department = user.getString("user_department");
+            String profile = ""; //Publico ou privado
+            String landline = "";
+            String phoneNumber = "";
+            String occupation = "";
+            String address = "";
+            String nif = "";
+
+            if (user.contains("user_profile")) {
+                profile = user.getString("user_profile");
+            }
+            if (user.contains("user_landline")) {
+                 landline = user.getString("user_landline");
+            }
+            if (user.contains("user_phone")) {
+                 phoneNumber = user.getString("user_phone");
+            }
+            if (user.contains("user_occupation")) {
+                 occupation = user.getString("user_occupation");
+            }
+            if (user.contains("user_address")) {
+                 address = user.getString("user_address");
+            }
+            if (user.contains("user_nif")) {
+                 nif = user.getString("user_nif");
+            }
+
+            ProfileData userProfile = new ProfileData(email, tokenObj.getUsername(), password, name, role, state,
+            profile, landline, phoneNumber, occupation, address, nif, department);
+
+            return Response.ok(g.toJson(userProfile)).build();
+        }
+    }
+
+    @Override
     public Response updateOwnUser(ProfileData data) {
         LOG.fine("Attempting to update user :" + data.getName());
 

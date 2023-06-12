@@ -3,13 +3,7 @@ package pt.unl.fct.di.apdc.firstwebapp.api;
 import pt.unl.fct.di.apdc.firstwebapp.util.AuthToken;
 import pt.unl.fct.di.apdc.firstwebapp.util.ProfileData;
 
-import javax.ws.rs.Path;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -23,7 +17,6 @@ public interface UserAPI {
     /**
      *
      * @param email
-     * @param username
      * @param password
      * @return 200: the token of the user logged in;
      *         404: if the user credential doesn't match any existing users;
@@ -65,11 +58,20 @@ public interface UserAPI {
     @Produces(MediaType.APPLICATION_JSON)
     Response userLogout(AuthToken tokenObjStr);
 
+    /**
+     *
+     * @param tokenObjStr
+     * @return
+     */
+    @GET
+    @Path("/profile")
+    @Produces(MediaType.APPLICATION_JSON)
+    Response getProfile(@QueryParam("tokenObj") String tokenObjStr);
+
 
     /**
      * Updates the users information
      * @param data the new user data
-     * @param  Token object to authenticate the user
      * @return  200: if the user data was successfully updated;
      *          403: if the token given doesn't match any existing token;
      *          404: if the user given doesn't match any existing user;

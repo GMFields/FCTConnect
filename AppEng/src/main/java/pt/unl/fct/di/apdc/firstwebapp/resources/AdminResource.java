@@ -1,21 +1,17 @@
 package pt.unl.fct.di.apdc.firstwebapp.resources;
-import com.google.cloud.Timestamp;
-import com.google.cloud.datastore.*;
 
-import org.apache.commons.logging.Log;
+
+import com.google.cloud.datastore.*;
 import pt.unl.fct.di.apdc.firstwebapp.api.AdminAPI;
-import pt.unl.fct.di.apdc.firstwebapp.api.UserAPI;
 import org.apache.commons.codec.digest.DigestUtils;
 import pt.unl.fct.di.apdc.firstwebapp.util.*;
 
-
 import com.google.gson.Gson;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import javax.servlet.http.HttpServletRequest;
+
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.*;
@@ -111,27 +107,66 @@ public class AdminResource implements AdminAPI {
         }
     }
 
+    @Override
+    public Response listAllUsers(String tokenObjStr) {
+        Response r = verifyAdmin(tokenObjStr);
+        if(r != null) {
+            return r;
+        }
+        Query<Entity> query = Query.newEntityQueryBuilder()
+                        .setKind("Users")
+                        .build();
+
+        QueryResults<Entity> results = datastore.run(query);
+        if(!results.hasNext()) {
+            return Response.status(Status.NOT_FOUND).entity("There are no users!").build();
+        }
+
+
+        List<List<String>> resultList = new ArrayList<>();
+
+        while (results.hasNext()) {
+
+            Entity entity = results.next();
+
+            List<String> userData = new ArrayList<>();
+            userData.add(entity.getString("user_name"));
+            userData.add(entity.getString("user_email"));
+            userData.add(entity.getString("user_name"));
+            if(entity.contains("user_department")) {
+                userData.add(entity.getString("user_department"));
+            }
+
+            resultList.add(userData);
+        }
+
+        return Response.ok(g.toJson(resultList)).build();
+    }
+
 
     @Override
     public Response listInactiveUsers(String tokenObjStr) {
        Response r = verifyAdmin(tokenObjStr);
-
        if(r != null) {
            return r;
        }
-
+       LOG.info("1");
         Query<Entity> query =
                 Query.newEntityQueryBuilder()
                         .setKind("Users")
                         .setFilter(StructuredQuery.PropertyFilter.eq("user_state", "INATIVO"))
                         .build();
+        LOG.info("2");
 
         QueryResults<Entity> results = datastore.run(query);
+        LOG.info("3");
         if(!results.hasNext()) {
             return Response.status(Status.NOT_FOUND).entity("There are no inactive users!").build();
         }
         List<Entity> resultList = new ArrayList<>();
+        LOG.info("4");
         while (results.hasNext()) {
+            LOG.info("5");
             resultList.add(results.next());
         }
 
@@ -200,6 +235,7 @@ public class AdminResource implements AdminAPI {
 
         return null;
     }
+
 
 
 

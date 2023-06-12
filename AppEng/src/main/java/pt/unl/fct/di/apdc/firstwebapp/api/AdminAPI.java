@@ -21,14 +21,36 @@ public interface AdminAPI {
     @Produces(MediaType.APPLICATION_JSON)
     Response adminLogin(@QueryParam("email") String email, @QueryParam("password") String password);
 
-
+    /**
+     *
+     * @param tokenObjStr
+     * @return
+     */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     Response listInactiveUsers(@QueryParam("tokenObj") String tokenObjStr);
 
+    /**
+     *
+     * @param tokenObjStr
+     * @return
+     */
+    @GET
+    @Path("/list")
+    @Produces(MediaType.APPLICATION_JSON)
+    Response listAllUsers(@QueryParam("tokenObj") String tokenObjStr);
+
+    /**
+     *
+     * @param userEmails
+     * @param tokenObjStr
+     * @return
+     */
     @PUT
     @Path("/activate")
     @Consumes(MediaType.APPLICATION_JSON)
     Response activateUsers(List<String> userEmails, @QueryParam("tokenObj") String tokenObjStr);
+
+
 
 }
