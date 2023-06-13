@@ -98,15 +98,4 @@ public interface UserAPI {
     @Consumes(MediaType.APPLICATION_JSON)
     Response deleteAccount(AuthToken tokenObj);
 
-    @POST
-    @Path("/anomaly")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    Response reportAnomaly(@QueryParam("tokenObj") String tokenObjStr, String anomalyDescription);
-
-    @GET
-    @Path("/anomaly/list")
-    @Produces(MediaType.APPLICATION_JSON)
-    Response listAnomalies(@QueryParam("tokenObj") String tokenObjStr);
-
 }
