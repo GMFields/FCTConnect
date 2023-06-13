@@ -339,7 +339,6 @@ public class UserResource implements UserAPI {
         TokenClass tokenObj = g.fromJson(tokenObjStr, TokenClass.class);
         LOG.fine("User: " + tokenObj.getUsername() + " is attempting to report an anomaly!");
         Key tokenKey = tokenKeyFactory.newKey(tokenObj.getTokenID());
-
         if (anomalyDescription.equals("")) {
             LOG.warning("Empty anomaly!");
             return Response.status(Status.BAD_REQUEST).build();
@@ -381,5 +380,5 @@ public class UserResource implements UserAPI {
         }
     }
 
-    
+
 }

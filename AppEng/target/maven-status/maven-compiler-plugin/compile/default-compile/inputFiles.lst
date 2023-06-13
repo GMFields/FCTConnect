@@ -1,5 +1,5 @@
-<<<<<<< HEAD
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\LoginData.java
+C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\AnomalyData.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\filters\AdditionalResponseHeadersFilter.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\api\UserAPI.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\resources\UserResource.java
@@ -12,18 +12,3 @@ C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\ap
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\ProfileData.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\api\StaticMediaAPI.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\TokenClass.java
-=======
-/Users/tiagofrancisco/Library/CloudStorage/OneDrive-FCTNOVA/Documents/Universidade/3_Ano/2_semestre/ADC/DiscipulosAMD/AppEng/src/main/java/pt/unl/fct/di/apdc/firstwebapp/util/AuthToken.java
-/Users/tiagofrancisco/Library/CloudStorage/OneDrive-FCTNOVA/Documents/Universidade/3_Ano/2_semestre/ADC/DiscipulosAMD/AppEng/src/main/java/pt/unl/fct/di/apdc/firstwebapp/resources/StaticMediaResource.java
-/Users/tiagofrancisco/Library/CloudStorage/OneDrive-FCTNOVA/Documents/Universidade/3_Ano/2_semestre/ADC/DiscipulosAMD/AppEng/src/main/java/pt/unl/fct/di/apdc/firstwebapp/api/UserAPI.java
-/Users/tiagofrancisco/Library/CloudStorage/OneDrive-FCTNOVA/Documents/Universidade/3_Ano/2_semestre/ADC/DiscipulosAMD/AppEng/src/main/java/pt/unl/fct/di/apdc/firstwebapp/api/AdminAPI.java
-/Users/tiagofrancisco/Library/CloudStorage/OneDrive-FCTNOVA/Documents/Universidade/3_Ano/2_semestre/ADC/DiscipulosAMD/AppEng/src/main/java/pt/unl/fct/di/apdc/firstwebapp/resources/UserResource.java
-/Users/tiagofrancisco/Library/CloudStorage/OneDrive-FCTNOVA/Documents/Universidade/3_Ano/2_semestre/ADC/DiscipulosAMD/AppEng/src/main/java/pt/unl/fct/di/apdc/firstwebapp/filters/AdditionalResponseHeadersFilter.java
-/Users/tiagofrancisco/Library/CloudStorage/OneDrive-FCTNOVA/Documents/Universidade/3_Ano/2_semestre/ADC/DiscipulosAMD/AppEng/src/main/java/pt/unl/fct/di/apdc/firstwebapp/util/LoginData.java
-/Users/tiagofrancisco/Library/CloudStorage/OneDrive-FCTNOVA/Documents/Universidade/3_Ano/2_semestre/ADC/DiscipulosAMD/AppEng/src/main/java/pt/unl/fct/di/apdc/firstwebapp/util/ProfileData.java
-/Users/tiagofrancisco/Library/CloudStorage/OneDrive-FCTNOVA/Documents/Universidade/3_Ano/2_semestre/ADC/DiscipulosAMD/AppEng/src/main/java/pt/unl/fct/di/apdc/firstwebapp/api/StaticMediaAPI.java
-/Users/tiagofrancisco/Library/CloudStorage/OneDrive-FCTNOVA/Documents/Universidade/3_Ano/2_semestre/ADC/DiscipulosAMD/AppEng/src/main/java/pt/unl/fct/di/apdc/firstwebapp/util/PasswordData.java
-/Users/tiagofrancisco/Library/CloudStorage/OneDrive-FCTNOVA/Documents/Universidade/3_Ano/2_semestre/ADC/DiscipulosAMD/AppEng/src/main/java/pt/unl/fct/di/apdc/firstwebapp/util/TokenClass.java
-/Users/tiagofrancisco/Library/CloudStorage/OneDrive-FCTNOVA/Documents/Universidade/3_Ano/2_semestre/ADC/DiscipulosAMD/AppEng/src/main/java/pt/unl/fct/di/apdc/firstwebapp/util/Authorization.java
-/Users/tiagofrancisco/Library/CloudStorage/OneDrive-FCTNOVA/Documents/Universidade/3_Ano/2_semestre/ADC/DiscipulosAMD/AppEng/src/main/java/pt/unl/fct/di/apdc/firstwebapp/resources/AdminResource.java
->>>>>>> 65668e4ade9836096f5a5e15b350ed89df7b2389

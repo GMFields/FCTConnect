@@ -82,7 +82,7 @@ public interface UserAPI {
     @Path("/update")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    Response updateProfile(ProfileData data, String tokenObjStr);
+    Response updateProfile(ProfileData data, @QueryParam("tokenObj") String tokenObjStr);
 
 
     /**
@@ -98,8 +98,10 @@ public interface UserAPI {
     @Consumes(MediaType.APPLICATION_JSON)
     Response deleteAccount(AuthToken tokenObj);
 
+    @POST
     @Path("/anomaly")
     @Consumes(MediaType.APPLICATION_JSON)
-    Response reportAnomaly(String tokenObjStr, String anomalyDescription);
+    @Produces(MediaType.APPLICATION_JSON)
+    Response reportAnomaly(@QueryParam("tokenObj") String tokenObjStr, String anomalyDescription);
 
 }
