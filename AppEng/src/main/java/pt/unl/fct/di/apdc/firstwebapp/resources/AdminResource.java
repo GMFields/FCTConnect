@@ -75,7 +75,6 @@ public class AdminResource implements AdminAPI {
                         return Response.status(Status.FORBIDDEN).build();
                     }
 
-
                     AuthToken token = new AuthToken(emailEntity.getString("user_username"), userRole);
 
                     Key tokenkey = tokenKeyFactory.newKey(token.getTokenID());
@@ -122,13 +121,9 @@ public class AdminResource implements AdminAPI {
             return Response.status(Status.NOT_FOUND).entity("There are no users!").build();
         }
 
-
         List<List<String>> resultList = new ArrayList<>();
-
         while (results.hasNext()) {
-
             Entity entity = results.next();
-
             List<String> userData = new ArrayList<>();
             userData.add(entity.getString("user_name"));
             userData.add(entity.getString("user_email"));
@@ -219,7 +214,7 @@ public class AdminResource implements AdminAPI {
     private Response verifyAdmin(String tokenObjStr) {
         TokenClass tokenObj = g.fromJson(tokenObjStr, TokenClass.class);
 
-        Key adminKey = datastore.newKeyFactory().setKind("Users").newKey(tokenObj.getUsername());
+        Key adminKey = userKeyFactory.newKey(tokenObj.getUsername());
 
         Entity user = datastore.get(adminKey);
         if (user == null) {

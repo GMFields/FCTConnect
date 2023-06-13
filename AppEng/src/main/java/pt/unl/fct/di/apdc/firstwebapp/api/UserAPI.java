@@ -1,5 +1,6 @@
 package pt.unl.fct.di.apdc.firstwebapp.api;
 
+import pt.unl.fct.di.apdc.firstwebapp.util.AnomalyData;
 import pt.unl.fct.di.apdc.firstwebapp.util.AuthToken;
 import pt.unl.fct.di.apdc.firstwebapp.util.ProfileData;
 
@@ -96,4 +97,9 @@ public interface UserAPI {
     @Path("/delete")
     @Consumes(MediaType.APPLICATION_JSON)
     Response deleteAccount(AuthToken tokenObj);
+
+    @Path("/anomaly")
+    @Consumes(MediaType.APPLICATION_JSON)
+    Response reportAnomaly(String tokenObjStr, String anomalyDescription);
+
 }

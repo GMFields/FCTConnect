@@ -4,6 +4,7 @@ import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.*;
 
 import com.google.gson.Gson;
+import org.apache.http.client.entity.EntityBuilder;
 import pt.unl.fct.di.apdc.firstwebapp.api.UserAPI;
 import org.apache.commons.codec.digest.DigestUtils;
 import pt.unl.fct.di.apdc.firstwebapp.util.*;
@@ -30,18 +31,16 @@ public class UserResource implements UserAPI {
 
     KeyFactory userKeyFactory = datastore.newKeyFactory().setKind("Users");
     KeyFactory tokenKeyFactory = datastore.newKeyFactory().setKind("Token");
-
     KeyFactory emailKeyFactory = datastore.newKeyFactory().setKind("Email");
+    KeyFactory anomalyKeyFactory = datastore.newKeyFactory().setKind("Anomaly");
 
     private final Gson g = new Gson();
-    private static final String INVALID_LOGIN = "Missing or wrong parameter.";
     private static final String INACTIVE_ACCOUNT  = "Account is not active, contact an admin!";
     private static final String WRONG_PASSWORD = "Wrong password";
     private static final String ATTEMPTING_REGISTER = "Attempting to register the user: ";
     private static final String USER_EXISTS = "User already exists";
     private static final String EMAIL_EXISTS = "Email already exists";
     private static final String USER_DOESNT_EXIST = "User doesn't exist";
-    private static final long USER_ROLE =   1;
     private static final String INATIVO_STATE = "INATIVO";
 
     private static final Logger LOG = Logger.getLogger(UserResource.class.getName());
@@ -208,13 +207,9 @@ public class UserResource implements UserAPI {
     public Response getProfile(String tokenObjStr) {
         TokenClass tokenObj = g.fromJson(tokenObjStr, TokenClass.class);
 
-        Key userKey = datastore.newKeyFactory().setKind("Users").newKey(tokenObj.getUsername());
-
+        Key userKey = userKeyFactory.newKey(tokenObj.getUsername());
         Entity user = datastore.get(userKey);
-
-        if (user == null) {
-            return Response.status(Status.NOT_FOUND).entity(USER_DOESNT_EXIST).build();
-        } else {
+        Transaction txn = datastore.newTransaction();
 
 
             String email = user.getString("user_email");
@@ -254,7 +249,7 @@ public class UserResource implements UserAPI {
 
             return Response.ok(g.toJson(userProfile)).build();
         }
-    }
+
 
     @Override
     public Response updateProfile(ProfileData data, String tokenObjStr) {
@@ -268,12 +263,8 @@ public class UserResource implements UserAPI {
         Transaction txn = datastore.newTransaction();
         try {
             Entity user = txn.get(userKey);
-            if(user == null){
-                txn.rollback();
-                return Response.status(Status.NOT_FOUND).build();
-            }
-
             Entity tokenE = txn.get(tokenKey);
+
             if(tokenE == null){
                 txn.rollback();
                 return Response.status(Status.FORBIDDEN).build();
@@ -310,8 +301,8 @@ public class UserResource implements UserAPI {
     public Response deleteAccount(AuthToken tokenObj) {
         LOG.fine("Attempting to delete user: " + tokenObj.getUsername());
 
-        Key userKey = datastore.newKeyFactory().setKind("Users").newKey(tokenObj.getUsername());
-        Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(tokenObj.getTokenID());
+        Key userKey = userKeyFactory.newKey(tokenObj.getUsername());
+        Key tokenKey = tokenKeyFactory.newKey(tokenObj.getTokenID());
 
         Transaction txn = datastore.newTransaction();
         try {
@@ -342,4 +333,53 @@ public class UserResource implements UserAPI {
         }
 
     }
+
+    @Override
+    public Response reportAnomaly(String tokenObjStr, String anomalyDescription) {
+        TokenClass tokenObj = g.fromJson(tokenObjStr, TokenClass.class);
+        LOG.fine("User: " + tokenObj.getUsername() + " is attempting to report an anomaly!");
+        Key tokenKey = tokenKeyFactory.newKey(tokenObj.getTokenID());
+
+        if (anomalyDescription.equals("")) {
+            LOG.warning("Empty anomaly!");
+            return Response.status(Status.BAD_REQUEST).build();
+        }
+
+        Transaction txn = datastore.newTransaction();
+
+        try {
+            Entity token = txn.get(tokenKey);
+            if (token == null) {
+                txn.rollback();
+                return Response.status(Status.FORBIDDEN).build();
+            }
+
+            AnomalyData anomaly = new AnomalyData(anomalyDescription, tokenObj.getUsername());
+            Key anomalyKey = anomalyKeyFactory.newKey(anomaly.getAnomalyID());
+            Entity anomalyEntity = Entity.newBuilder(anomalyKey)
+                    .set("anomaly_creator", anomaly.getAnomalyCreator())
+                    .set("anomaly_description", anomalyDescription)
+                    .set("anomaly_ID", anomaly.getAnomalyID())
+                    .set("anomaly_creation_data", anomaly.getCreationData())
+                    .set("is_anomaly_solved", anomaly.isSolved())
+                    .set("is_anomaly_approved", anomaly.isApproved())
+                    .build();
+            txn.add(anomalyEntity);
+
+            txn.commit();
+
+            LOG.info("Anomaly reported successfully with ID: " + anomaly.getAnomalyID());
+            return Response.status(Status.OK).entity("Anomaly reported successfully. ID: " + anomaly.getAnomalyID()).build();
+        } catch (Exception e) {
+            txn.rollback();
+            LOG.severe("An error occurred while reporting anomaly: " + e.getMessage());
+            return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            if (txn.isActive()) {
+                txn.rollback();
+            }
+        }
+    }
+
+    
 }
