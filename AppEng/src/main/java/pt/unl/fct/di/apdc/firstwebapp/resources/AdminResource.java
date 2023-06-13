@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.Status;
 
@@ -24,8 +25,8 @@ public class AdminResource implements AdminAPI {
     private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     KeyFactory userKeyFactory = datastore.newKeyFactory().setKind("Users");
     KeyFactory tokenKeyFactory = datastore.newKeyFactory().setKind("Token");
-
     KeyFactory emailKeyFactory = datastore.newKeyFactory().setKind("Email");
+    KeyFactory anomalyKeyFactory = datastore.newKeyFactory().setKind("Anomaly");
 
     private final Gson g = new Gson();
     private static final String INVALID_LOGIN = "Missing or wrong parameter.";
@@ -211,6 +212,111 @@ public class AdminResource implements AdminAPI {
         }
     }
 
+    @Override
+    public Response approveAnomaly(String tokenObjStr, String anomalyID) {
+        Response r = verifyAdmin(tokenObjStr);
+
+        if(r != null) {
+            return r;
+        }
+
+        Key anomalyKey = anomalyKeyFactory.newKey(anomalyID);
+        Transaction txn = datastore.newTransaction();
+
+        try {
+            Entity anomalyEntity = txn.get(anomalyKey);
+            if (anomalyEntity == null) {
+                txn.rollback();
+                return Response.status(Status.NOT_FOUND).build();
+            }
+
+            anomalyEntity = Entity.newBuilder(anomalyEntity)
+                    .set("is_anomaly_approved", true)
+                    .build();
+            txn.update(anomalyEntity);
+            txn.commit();
+
+            LOG.info("Anomaly approved successfully: " + anomalyID);
+            return Response.status(Status.OK).entity("Anomaly approved successfully: " + anomalyID).build();
+        } catch (Exception e) {
+            txn.rollback();
+            LOG.severe("An error occurred while approving anomaly: " + e.getMessage());
+            return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            if (txn.isActive()) {
+                txn.rollback();
+            }
+        }
+    }
+
+    @Override
+    public Response listAllAnomalies(String tokenObjStr) {
+        Response r = verifyAdmin(tokenObjStr);
+
+        if(r != null) {
+            return r;
+        }
+
+        Query<Entity> query = Query.newEntityQueryBuilder()
+                .setKind("Anomaly")
+                .build();
+
+        QueryResults<Entity> results = datastore.run(query);
+        if(!results.hasNext()) {
+            return Response.status(Status.NOT_FOUND).entity("There are no anomalies!").build();
+        }
+
+        List<List<String>> resultList = new ArrayList<>();
+        while (results.hasNext()) {
+            Entity entity = results.next();
+            List<String> anomalyData = new ArrayList<>();
+            anomalyData.add(entity.getString("anomaly_creator"));
+            anomalyData.add(entity.getString("anomaly_description"));
+            anomalyData.add(String.valueOf(entity.getBoolean("is_anomaly_solved")));
+            anomalyData.add(entity.getString("anomaly_ID"));
+            anomalyData.add(String.valueOf(entity.getLong("anomaly_creation_data")));
+
+
+            resultList.add(anomalyData);
+        }
+        return Response.ok(g.toJson(resultList)).build();
+    }
+
+    @Override
+    public Response deleteAnomaly(String tokenObjStr, String anomalyID) {
+        Response r = verifyAdmin(tokenObjStr);
+
+        if (r != null) {
+            return r;
+        }
+
+        Key anomalyKey = anomalyKeyFactory.newKey(anomalyID);
+        Transaction txn = datastore.newTransaction();
+
+        try {
+            Entity anomalyEntity = txn.get(anomalyKey);
+            if (anomalyEntity == null) {
+                txn.rollback();
+                return Response.status(Status.NOT_FOUND).build();
+            }
+
+            txn.delete(anomalyKey);
+            txn.commit();
+
+            LOG.info("Anomaly deleted successfully: " + anomalyID);
+            return Response.status(Status.OK).entity("Anomaly deleted successfully: " + anomalyID).build();
+        } catch (Exception e) {
+            txn.rollback();
+            LOG.severe("An error occurred while deleting anomaly: " + e.getMessage());
+            return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            if (txn.isActive()) {
+                txn.rollback();
+            }
+        }
+    }
+
+
     private Response verifyAdmin(String tokenObjStr) {
         TokenClass tokenObj = g.fromJson(tokenObjStr, TokenClass.class);
 
@@ -230,8 +336,5 @@ public class AdminResource implements AdminAPI {
 
         return null;
     }
-
-
-
 
 }

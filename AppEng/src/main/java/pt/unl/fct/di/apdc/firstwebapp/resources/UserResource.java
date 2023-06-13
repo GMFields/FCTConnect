@@ -11,6 +11,8 @@ import pt.unl.fct.di.apdc.firstwebapp.util.*;
 
 //import com.google.gson.Gson;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -378,6 +380,38 @@ public class UserResource implements UserAPI {
                 txn.rollback();
             }
         }
+    }
+
+    @Override
+    public Response listAnomalies(String tokenObjStr) {
+        TokenClass tokenObj = g.fromJson(tokenObjStr, TokenClass.class);
+        Key tokenKey = tokenKeyFactory.newKey(tokenObj.getTokenID());
+        Entity token = datastore.get(tokenKey);
+        if (token == null) {
+            return Response.status(Status.FORBIDDEN).build();
+        }
+
+        Query<Entity> query = Query.newEntityQueryBuilder()
+                .setKind("Anomaly")
+                .setFilter(StructuredQuery.PropertyFilter.eq("is_anomaly_approved", true))
+                .build();
+
+        QueryResults<Entity> results = datastore.run(query);
+        if(!results.hasNext()) {
+            return Response.status(Status.NOT_FOUND).entity("There are no anomalies!").build();
+        }
+
+        List<List<String>> resultList = new ArrayList<>();
+        while (results.hasNext()) {
+            Entity entity = results.next();
+            List<String> anomalyData = new ArrayList<>();
+            anomalyData.add(entity.getString("anomaly_creator"));
+            anomalyData.add(entity.getString("anomaly_description"));
+            anomalyData.add(String.valueOf(entity.getBoolean("is_anomaly_solved")));
+            anomalyData.add(entity.getString("anomaly_ID"));
+            resultList.add(anomalyData);
+        }
+        return Response.ok(g.toJson(resultList)).build();
     }
 
 

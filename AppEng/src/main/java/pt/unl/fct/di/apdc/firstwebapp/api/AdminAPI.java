@@ -52,5 +52,20 @@ public interface AdminAPI {
     Response activateUsers(List<String> userEmails, @QueryParam("tokenObj") String tokenObjStr);
 
 
+    @PUT
+    @Path("approve/{anomalyID}")
+    @Produces(MediaType.APPLICATION_JSON)
+    Response approveAnomaly(@QueryParam("tokenObj") String tokenObjStr, @PathParam("anomalyID") String anomalyID);
+
+    @GET
+    @Path("anomaly/listall")
+    @Produces(MediaType.APPLICATION_JSON)
+    Response listAllAnomalies(@QueryParam("tokenObj") String tokenObjStr);
+
+    @DELETE
+    @Path("anomaly/delete/{anomalyID}")
+    @Produces(MediaType.APPLICATION_JSON)
+    Response deleteAnomaly(@QueryParam("tokenObj") String tokenObjStr, @PathParam("anomalyID") String anomalyID);
+
 
 }

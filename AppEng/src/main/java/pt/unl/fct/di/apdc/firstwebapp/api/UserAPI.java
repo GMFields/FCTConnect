@@ -104,4 +104,9 @@ public interface UserAPI {
     @Produces(MediaType.APPLICATION_JSON)
     Response reportAnomaly(@QueryParam("tokenObj") String tokenObjStr, String anomalyDescription);
 
+    @GET
+    @Path("/anomaly/list")
+    @Produces(MediaType.APPLICATION_JSON)
+    Response listAnomalies(@QueryParam("tokenObj") String tokenObjStr);
+
 }
