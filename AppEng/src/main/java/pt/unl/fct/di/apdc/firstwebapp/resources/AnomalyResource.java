@@ -74,7 +74,7 @@ public class AnomalyResource implements AnomalyAPI {
     }
 
     @Override
-    public Response listActiveAnomalies(String tokenObjStr) {
+    public Response listApprovedAnomalies(String tokenObjStr) {
         TokenClass tokenObj = g.fromJson(tokenObjStr, TokenClass.class);
         Key tokenKey = tokenKeyFactory.newKey(tokenObj.getTokenID());
         Entity token = datastore.get(tokenKey);
@@ -135,6 +135,43 @@ public class AnomalyResource implements AnomalyAPI {
         } catch (Exception e) {
             txn.rollback();
             LOG.severe("An error occurred while approving anomaly: " + e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            if (txn.isActive()) {
+                txn.rollback();
+            }
+        }
+    }
+
+    @Override
+    public Response solveAnomaly(String tokenObjStr, String anomalyID) {
+        Response r = verifyAdmin(tokenObjStr);
+
+        if(r != null) {
+            return r;
+        }
+
+        Key anomalyKey = anomalyKeyFactory.newKey(anomalyID);
+        Transaction txn = datastore.newTransaction();
+
+        try {
+            Entity anomalyEntity = txn.get(anomalyKey);
+            if (anomalyEntity == null) {
+                txn.rollback();
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+
+            anomalyEntity = Entity.newBuilder(anomalyEntity)
+                    .set("is_anomaly_solved", true)
+                    .build();
+            txn.update(anomalyEntity);
+            txn.commit();
+
+            LOG.info("Anomaly solved successfully: " + anomalyID);
+            return Response.status(Response.Status.OK).entity("Anomaly solving successfully: " + anomalyID).build();
+        } catch (Exception e) {
+            txn.rollback();
+            LOG.severe("An error occurred while solving anomaly: " + e.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
             if (txn.isActive()) {
