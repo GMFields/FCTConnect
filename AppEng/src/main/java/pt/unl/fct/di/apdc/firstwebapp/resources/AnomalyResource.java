@@ -3,6 +3,7 @@ package pt.unl.fct.di.apdc.firstwebapp.resources;
 import com.google.cloud.datastore.*;
 import com.google.gson.Gson;
 import pt.unl.fct.di.apdc.firstwebapp.api.AnomalyAPI;
+import pt.unl.fct.di.apdc.firstwebapp.factory.KeyStore;
 import pt.unl.fct.di.apdc.firstwebapp.util.AnomalyData;
 import pt.unl.fct.di.apdc.firstwebapp.util.TokenClass;
 
@@ -23,12 +24,6 @@ public class AnomalyResource implements AnomalyAPI {
 
     private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-    KeyFactory anomalyKeyFactory = datastore.newKeyFactory().setKind("Anomaly");
-
-    KeyFactory userKeyFactory = datastore.newKeyFactory().setKind("Users");
-
-    KeyFactory tokenKeyFactory = datastore.newKeyFactory().setKind("Token");
-
     private static final Logger LOG = Logger.getLogger(UserResource.class.getName());
     
     private final Gson g = new Gson();
@@ -36,9 +31,11 @@ public class AnomalyResource implements AnomalyAPI {
 
     @Override
     public Response reportAnomaly(String tokenObjStr, String anomalyDescription) {
-        TokenClass tokenObj = g.fromJson(tokenObjStr, TokenClass.class);
+        TokenClass tokenObj = g.fromJson(tokenObjStr, TokenClass.class); //Pode ser passado como TokenClass
         LOG.fine("User: " + tokenObj.getUsername() + " is attempting to report an anomaly!");
-        Key tokenKey = tokenKeyFactory.newKey(tokenObj.getTokenID());
+        
+        Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
+        
         if (anomalyDescription.equals("")) {
             LOG.warning("Empty anomaly!");
             return Response.status(Response.Status.BAD_REQUEST).build();
@@ -48,13 +45,16 @@ public class AnomalyResource implements AnomalyAPI {
 
         try {
             Entity token = txn.get(tokenKey);
+            
             if (token == null) {
                 txn.rollback();
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
 
             AnomalyData anomaly = new AnomalyData(anomalyDescription, tokenObj.getUsername());
-            Key anomalyKey = anomalyKeyFactory.newKey(anomaly.getAnomalyID());
+            
+            Key anomalyKey = KeyStore.anomalyKeyFactory(anomaly.getAnomalyID());
+            
             Entity anomalyEntity = Entity.newBuilder(anomalyKey)
                     .set("anomaly_creator", anomaly.getAnomalyCreator())
                     .set("anomaly_description", anomalyDescription)
@@ -83,8 +83,10 @@ public class AnomalyResource implements AnomalyAPI {
     @Override
     public Response listApprovedAnomalies(String tokenObjStr) {
         TokenClass tokenObj = g.fromJson(tokenObjStr, TokenClass.class);
-        Key tokenKey = tokenKeyFactory.newKey(tokenObj.getTokenID());
+        
+        Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
         Entity token = datastore.get(tokenKey);
+      
         if (token == null) {
             return Response.status(Response.Status.FORBIDDEN).build();
         }
@@ -100,6 +102,7 @@ public class AnomalyResource implements AnomalyAPI {
         }
 
         List<List<String>> resultList = new ArrayList<>();
+        
         while (results.hasNext()) {
             Entity entity = results.next();
             List<String> anomalyData = new ArrayList<>();
@@ -121,7 +124,7 @@ public class AnomalyResource implements AnomalyAPI {
             return r;
         }
 
-        Key anomalyKey = anomalyKeyFactory.newKey(anomalyID);
+        Key anomalyKey = KeyStore.anomalyKeyFactory(anomalyID);
         Transaction txn = datastore.newTransaction();
 
         try {
@@ -158,7 +161,7 @@ public class AnomalyResource implements AnomalyAPI {
             return r;
         }
 
-        Key anomalyKey = anomalyKeyFactory.newKey(anomalyID);
+        Key anomalyKey = KeyStore.anomalyKeyFactory(anomalyID);
         Transaction txn = datastore.newTransaction();
 
         try {
@@ -228,7 +231,7 @@ public class AnomalyResource implements AnomalyAPI {
             return r;
         }
 
-        Key anomalyKey = anomalyKeyFactory.newKey(anomalyID);
+        Key anomalyKey = KeyStore.anomalyKeyFactory(anomalyID);
         Transaction txn = datastore.newTransaction();
 
         try {
@@ -255,9 +258,9 @@ public class AnomalyResource implements AnomalyAPI {
     }
 
     private Response verifyAdmin(String tokenObjStr) {
-        TokenClass tokenObj = g.fromJson(tokenObjStr, TokenClass.class);
+        TokenClass tokenObj = g.fromJson(tokenObjStr, TokenClass.class); //Pode ser passado como TokenClass
 
-        Key adminKey = userKeyFactory.newKey(tokenObj.getUsername());
+        Key adminKey = KeyStore.userKeyFactory(tokenObj.getUsername());
 
         Entity user = datastore.get(adminKey);
         if (user == null) {

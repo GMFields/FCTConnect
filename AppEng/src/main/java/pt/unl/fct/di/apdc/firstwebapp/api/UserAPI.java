@@ -2,6 +2,7 @@ package pt.unl.fct.di.apdc.firstwebapp.api;
 
 import pt.unl.fct.di.apdc.firstwebapp.util.AuthToken;
 import pt.unl.fct.di.apdc.firstwebapp.util.ProfileData;
+import pt.unl.fct.di.apdc.firstwebapp.util.TokenClass;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -63,8 +64,9 @@ public interface UserAPI {
      */
     @GET
     @Path("/profile")
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    Response getProfile(@QueryParam("tokenObj") String tokenObjStr);
+    Response getProfile(TokenClass tokenObj);
 
 
     /**
