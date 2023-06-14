@@ -12,16 +12,17 @@ public class MapData {
 
     private String name;
 
-    private  String mapID;
+    private  String wayPointID;
 
     public MapData() {}
 
     public MapData(double latitude, double longitude, String name) {
         this.latitude = latitude;
         this.longitude = longitude;
-        this.creationData = System.currentTimeMillis();
         this.name = name;
-        this.mapID = UUID.randomUUID().toString();
+        this.wayPointID = UUID.randomUUID().toString();
+        this.creationData = System.currentTimeMillis();
+
     }
 
     public double getLatitude() {
@@ -56,11 +57,11 @@ public class MapData {
         this.name = name;
     }   
 
-    public String getMapID() {
-        return this.mapID;
+    public String getWayPointID() {
+        return this.wayPointID;
     }
 
-    public void setMapID(String mapID) {
-        this.mapID = mapID;
+    public void setWayPointIDID(String wayPointID) {
+        this.wayPointID = wayPointID;
     }
 }

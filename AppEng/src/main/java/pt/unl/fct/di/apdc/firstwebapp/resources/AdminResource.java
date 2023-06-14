@@ -145,24 +145,30 @@ public class AdminResource implements AdminAPI {
        if(r != null) {
            return r;
        }
-       LOG.info("1");
+
         Query<Entity> query =
                 Query.newEntityQueryBuilder()
                         .setKind("Users")
                         .setFilter(StructuredQuery.PropertyFilter.eq("user_state", "INATIVO"))
                         .build();
-        LOG.info("2");
 
         QueryResults<Entity> results = datastore.run(query);
-        LOG.info("3");
         if(!results.hasNext()) {
             return Response.status(Status.NOT_FOUND).entity("There are no inactive users!").build();
         }
-        List<Entity> resultList = new ArrayList<>();
-        LOG.info("4");
+
+        List<List<String>> resultList = new ArrayList<>();
         while (results.hasNext()) {
-            LOG.info("5");
-            resultList.add(results.next());
+            Entity entity = results.next();
+            List<String> userData = new ArrayList<>();
+            userData.add(entity.getString("user_name"));
+            userData.add(entity.getString("user_email"));
+            userData.add(entity.getString("user_name"));
+            if(entity.contains("user_department")) {
+                userData.add(entity.getString("user_department"));
+            }
+
+            resultList.add(userData);
         }
 
         return Response.ok(g.toJson(resultList)).build();

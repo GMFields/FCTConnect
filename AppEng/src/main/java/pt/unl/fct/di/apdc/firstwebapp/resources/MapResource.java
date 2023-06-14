@@ -62,21 +62,23 @@ public class MapResource implements MapAPI {
                 return Response.status(Response.Status.BAD_REQUEST).entity("Invalid name!").build();
             }
 
-            MapData waypoint = new MapData(latitude, longitude, name);
+            MapData waypointObj = new MapData(latitude, longitude, name);
 
-            Key waypointKey = mapKeyFactory.newKey(waypoint.getMapID());
+            LOG.info(waypointObj.getWayPointID());
+
+            Key waypointKey = mapKeyFactory.newKey(waypointObj.getWayPointID());
 
             Entity wayPoint = Entity.newBuilder(waypointKey)
                     .set("waypoint_creator", tokenObj.getUsername())
                     .set("waypoint_latitude", latitude)
                     .set("waypoint_longitude", longitude)
-                    .set("waypoint_name", waypoint.getName())
-                    .set("creation_time", waypoint.getCreationData())
+                    .set("waypoint_name", waypointObj.getName())
+                    .set("creation_time", waypointObj.getCreationData())
                     .build();
-
             txn.add(wayPoint);
+
             txn.commit();
-            return Response.status(Response.Status.CREATED).entity(data).build();
+            return Response.ok(g.toJson(waypointObj)).build();
         }  catch(Exception e) {
             txn.rollback();
             LOG.severe(e.getMessage());
