@@ -11,6 +11,8 @@ import javax.ws.rs.core.Response;
 import com.google.cloud.datastore.*;
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 
@@ -37,7 +39,6 @@ public class MapResource implements MapAPI {
         LOG.info("User: " + tokenObj.getUsername() + " is attempting to create a waypoint!");
 
         Transaction txn = datastore.newTransaction();
-
         Key tokenKey = tokenKeyFactory.newKey(tokenObj.getTokenID());
 
         Double latitude = data.getLatitude();
@@ -64,8 +65,6 @@ public class MapResource implements MapAPI {
 
             MapData waypointObj = new MapData(latitude, longitude, name);
 
-            LOG.info(waypointObj.getWayPointID());
-
             Key waypointKey = mapKeyFactory.newKey(waypointObj.getWayPointID());
 
             Entity wayPoint = Entity.newBuilder(waypointKey)
@@ -76,7 +75,6 @@ public class MapResource implements MapAPI {
                     .set("creation_time", waypointObj.getCreationData())
                     .build();
             txn.add(wayPoint);
-
             txn.commit();
             return Response.ok(g.toJson(waypointObj)).build();
         }  catch(Exception e) {
@@ -90,4 +88,106 @@ public class MapResource implements MapAPI {
             }
         }
     }
+
+    @Override
+    public Response deleteWayPoint(String tokenObjStr, String wayPointID) {
+        TokenClass tokenObj = g.fromJson(tokenObjStr, TokenClass.class);
+        LOG.info("User: " + tokenObj.getUsername() + " is attempting to delete a waypoint!");
+
+        Transaction txn = datastore.newTransaction();
+        Key tokenKey = tokenKeyFactory.newKey(tokenObj.getTokenID());
+
+        try {
+            Entity token = txn.get(tokenKey);
+            if (token == null) {
+                txn.rollback();
+                return Response.status(Response.Status.FORBIDDEN).entity("Invalid token!").build();
+            }
+
+            Key waypointKey = mapKeyFactory.newKey(wayPointID);
+            Entity waypoint = txn.get(waypointKey);
+
+            if (waypoint == null) {
+                txn.rollback();
+                return Response.status(Response.Status.NOT_FOUND).entity("Waypoint not found!").build();
+            }
+
+            String waypointCreator = waypoint.getString("waypoint_creator");
+
+            if (!tokenObj.getUsername().equals(waypointCreator)) {
+                txn.rollback();
+                return Response.status(Response.Status.FORBIDDEN).entity("You don't have permission to delete this waypoint!").build();
+            }
+
+            txn.delete(waypointKey);
+            txn.commit();
+            return Response.ok().build();
+        } catch (Exception e) {
+            txn.rollback();
+            LOG.severe(e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            if (txn.isActive()) {
+                txn.rollback();
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Something went wrong!").build();
+            }
+        }
+    }
+
+
+    @Override
+    public Response getWayPoints(String tokenObjStr, String user_username) {
+        TokenClass tokenObj = g.fromJson(tokenObjStr, TokenClass.class);
+        LOG.info("User: " + tokenObj.getUsername() + " is attempting to retrieve waypoints for user: " + user_username);
+
+        Transaction txn = datastore.newTransaction();
+        Key tokenKey = tokenKeyFactory.newKey(tokenObj.getTokenID());
+
+        try {
+            Entity token = txn.get(tokenKey);
+            if (token == null) {
+                txn.rollback();
+                return Response.status(Response.Status.FORBIDDEN).entity("Invalid token!").build();
+            }
+
+            Key userKey = userKeyFactory.newKey(user_username);
+            Entity user = txn.get(userKey);
+
+            if (user == null) {
+                txn.rollback();
+                return Response.status(Response.Status.NOT_FOUND).entity("User not found!").build();
+            }
+
+            Query<Entity> query = Query.newEntityQueryBuilder()
+                    .setKind("Waypoint")
+                    .setFilter(StructuredQuery.PropertyFilter.eq("waypoint_creator", user_username))
+                    .build();
+
+            QueryResults<Entity> waypoints = txn.run(query);
+
+            List<MapData> waypointList = new ArrayList<>();
+
+            while (waypoints.hasNext()) {
+                Entity waypoint = waypoints.next();
+                Double latitude = waypoint.getDouble("waypoint_latitude");
+                Double longitude = waypoint.getDouble("waypoint_longitude");
+                String name = waypoint.getString("waypoint_name");
+
+                MapData mapData = new MapData(latitude, longitude, name);
+                waypointList.add(mapData);
+            }
+            txn.commit();
+            return Response.ok(g.toJson(waypointList)).build();
+        } catch (Exception e) {
+            txn.rollback();
+            LOG.severe(e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            if (txn.isActive()) {
+                txn.rollback();
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Something went wrong!").build();
+            }
+        }
+    }
+
 }
