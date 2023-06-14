@@ -5,8 +5,11 @@ import java.util.UUID;
 public class AnomalyData {
 
     private String description;
+    
     private String anomalyID;
+
     private String anomalyCreator;
+
     private long creationData;
 
     private boolean isSolved;

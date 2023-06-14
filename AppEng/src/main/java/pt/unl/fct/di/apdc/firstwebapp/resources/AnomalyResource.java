@@ -18,12 +18,19 @@ import java.util.logging.Logger;
 @Path("/anomaly")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 public class AnomalyResource implements AnomalyAPI {
+
     private static final String USER_DOESNT_EXIST = "User doesn't exist";
+
     private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+
     KeyFactory anomalyKeyFactory = datastore.newKeyFactory().setKind("Anomaly");
+
     KeyFactory userKeyFactory = datastore.newKeyFactory().setKind("Users");
+
     KeyFactory tokenKeyFactory = datastore.newKeyFactory().setKind("Token");
+
     private static final Logger LOG = Logger.getLogger(UserResource.class.getName());
+    
     private final Gson g = new Gson();
 
 

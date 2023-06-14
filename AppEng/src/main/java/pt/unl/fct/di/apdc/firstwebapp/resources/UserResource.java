@@ -4,26 +4,20 @@ import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.*;
 
 import com.google.gson.Gson;
-import org.apache.http.client.entity.EntityBuilder;
 import pt.unl.fct.di.apdc.firstwebapp.api.UserAPI;
 import org.apache.commons.codec.digest.DigestUtils;
 import pt.unl.fct.di.apdc.firstwebapp.util.*;
 
 //import com.google.gson.Gson;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.Status;
 
-import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
 @Path("/users")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -37,6 +31,7 @@ public class UserResource implements UserAPI {
     KeyFactory anomalyKeyFactory = datastore.newKeyFactory().setKind("Anomaly");
 
     private final Gson g = new Gson();
+
     private static final String INACTIVE_ACCOUNT  = "Account is not active, contact an admin!";
     private static final String WRONG_PASSWORD = "Wrong password";
     private static final String ATTEMPTING_REGISTER = "Attempting to register the user: ";
@@ -126,7 +121,7 @@ public class UserResource implements UserAPI {
 
         if (userKey == null) {
             LOG.warning("Failed login attempt! User with email: " + email + " does not exist");
-            return Response.status(Status.NOT_FOUND).build();
+            return Response.status(Status.NOT_FOUND).entity(USER_DOESNT_EXIST).build();
         }
         Entity user = datastore.get(userKey);
 

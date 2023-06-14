@@ -1,12 +1,9 @@
 package pt.unl.fct.di.apdc.firstwebapp.api;
 
-import pt.unl.fct.di.apdc.firstwebapp.util.AnomalyData;
 import pt.unl.fct.di.apdc.firstwebapp.util.AuthToken;
 import pt.unl.fct.di.apdc.firstwebapp.util.ProfileData;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 

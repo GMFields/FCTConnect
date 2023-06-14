@@ -2,7 +2,6 @@ package pt.unl.fct.di.apdc.firstwebapp.api;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
 public interface AnomalyAPI {
 
     /**
