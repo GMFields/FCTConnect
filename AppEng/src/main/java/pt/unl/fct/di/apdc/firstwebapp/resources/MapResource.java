@@ -1,8 +1,9 @@
 package pt.unl.fct.di.apdc.firstwebapp.resources;
+
 import pt.unl.fct.di.apdc.firstwebapp.api.MapAPI;
 import pt.unl.fct.di.apdc.firstwebapp.factory.KeyStore;
+import pt.unl.fct.di.apdc.firstwebapp.util.AuthToken;
 import pt.unl.fct.di.apdc.firstwebapp.util.MapData;
-import pt.unl.fct.di.apdc.firstwebapp.util.TokenClass;
 
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -16,25 +17,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-
-
 @Path("/waypoint")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 public class MapResource implements MapAPI {
 
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-    private static final Logger LOG = Logger.getLogger(UserResource.class.getName());
+    private static final Logger LOG = Logger.getLogger(MapResource.class.getName());
 
     private final Gson g = new Gson();
 
     @Override
     public Response addWayPoint(String tokenObjStr, MapData data) {
-        TokenClass tokenObj = g.fromJson(tokenObjStr, TokenClass.class);
+        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
         LOG.info("User: " + tokenObj.getUsername() + " is attempting to create a waypoint!");
 
         Transaction txn = datastore.newTransaction();
-        
+
         Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
 
         Double latitude = data.getLatitude();
@@ -43,7 +42,7 @@ public class MapResource implements MapAPI {
 
         try {
             Entity token = txn.get(tokenKey);
-            
+
             if (token == null) {
                 txn.rollback();
                 return Response.status(Response.Status.FORBIDDEN).entity("Invalid token!").build();
@@ -69,11 +68,11 @@ public class MapResource implements MapAPI {
                     .set("waypoint_name", data.getName())
                     .set("creation_time", data.getCreationData())
                     .build();
-            
+
             txn.add(wayPoint);
             txn.commit();
             return Response.ok(g.toJson(data)).build();
-        }  catch(Exception e) {
+        } catch (Exception e) {
             txn.rollback();
             LOG.severe(e.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -87,7 +86,8 @@ public class MapResource implements MapAPI {
 
     @Override
     public Response deleteWayPoint(String tokenObjStr, String wayPointID) {
-        TokenClass tokenObj = g.fromJson(tokenObjStr, TokenClass.class); //Aqui pode ser passado como TokenClass em  vez de uma String
+        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Aqui pode ser passado como TokenClass em vez
+                                                                       // de uma String
         LOG.info("User: " + tokenObj.getUsername() + " is attempting to delete a waypoint!");
 
         Transaction txn = datastore.newTransaction();
@@ -95,7 +95,7 @@ public class MapResource implements MapAPI {
 
         try {
             Entity token = txn.get(tokenKey);
-            
+
             if (token == null) {
                 txn.rollback();
                 return Response.status(Response.Status.FORBIDDEN).entity("Invalid token!").build();
@@ -113,7 +113,8 @@ public class MapResource implements MapAPI {
 
             if (!tokenObj.getUsername().equals(waypointCreator)) {
                 txn.rollback();
-                return Response.status(Response.Status.FORBIDDEN).entity("You don't have permission to delete this waypoint!").build();
+                return Response.status(Response.Status.FORBIDDEN)
+                        .entity("You don't have permission to delete this waypoint!").build();
             }
 
             txn.delete(waypointKey);
@@ -131,10 +132,10 @@ public class MapResource implements MapAPI {
         }
     }
 
-
     @Override
     public Response getWayPoints(String tokenObjStr, String user_username) {
-        TokenClass tokenObj = g.fromJson(tokenObjStr, TokenClass.class); //Aqui também pode ser passado como TokenClass em vez de String
+        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Aqui também pode ser passado como AuthToken em
+                                                                       // vez de String
         LOG.info("User: " + tokenObj.getUsername() + " is attempting to retrieve waypoints for user: " + user_username);
 
         Transaction txn = datastore.newTransaction();
@@ -142,7 +143,7 @@ public class MapResource implements MapAPI {
 
         try {
             Entity token = txn.get(tokenKey);
-            
+
             if (token == null) {
                 txn.rollback();
                 return Response.status(Response.Status.FORBIDDEN).entity("Invalid token!").build();
@@ -174,7 +175,7 @@ public class MapResource implements MapAPI {
                 MapData mapData = new MapData(latitude, longitude, name);
                 waypointList.add(mapData);
             }
-            
+
             txn.commit();
             return Response.ok(g.toJson(waypointList)).build();
         } catch (Exception e) {

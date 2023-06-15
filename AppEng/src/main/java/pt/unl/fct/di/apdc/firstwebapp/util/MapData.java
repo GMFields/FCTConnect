@@ -3,18 +3,13 @@ package pt.unl.fct.di.apdc.firstwebapp.util;
 import java.util.UUID;
 
 public class MapData {
-    
-    private double latitude;
-    
-    private double longitude;
 
+    private double latitude, longitude;
     private long creationData;
+    private String name, wayPointID;
 
-    private String name;
-
-    private  String wayPointID;
-
-    public MapData() {}
+    public MapData() {
+    }
 
     public MapData(double latitude, double longitude, String name) {
         this.latitude = latitude;
@@ -39,7 +34,7 @@ public class MapData {
 
     public String getName() {
         return name;
-    }   
+    }
 
     public void setLatitude(double latitude) {
         this.latitude = latitude;
@@ -47,15 +42,15 @@ public class MapData {
 
     public void setLongitude(double longitude) {
         this.longitude = longitude;
-    }       
+    }
 
     public void setCreationData(long creationData) {
         this.creationData = creationData;
-    }   
+    }
 
     public void setName(String name) {
         this.name = name;
-    }   
+    }
 
     public String getWayPointID() {
         return this.wayPointID;

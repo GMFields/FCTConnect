@@ -2,6 +2,7 @@ package pt.unl.fct.di.apdc.firstwebapp.resources;
 
 import com.google.cloud.datastore.*;
 import pt.unl.fct.di.apdc.firstwebapp.api.AdminAPI;
+import pt.unl.fct.di.apdc.firstwebapp.factory.ConstantFactory;
 import pt.unl.fct.di.apdc.firstwebapp.factory.KeyStore;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -9,7 +10,10 @@ import pt.unl.fct.di.apdc.firstwebapp.util.*;
 
 import com.google.gson.Gson;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Path;
@@ -24,19 +28,8 @@ public class AdminResource implements AdminAPI {
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
 	private final Gson g = new Gson();
-	private static final String INVALID_LOGIN = "Missing or wrong parameter.";
-	private static final String INVALID_EMAIL = "Invalid email address";
-	private static final String INVALID_PASSWORD = "Invalid password";
-	private static final String ATTEMPTING_REGISTER = "Attempting to register the user: ";
-	private static final String USER_EXISTS = "User already exists";
-	private static final String EMAIL_EXISTS = "Email already exists";
-	private static final String USER_DOESNT_EXIST = "User doesn't exist";
-	private static final long USER_ROLE = 1;
-	private static final String INATIVO_STATE = "INATIVO";
 
-	private static final String ATIVO_STATE = "ATIVO";
-
-	private static final Logger LOG = Logger.getLogger(UserResource.class.getName());
+	private static final Logger LOG = Logger.getLogger(AdminResource.class.getName());
 
 	@Override
 	public Response adminLogin(String email, String password) {
@@ -68,7 +61,7 @@ public class AdminResource implements AdminAPI {
 				txn.rollback();
 				return Response.status(Status.FORBIDDEN).build();
 			}
-			
+
 			int userRole = (int) user.getLong("user_role");
 
 			if (userRole != 4) {
@@ -81,9 +74,9 @@ public class AdminResource implements AdminAPI {
 			Key tokenKey = KeyStore.tokenKeyFactory(token.getTokenID());
 
 			Entity tokenId = Entity.newBuilder(tokenKey).set("username", token.getUsername())
-					.set("user_role", token.getRole()).set("token_creationdata", token.creationData)
-					.set("token_expirationdata", token.expirationData).build();
-			
+					.set("user_role", token.getRole()).set("token_creationdata", token.getCreationData())
+					.set("token_expirationdata", token.getExpirationData()).build();
+
 			txn.add(tokenId);
 
 			txn.commit();
@@ -103,9 +96,10 @@ public class AdminResource implements AdminAPI {
 	@Override
 	public Response listAllUsers(String tokenObjStr) {
 		Response r = verifyAdmin(tokenObjStr);
-		if (r != null) {
+		if (r.getStatus() != 200) {
 			return r;
 		}
+
 		Query<Entity> query = Query.newEntityQueryBuilder().setKind("Users").build();
 
 		QueryResults<Entity> results = datastore.run(query);
@@ -133,7 +127,7 @@ public class AdminResource implements AdminAPI {
 	@Override
 	public Response listInactiveUsers(String tokenObjStr) {
 		Response r = verifyAdmin(tokenObjStr);
-		if (r != null) {
+		if (r.getStatus() != 200) {
 			return r;
 		}
 
@@ -164,13 +158,12 @@ public class AdminResource implements AdminAPI {
 
 	public Response activateUsers(List<String> userEmails, String tokenObjStr) {
 		Response r = verifyAdmin(tokenObjStr);
-
-		if (r != null) {
+		if (r.getStatus() != 200) {
 			return r;
 		}
 
 		Transaction txn = datastore.newTransaction();
-		
+
 		try {
 			for (String email : userEmails) {
 				Key emailKey = KeyStore.emailKeyFactory(email);
@@ -179,9 +172,9 @@ public class AdminResource implements AdminAPI {
 				if (emailEntity == null) {
 					return Response.status(Status.NOT_FOUND).entity("User email not found: " + email).build();
 				}
-				
+
 				String username = emailEntity.getString("user_username");
-				
+
 				Key userKey = KeyStore.userKeyFactory(username);
 				Entity userEntity = txn.get(userKey);
 				if (userEntity == null) {
@@ -189,10 +182,11 @@ public class AdminResource implements AdminAPI {
 					return Response.status(Status.NOT_FOUND).entity("User not found for email: " + email).build();
 				}
 
-				userEntity = Entity.newBuilder(userEntity).set("user_state", ATIVO_STATE).build();
+				userEntity = Entity.newBuilder(userEntity).set("user_state", ConstantFactory.ATIVO_STATE.getDesc())
+						.build();
 				txn.update(userEntity);
 			}
-			
+
 			txn.commit();
 			return Response.status(Status.OK).entity("Users activated successfully").build();
 		} catch (Exception e) {
@@ -207,14 +201,46 @@ public class AdminResource implements AdminAPI {
 		}
 	}
 
+	public Response sendNotification() {
+		List<String> interests = Arrays.asList("donuts", "pizza");
+
+		Map<String, Map> publishRequest = new HashMap();
+
+		Map<String, String> apsAlert = new Hashmap();
+		apsAlert.put("title", "hello");
+		apsAlert.put("body", "Hello world");
+		Map<String, Map> alert = new HashMap();
+		alert.put("alert", apsAlert);
+		Map<String, Map> aps = new HashMap();
+		aps.put("aps", alert);
+		publishRequest.put("apns", aps);
+
+		Map<String, String> fcmNotification = new HashMap();
+		fcmNotification.put("title", "hello");
+		fcmNotification.put("body", "Hello world");
+		Map<String, Map> fcm = new HashMap();
+		fcm.put("notification", fcmNotification);
+		publishRequest.put("fcm", fcm);
+
+		Map<String, String> webNotification = new HashMap();
+		webNotification.put("title", "hello");
+		webNotification.put("body", "Hello world");
+		Map<String, Map> web = new HashMap();
+		web.put("notification", webNotification);
+		publishRequest.put("web", web);
+
+		beamsClient.publishToInterests(interests, publishRequest);
+	}
+
 	private Response verifyAdmin(String tokenObjStr) {
-		TokenClass tokenObj = g.fromJson(tokenObjStr, TokenClass.class);
+		AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
 
 		Key adminKey = KeyStore.userKeyFactory(tokenObj.getUsername());
 
 		Entity user = datastore.get(adminKey);
 		if (user == null) {
-			return Response.status(Response.Status.NOT_FOUND).entity(USER_DOESNT_EXIST).build();
+			return Response.status(Response.Status.NOT_FOUND).entity(ConstantFactory.USER_DOESNT_EXIST.getDesc())
+					.build();
 		}
 
 		int userRole = (int) user.getLong("user_role");
@@ -224,7 +250,7 @@ public class AdminResource implements AdminAPI {
 			return Response.status(Status.FORBIDDEN).entity("User doesn't have permissions").build();
 		}
 
-		return null;
+		return Response.status(Status.OK).build();
 	}
 
 }

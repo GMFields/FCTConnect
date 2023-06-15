@@ -5,6 +5,7 @@ import com.google.cloud.datastore.*;
 
 import com.google.gson.Gson;
 import pt.unl.fct.di.apdc.firstwebapp.api.UserAPI;
+import pt.unl.fct.di.apdc.firstwebapp.factory.ConstantFactory;
 import pt.unl.fct.di.apdc.firstwebapp.factory.KeyStore;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -19,8 +20,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.Status;
 
-import javax.ws.rs.core.Response;
-
 @Path("/users")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 public class UserResource implements UserAPI {
@@ -30,14 +29,6 @@ public class UserResource implements UserAPI {
 
 	private final Gson g = new Gson();
 
-	private static final String INACTIVE_ACCOUNT = "Account is not active, contact an admin!";
-	private static final String WRONG_PASSWORD = "Wrong password";
-	private static final String ATTEMPTING_REGISTER = "Attempting to register the user: ";
-	private static final String USER_EXISTS = "User already exists";
-	private static final String EMAIL_EXISTS = "Email already exists";
-	private static final String USER_DOESNT_EXIST = "User doesn't exist";
-	private static final String INATIVO_STATE = "INATIVO";
-
 	private static final Logger LOG = Logger.getLogger(UserResource.class.getName());
 
 	public UserResource() {
@@ -45,7 +36,7 @@ public class UserResource implements UserAPI {
 
 	@Override
 	public Response registerUser(ProfileData data) {
-		LOG.info(ATTEMPTING_REGISTER + data.getUsername());
+		LOG.info(ConstantFactory.ATTEMPTING_REGISTER.getDesc() + data.getUsername());
 
 		if (!Authorization.isDataFormatted(data.getUsername(), data.getPassword(), data.getName(), data.getEmail()))
 			return Response.status(Status.BAD_REQUEST).entity("Invalid Data").build();
@@ -59,27 +50,28 @@ public class UserResource implements UserAPI {
 
 			if (email != null) {
 				txn.rollback();
-				return Response.status(Status.CONFLICT).entity(EMAIL_EXISTS).build();
+				return Response.status(Status.CONFLICT).entity(ConstantFactory.EMAIL_EXISTS.getDesc()).build();
 			}
-			
+
 			email = Entity.newBuilder(emailKey).set("user_username", data.getUsername()).build();
 			txn.add(email);
 			LOG.info("Email entity created");
-			
+
 			Key userKey = KeyStore.userKeyFactory(email.getString("user_username"));
 
 			Entity user = txn.get(userKey);
 
 			if (user != null) {
 				txn.rollback();
-				return Response.status(Status.CONFLICT).entity(USER_EXISTS).build();
+				return Response.status(Status.CONFLICT).entity(ConstantFactory.USER_EXISTS.getDesc()).build();
 			}
 
 			user = Entity.newBuilder(userKey) // TODO @GMFields faltam itens a serem adicionados na base de dados - a
 												// ser discutido!
 					.set("user_name", data.getName()).set("user_pwd", DigestUtils.sha512Hex(data.getPassword()))
 					.set("user_email", data.getEmail()).set("user_role", data.getRole())
-					.set("user_state", INATIVO_STATE).set("user_creation_time", Timestamp.now())
+					.set("user_state", ConstantFactory.INATIVO_STATE.getDesc())
+					.set("user_creation_time", Timestamp.now())
 					.set("user_department", data.getDepartment()).build();
 
 			txn.add(user);
@@ -114,41 +106,39 @@ public class UserResource implements UserAPI {
 		Key userKey = KeyStore.userKeyFactory(emailEntity.getString("user_username"));
 
 		Transaction txn = datastore.newTransaction();
-		
+
 		try {
-			
+
 			Entity user = datastore.get(userKey);
-			
+
 			if (user == null) {
 				txn.rollback();
 				LOG.warning("Failed login attempt! User with email: " + email + " does not exist");
 				return Response.status(Status.NOT_FOUND).build();
 			}
-			
-			boolean isActive = user.getString("user_state").equals("ATIVO");
-			
-			if (!isActive) {
+
+			if (!user.getString("user_state").equals("ATIVO")) {
 				txn.rollback();
-				return Response.status(Status.FORBIDDEN).entity(INACTIVE_ACCOUNT).build();
+				return Response.status(Status.FORBIDDEN).entity(ConstantFactory.INACTIVE_ACCOUNT.getDesc()).build();
 			}
 
 			String hashedPWD = user.getString("user_pwd");
 			if (!hashedPWD.equals(DigestUtils.sha512Hex(password))) {
 				txn.rollback();
-				return Response.status(Status.FORBIDDEN).entity(WRONG_PASSWORD).build();
+				return Response.status(Status.FORBIDDEN).entity(ConstantFactory.WRONG_PASSWORD.getDesc()).build();
 			}
-			
+
 			int userRole = (int) user.getLong("user_role");
 			AuthToken token = new AuthToken(emailEntity.getString("user_username"), userRole);
-			
+
 			// Create a new token entity
 			Key tokenkey = KeyStore.tokenKeyFactory(token.getTokenID());
-			
+
 			Entity tokenid = Entity.newBuilder(tokenkey).set("username", token.getUsername())
-					.set("user_role", token.getRole()).set("token_creationdata", token.creationData)
-					.set("token_expirationdata", token.expirationData).build();
+					.set("user_role", token.getRole()).set("token_creationdata", token.getCreationData())
+					.set("token_expirationdata", token.getExpirationData()).build();
 			txn.add(tokenid);
-			
+
 			txn.commit();
 			return Response.ok(g.toJson(token)).build();
 
@@ -156,7 +146,7 @@ public class UserResource implements UserAPI {
 			txn.rollback();
 			LOG.severe(e.getMessage());
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-			
+
 		} finally {
 			if (txn.isActive()) {
 				txn.rollback();
@@ -196,15 +186,15 @@ public class UserResource implements UserAPI {
 	}
 
 	@Override
-	public Response getProfile(TokenClass tokenObj) {
+	public Response getProfile(AuthToken tokenObj) {
 
 		Key userKey = KeyStore.userKeyFactory(tokenObj.getUsername());
 		Transaction txn = datastore.newTransaction();
-		
+
 		try {
 			Entity user = datastore.get(userKey);
-			
-			//Deveria haver verificação?
+
+			// Deveria haver verificação?
 
 			String email = user.getString("user_email");
 			String password = user.getString("user_pwd");
@@ -218,10 +208,11 @@ public class UserResource implements UserAPI {
 			String occupation = user.contains("user_occupation") ? user.getString("user_occupation") : "";
 			String address = user.contains("user_address") ? user.getString("user_address") : "";
 			String nif = user.contains("user_nif") ? user.getString("user_nif") : "";
-			
-			ProfileData userProfile = new ProfileData(email, tokenObj.getUsername(), password, name, role, state, profile,
+
+			ProfileData userProfile = new ProfileData(email, tokenObj.getUsername(), password, name, role, state,
+					profile,
 					landline, phoneNumber, occupation, address, nif, department);
-	
+
 			txn.commit();
 			return Response.ok(g.toJson(userProfile)).build();
 		} catch (Exception e) {
@@ -240,13 +231,13 @@ public class UserResource implements UserAPI {
 	public Response updateProfile(ProfileData data, String tokenObjStr) {
 		LOG.fine("Attempting to update user :" + data.getName());
 
-		TokenClass tokenObj = g.fromJson(tokenObjStr, TokenClass.class);
+		AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
 
 		Key userKey = KeyStore.userKeyFactory(tokenObj.getUsername());
 		Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
 
 		Transaction txn = datastore.newTransaction();
-		
+
 		try {
 			Entity user = txn.get(userKey);
 			Entity tokenE = txn.get(tokenKey);
@@ -256,7 +247,8 @@ public class UserResource implements UserAPI {
 				return Response.status(Status.FORBIDDEN).build();
 			}
 
-			user = Entity.newBuilder(userKey).set("user_name", data.getName()) //Acho que tens de dar set a todos os atributos, se não eles desparecem
+			user = Entity.newBuilder(userKey).set("user_name", data.getName()) // Acho que tens de dar set a todos os
+																				// atributos, se não eles desparecem
 					.set("user_pwd", DigestUtils.sha512Hex(data.getPassword()))
 					.set("user_creation_time", user.getString("user_creation_time")).set("profile", data.getProfile())
 					.set("landline", data.getLandline()).set("occupation", data.getOccupation())
@@ -286,7 +278,7 @@ public class UserResource implements UserAPI {
 		Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
 
 		Transaction txn = datastore.newTransaction();
-		
+
 		try {
 			Entity user = txn.get(userKey);
 			if (user == null) {
@@ -299,10 +291,10 @@ public class UserResource implements UserAPI {
 				txn.rollback();
 				return Response.status(Status.FORBIDDEN).build();
 			}
-			
+
 			txn.delete(userKey);
 			LOG.info("User deleted: " + tokenObj.getUsername());
-			
+
 			txn.delete(tokenKey);
 			txn.commit();
 			return Response.ok().build();
