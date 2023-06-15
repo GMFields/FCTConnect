@@ -206,8 +206,6 @@ public class UserResource implements UserAPI {
 
         Key userKey = userKeyFactory.newKey(tokenObj.getUsername());
         Entity user = datastore.get(userKey);
-        Transaction txn = datastore.newTransaction();
-
 
             String email = user.getString("user_email");
             String password = user.getString("user_pwd");
