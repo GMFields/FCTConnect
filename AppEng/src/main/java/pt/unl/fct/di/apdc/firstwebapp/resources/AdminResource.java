@@ -9,6 +9,10 @@ import org.apache.commons.codec.digest.DigestUtils;
 import pt.unl.fct.di.apdc.firstwebapp.util.*;
 
 import com.google.gson.Gson;
+import com.pusher.pushnotifications.PushNotifications;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -30,6 +34,9 @@ public class AdminResource implements AdminAPI {
 	private final Gson g = new Gson();
 
 	private static final Logger LOG = Logger.getLogger(AdminResource.class.getName());
+
+	private String instanceId = "a5dd11d2-e829-4a6b-bb1b-4bbd9b4862a4";
+	private String secretKey = "D346867FB36AD2CA833333F2ADAC62E763BDA15264FC06C1D0F5BE27133EF369";
 
 	@Override
 	public Response adminLogin(String email, String password) {
@@ -201,35 +208,47 @@ public class AdminResource implements AdminAPI {
 		}
 	}
 
-	public Response sendNotification() {
+	public void sendNotification() {
+		// need client side code to work
+		// flutter client side here:
+		// https://pusher.com/docs/beams/getting-started/flutter/configure-fcm-and-apns/?ref=flutter
+		// web client side here:
+		// https://pusher.com/docs/beams/getting-started/web/sdk-integration/?ref=web
 		List<String> interests = Arrays.asList("donuts", "pizza");
 
 		Map<String, Map> publishRequest = new HashMap();
 
-		Map<String, String> apsAlert = new Hashmap();
+		Map<String, String> apsAlert = new HashMap<String, String>();
 		apsAlert.put("title", "hello");
 		apsAlert.put("body", "Hello world");
-		Map<String, Map> alert = new HashMap();
+		Map<String, Map> alert = new HashMap<String, Map>();
 		alert.put("alert", apsAlert);
-		Map<String, Map> aps = new HashMap();
+		Map<String, Map> aps = new HashMap<String, Map>();
 		aps.put("aps", alert);
 		publishRequest.put("apns", aps);
 
-		Map<String, String> fcmNotification = new HashMap();
+		Map<String, String> fcmNotification = new HashMap<String, String>();
 		fcmNotification.put("title", "hello");
 		fcmNotification.put("body", "Hello world");
-		Map<String, Map> fcm = new HashMap();
+		Map<String, Map> fcm = new HashMap<String, Map>();
 		fcm.put("notification", fcmNotification);
 		publishRequest.put("fcm", fcm);
 
-		Map<String, String> webNotification = new HashMap();
+		Map<String, String> webNotification = new HashMap<String, String>();
 		webNotification.put("title", "hello");
 		webNotification.put("body", "Hello world");
-		Map<String, Map> web = new HashMap();
+		Map<String, Map> web = new HashMap<String, Map>();
 		web.put("notification", webNotification);
 		publishRequest.put("web", web);
 
-		beamsClient.publishToInterests(interests, publishRequest);
+		PushNotifications pushNot = new PushNotifications(instanceId, secretKey);
+
+		try {
+			pushNot.publishToInterests(interests, publishRequest);
+		} catch (IOException | InterruptedException | URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private Response verifyAdmin(String tokenObjStr) {
