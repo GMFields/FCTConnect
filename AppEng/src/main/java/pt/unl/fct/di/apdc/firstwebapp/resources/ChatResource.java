@@ -21,7 +21,7 @@ public class ChatResource implements ChatApi {
     }
 
     @Override
-    public Response sendSyncMsg() {
+    public Response sendSyncMsg() { // Only the body of the method, needs work
         Map<String, String> message = Collections.singletonMap("message", "message content");
         pusher.trigger("server-channel", "main", message);
 
