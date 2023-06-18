@@ -5,6 +5,9 @@ import com.google.cloud.datastore.*;
 
 import com.google.gson.Gson;
 import pt.unl.fct.di.apdc.firstwebapp.api.UserAPI;
+import pt.unl.fct.di.apdc.firstwebapp.factory.ConstantFactory;
+import pt.unl.fct.di.apdc.firstwebapp.factory.KeyStore;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import pt.unl.fct.di.apdc.firstwebapp.util.*;
 
@@ -17,316 +20,294 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.Status;
 
-import javax.ws.rs.core.Response;
-
 @Path("/users")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 public class UserResource implements UserAPI {
-    Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-    //Datastore datastore = DatastoreOptions.newBuilder().setHost("http://localhost:8081").setProjectId("helical-ascent-385614").build().getService();
+	Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+	// Datastore datastore =
+	// DatastoreOptions.newBuilder().setHost("http://localhost:8081").setProjectId("helical-ascent-385614").build().getService();
 
-    KeyFactory userKeyFactory = datastore.newKeyFactory().setKind("Users");
-    KeyFactory tokenKeyFactory = datastore.newKeyFactory().setKind("Token");
-    KeyFactory emailKeyFactory = datastore.newKeyFactory().setKind("Email");
-    KeyFactory anomalyKeyFactory = datastore.newKeyFactory().setKind("Anomaly");
+	private final Gson g = new Gson();
 
-    private final Gson g = new Gson();
+	private static final Logger LOG = Logger.getLogger(UserResource.class.getName());
 
-    private static final String INACTIVE_ACCOUNT  = "Account is not active, contact an admin!";
-    private static final String WRONG_PASSWORD = "Wrong password";
-    private static final String ATTEMPTING_REGISTER = "Attempting to register the user: ";
-    private static final String USER_EXISTS = "User already exists";
-    private static final String EMAIL_EXISTS = "Email already exists";
-    private static final String USER_DOESNT_EXIST = "User doesn't exist";
-    private static final String INATIVO_STATE = "INATIVO";
+	public UserResource() {
+	}
 
-    private static final Logger LOG = Logger.getLogger(UserResource.class.getName());
+	@Override
+	public Response registerUser(ProfileData data) {
+		LOG.info(ConstantFactory.ATTEMPTING_REGISTER.getDesc() + data.getUsername());
 
-    public UserResource() {}
+		if (!Authorization.isDataFormatted(data.getUsername(), data.getPassword(), data.getName(), data.getEmail()))
+			return Response.status(Status.BAD_REQUEST).entity("Invalid Data").build();
 
-    @Override
-    public Response registerUser(ProfileData data) {
-        LOG.info(ATTEMPTING_REGISTER + data.getUsername());
+		Transaction txn = datastore.newTransaction();
 
-        if(!Authorization.isDataFormatted(data.getUsername(), data.getPassword(), data.getName(), data.getEmail()))
-            return Response.status(Status.BAD_REQUEST).entity("Invalid Data").build();
+		Key emailKey = KeyStore.emailKeyFactory(data.getEmail());
 
-        Transaction txn = datastore.newTransaction();
+		try {
+			Entity email = txn.get(emailKey);
 
-        Key emailKey = emailKeyFactory.newKey(data.getEmail());
+			if (email != null) {
+				txn.rollback();
+				return Response.status(Status.CONFLICT).entity(ConstantFactory.EMAIL_EXISTS.getDesc()).build();
+			}
 
-        try {
-            Entity email = txn.get(emailKey);
+			email = Entity.newBuilder(emailKey).set("user_username", data.getUsername()).build();
+			txn.add(email);
+			LOG.info("Email entity created");
 
-            if(email != null){
-                txn.rollback();
-                return Response.status(Status.CONFLICT).entity(EMAIL_EXISTS).build();
-            }
-            else {
-                email = Entity.newBuilder(emailKey)
-                        .set("user_username", data.getUsername())
-                        .build();
-                txn.add(email);
-                LOG.info("Email entity created");
-            }
+			Key userKey = KeyStore.userKeyFactory(email.getString("user_username"));
 
-            Key userKey = userKeyFactory.newKey(email.getString("user_username"));
+			Entity user = txn.get(userKey);
 
-            Entity user = txn.get(userKey);
+			if (user != null) {
+				txn.rollback();
+				return Response.status(Status.CONFLICT).entity(ConstantFactory.USER_EXISTS.getDesc()).build();
+			}
 
-            if(user != null){
-                txn.rollback();
-                return Response.status(Status.CONFLICT).entity(USER_EXISTS).build();
-            }
+			user = Entity.newBuilder(userKey) // TODO @GMFields faltam itens a serem adicionados na base de dados - a
+												// ser discutido!
+					.set("user_name", data.getName()).set("user_pwd", DigestUtils.sha512Hex(data.getPassword()))
+					.set("user_email", data.getEmail()).set("user_role", data.getRole())
+					.set("user_state", ConstantFactory.INATIVO_STATE.getDesc())
+					.set("user_creation_time", Timestamp.now())
+					.set("user_department", data.getDepartment()).build();
 
-            user = Entity.newBuilder(userKey) //TODO @GMFields faltam itens a serem adicionados na base de dados - a ser discutido!
-                    .set("user_name", data.getName())
-                    .set("user_pwd", DigestUtils.sha512Hex(data.getPassword()))
-                    .set("user_email", data.getEmail())
-                    .set("user_role", data.getRole())
-                    .set("user_state", INATIVO_STATE)
-                    .set("user_creation_time", Timestamp.now())
-                    .set("user_department", data.getDepartment())
-                    .build();
+			txn.add(user);
+			LOG.info("User registered: " + data.getUsername());
+			txn.commit();
+			return Response.status(Status.CREATED).entity(data).build(); // TODO @GMFields verificar se é preciso enviar
+																			// "data" - método não tem tag @produces
+		} catch (Exception e) {
+			txn.rollback();
+			LOG.severe(e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		} finally {
+			if (txn.isActive()) {
+				txn.rollback();
+				return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			}
+		}
+	}
 
-            txn.add(user);
-            LOG.info("User registered: "+ data.getUsername());
-            txn.commit();
-            return Response.status(Status.CREATED).entity(data).build(); //TODO @GMFields verificar se é preciso enviar "data" - método não tem tag @produces
-        } catch(Exception e) {
-            txn.rollback();
-            LOG.severe(e.getMessage());
-            return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-        }
-        finally {
-            if(txn.isActive()) {
-                txn.rollback();
-                return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-            }
-        }
-    }
+	@Override
+	public Response userLogin(String email, String password) {
+		LOG.info("Attempt to login user with e-mail: " + email);
 
-    @Override
-    public Response userLogin(String email, String password) {
-        LOG.info("Attempt to login user with e-mail: " + email);
-        Key emailKey = emailKeyFactory.newKey(email);
-        Entity emailEntity = datastore.get(emailKey);
+		Key emailKey = KeyStore.emailKeyFactory(email);
+		Entity emailEntity = datastore.get(emailKey);
 
-        if (emailEntity == null) {
-            LOG.info("Failed login attempt! User with email: " + email + " does not exist");
-            return Response.status(Status.NOT_FOUND).build();
-        }
+		if (emailEntity == null) {
+			LOG.info("Failed login attempt! User with email: " + email + " does not exist");
+			return Response.status(Status.NOT_FOUND).build();
+		}
 
-        Key userKey = userKeyFactory.newKey(emailEntity.getString("user_username"));
+		Key userKey = KeyStore.userKeyFactory(emailEntity.getString("user_username"));
 
-        if (userKey == null) {
-            LOG.warning("Failed login attempt! User with email: " + email + " does not exist");
-            return Response.status(Status.NOT_FOUND).entity(USER_DOESNT_EXIST).build();
-        }
-        Entity user = datastore.get(userKey);
+		Transaction txn = datastore.newTransaction();
 
-        boolean isActive = user.getString("user_state").equals("ATIVO");
+		try {
 
-        if(!isActive) {
-            return Response.status(Status.FORBIDDEN).entity(INACTIVE_ACCOUNT).build();
-        }
+			Entity user = datastore.get(userKey);
 
-        Transaction txn = datastore.newTransaction();
-        try {
-            if (user != null) {
-                String hashedPWD = user.getString("user_pwd");
-                if (hashedPWD.equals(DigestUtils.sha512Hex(password))) {
-                    int userRole = (int) user.getLong("user_role");
-                    AuthToken token = new AuthToken(emailEntity.getString("user_username"), userRole);
+			if (user == null) {
+				txn.rollback();
+				LOG.warning("Failed login attempt! User with email: " + email + " does not exist");
+				return Response.status(Status.NOT_FOUND).build();
+			}
 
-                    // Create a new token entity
-                    Key tokenkey = tokenKeyFactory.newKey(token.getTokenID());
+			if (!user.getString("user_state").equals("ATIVO")) {
+				txn.rollback();
+				return Response.status(Status.FORBIDDEN).entity(ConstantFactory.INACTIVE_ACCOUNT.getDesc()).build();
+			}
 
-                    Entity tokenid = Entity.newBuilder(tokenkey)
-                            .set("username", token.getUsername())
-                            .set("user_role", token.getRole())
-                            .set("token_creationdata", token.creationData)
-                            .set("token_expirationdata", token.expirationData)
-                            .build();
-                    txn.add(tokenid);
+			String hashedPWD = user.getString("user_pwd");
+			if (!hashedPWD.equals(DigestUtils.sha512Hex(password))) {
+				txn.rollback();
+				return Response.status(Status.FORBIDDEN).entity(ConstantFactory.WRONG_PASSWORD.getDesc()).build();
+			}
 
-                    txn.commit();
-                    return Response.ok(g.toJson(token)).build();
-                } else {
-                    txn.rollback();
-                    return Response.status(Status.FORBIDDEN).entity(WRONG_PASSWORD).build();
-                }
-            } else {
-                txn.rollback();
-                LOG.warning("Failed login attempt! User with email: " + email + " does not exist");
-                return Response.status(Status.NOT_FOUND).build();
-            }
-        } finally {
-            if (txn.isActive()) {
-                txn.rollback();
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-            }
-        }
-    }
+			int userRole = (int) user.getLong("user_role");
+			AuthToken token = new AuthToken(emailEntity.getString("user_username"), userRole);
 
+			// Create a new token entity
+			Key tokenkey = KeyStore.tokenKeyFactory(token.getTokenID());
 
-    @Override
-    public Response userLogout(AuthToken tokenObj) {
-        LOG.fine("Attempt to logout user: " + tokenObj.getUsername());
+			Entity tokenid = Entity.newBuilder(tokenkey).set("username", token.getUsername())
+					.set("user_role", token.getRole()).set("token_creationdata", token.getCreationData())
+					.set("token_expirationdata", token.getExpirationData()).build();
+			txn.add(tokenid);
 
-        Key tokenKey = tokenKeyFactory.newKey(tokenObj.getTokenID());
+			txn.commit();
+			return Response.ok(g.toJson(token)).build();
 
-        Transaction txn = datastore.newTransaction();
-        try {
-            Entity tokenE = txn.get(tokenKey);
+		} catch (Exception e) {
+			txn.rollback();
+			LOG.severe(e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 
-            if(tokenE == null){
-                txn.rollback();
-                return Response.status(Status.NOT_FOUND).build();
-            }
+		} finally {
+			if (txn.isActive()) {
+				txn.rollback();
+				return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+			}
+		}
+	}
 
-            datastore.delete(tokenKey);
-            txn.commit();
-            return Response.ok().build();
-        } catch(Exception e) {
-            txn.rollback();
-            LOG.severe(e.getMessage());
-            return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-        } finally {
-            if (txn.isActive()) {
-                txn.rollback();
-                return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-            }
-        }
-    }
+	@Override
+	public Response userLogout(AuthToken tokenObj) {
+		LOG.fine("Attempt to logout user: " + tokenObj.getUsername());
 
-    @Override
-    public Response getProfile(String tokenObjStr) {
-        TokenClass tokenObj = g.fromJson(tokenObjStr, TokenClass.class);
+		Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
 
-        Key userKey = userKeyFactory.newKey(tokenObj.getUsername());
-        Entity user = datastore.get(userKey);
+		Transaction txn = datastore.newTransaction();
+		try {
+			Entity tokenE = txn.get(tokenKey);
 
-            String email = user.getString("user_email");
-            String password = user.getString("user_pwd");
-            String name = user.getString("user_name");
-            int role = (int) user.getLong("user_role");
-            String state = user.getString("user_state"); //Ativo ou não
-            String department = user.getString("user_department");
-            String profile = ""; //Publico ou privado
-            String landline = "";
-            String phoneNumber = "";
-            String occupation = "";
-            String address = "";
-            String nif = "";
+			if (tokenE == null) {
+				txn.rollback();
+				return Response.status(Status.NOT_FOUND).build();
+			}
 
-            if (user.contains("user_profile")) {
-                profile = user.getString("user_profile");
-            }
-            if (user.contains("user_landline")) {
-                 landline = user.getString("user_landline");
-            }
-            if (user.contains("user_phone")) {
-                 phoneNumber = user.getString("user_phone");
-            }
-            if (user.contains("user_occupation")) {
-                 occupation = user.getString("user_occupation");
-            }
-            if (user.contains("user_address")) {
-                 address = user.getString("user_address");
-            }
-            if (user.contains("user_nif")) {
-                 nif = user.getString("user_nif");
-            }
+			txn.delete(tokenKey);
+			txn.commit();
+			return Response.ok().build();
+		} catch (Exception e) {
+			txn.rollback();
+			LOG.severe(e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		} finally {
+			if (txn.isActive()) {
+				txn.rollback();
+				return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			}
+		}
+	}
 
-            ProfileData userProfile = new ProfileData(email, tokenObj.getUsername(), password, name, role, state,
-            profile, landline, phoneNumber, occupation, address, nif, department);
+	@Override
+	public Response getProfile(AuthToken tokenObj) {
 
-            return Response.ok(g.toJson(userProfile)).build();
-        }
+		Key userKey = KeyStore.userKeyFactory(tokenObj.getUsername());
+		Transaction txn = datastore.newTransaction();
 
+		try {
+			Entity user = datastore.get(userKey);
 
-    @Override
-    public Response updateProfile(ProfileData data, String tokenObjStr) {
-        LOG.fine("Attempting to update user :" + data.getName());
+			// Deveria haver verificação?
 
-        TokenClass tokenObj = g.fromJson(tokenObjStr, TokenClass.class);
+			String email = user.getString("user_email");
+			String password = user.getString("user_pwd");
+			String name = user.getString("user_name");
+			int role = (int) user.getLong("user_role");
+			String state = user.getString("user_state"); // Ativo ou não
+			String department = user.getString("user_department");
+			String profile = user.contains("user_profile") ? user.getString("user_profile") : ""; // Publico ou privado
+			String landline = user.contains("user_landline") ? user.getString("user_landline") : "";
+			String phoneNumber = user.contains("user_phone") ? user.getString("user_phone") : "";
+			String occupation = user.contains("user_occupation") ? user.getString("user_occupation") : "";
+			String address = user.contains("user_address") ? user.getString("user_address") : "";
+			String nif = user.contains("user_nif") ? user.getString("user_nif") : "";
 
-        Key userKey = userKeyFactory.newKey(tokenObj.getUsername());
-        Key tokenKey = tokenKeyFactory.newKey(tokenObj.getTokenID());
+			ProfileData userProfile = new ProfileData(email, tokenObj.getUsername(), password, name, role, state,
+					profile,
+					landline, phoneNumber, occupation, address, nif, department);
 
-        Transaction txn = datastore.newTransaction();
-        try {
-            Entity user = txn.get(userKey);
-            Entity tokenE = txn.get(tokenKey);
+			txn.commit();
+			return Response.ok(g.toJson(userProfile)).build();
+		} catch (Exception e) {
+			txn.rollback();
+			LOG.severe(e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		} finally {
+			if (txn.isActive()) {
+				txn.rollback();
+				return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			}
+		}
+	}
 
-            if(tokenE == null){
-                txn.rollback();
-                return Response.status(Status.FORBIDDEN).build();
-            }
+	@Override
+	public Response updateProfile(ProfileData data, String tokenObjStr) {
+		LOG.fine("Attempting to update user :" + data.getName());
 
-            user = Entity.newBuilder(userKey)
-                    .set("user_name", data.getName())
-                    .set("user_pwd", DigestUtils.sha512Hex(data.getPassword()))
-                    .set("user_creation_time", user.getString("user_creation_time"))
-                    .set("profile", data.getProfile())
-                    .set("landline", data.getLandline())
-                    .set("occupation", data.getOccupation())
-                    .set("address", data.getAddress())
-                    .set("nif", data.getNif())
-                    .build();
+		AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
 
-            datastore.put(user);
-            txn.commit();
-            return Response.ok().entity(user).build();
-        } catch(Exception e) {
-            txn.rollback();
-            LOG.severe(e.getMessage());
-            return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-        } finally {
-            if (txn.isActive()) {
-                txn.rollback();
-                return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-            }
-        }
+		Key userKey = KeyStore.userKeyFactory(tokenObj.getUsername());
+		Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
 
-    }
+		Transaction txn = datastore.newTransaction();
 
-    @Override
-    public Response deleteAccount(AuthToken tokenObj) {
-        LOG.fine("Attempting to delete user: " + tokenObj.getUsername());
+		try {
+			Entity user = txn.get(userKey);
+			Entity tokenE = txn.get(tokenKey);
 
-        Key userKey = userKeyFactory.newKey(tokenObj.getUsername());
-        Key tokenKey = tokenKeyFactory.newKey(tokenObj.getTokenID());
+			if (tokenE == null) {
+				txn.rollback();
+				return Response.status(Status.FORBIDDEN).build();
+			}
 
-        Transaction txn = datastore.newTransaction();
-        try {
-            Entity user = txn.get(userKey);
-            if(user == null){
-                txn.rollback();
-                return Response.status(Status.NOT_FOUND).build();
-            }
+			user = Entity.newBuilder(userKey).set("user_name", data.getName()) // Acho que tens de dar set a todos os
+																				// atributos, se não eles desparecem
+					.set("user_pwd", DigestUtils.sha512Hex(data.getPassword()))
+					.set("user_creation_time", user.getString("user_creation_time")).set("profile", data.getProfile())
+					.set("landline", data.getLandline()).set("occupation", data.getOccupation())
+					.set("address", data.getAddress()).set("nif", data.getNif()).build();
 
-            Entity token = txn.get(tokenKey);
-            if(token == null){
-                txn.rollback();
-                return Response.status(Status.FORBIDDEN).build();
-            }
-            txn.delete(userKey);
-            LOG.info("User deleted: " + tokenObj.getUsername());
-            txn.delete(tokenKey);
-            txn.commit();
-            return Response.ok().build();
-        } catch(Exception e) {
-            txn.rollback();
-            LOG.severe(e.getMessage());
-            return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-        } finally{
-            if (txn.isActive()) {
-                txn.rollback();
-            }
-        }
+			datastore.put(user);
+			txn.commit();
+			return Response.ok().entity(user).build();
+		} catch (Exception e) {
+			txn.rollback();
+			LOG.severe(e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		} finally {
+			if (txn.isActive()) {
+				txn.rollback();
+				return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			}
+		}
 
-    }
+	}
+
+	@Override
+	public Response deleteAccount(AuthToken tokenObj) {
+		LOG.fine("Attempting to delete user: " + tokenObj.getUsername());
+
+		Key userKey = KeyStore.userKeyFactory(tokenObj.getUsername());
+		Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
+
+		Transaction txn = datastore.newTransaction();
+
+		try {
+			Entity user = txn.get(userKey);
+			if (user == null) {
+				txn.rollback();
+				return Response.status(Status.NOT_FOUND).build();
+			}
+
+			Entity token = txn.get(tokenKey);
+			if (token == null) {
+				txn.rollback();
+				return Response.status(Status.FORBIDDEN).build();
+			}
+
+			txn.delete(userKey);
+			LOG.info("User deleted: " + tokenObj.getUsername());
+
+			txn.delete(tokenKey);
+			txn.commit();
+			return Response.ok().build();
+		} catch (Exception e) {
+			txn.rollback();
+			LOG.severe(e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		} finally {
+			if (txn.isActive()) {
+				txn.rollback();
+			}
+		}
+
+	}
 
 }

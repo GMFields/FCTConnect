@@ -4,20 +4,14 @@ import java.util.UUID;
 
 public class AnomalyData {
 
-    private String description;
-    
-    private String anomalyID;
-
-    private String anomalyCreator;
+    private String description, anomalyID, anomalyCreator;
 
     private long creationData;
 
-    private boolean isSolved;
+    private boolean isSolved, isApproved;
 
-    private boolean isApproved;
-
-
-    public AnomalyData() {}
+    public AnomalyData() {
+    }
 
     public AnomalyData(String description, String anomalyCreator) {
         this.anomalyCreator = anomalyCreator;

@@ -28,13 +28,14 @@ public interface UserAPI {
 
     /**
      * Registers a new user on the system
+     * 
      * @param data the user
      * @return 201: if the user was successfully registered;
      *         400: if the user enters an invalid email;
      * 
      * @return 400: if the user enters an invalid email;
-     *              if the user enters an invalid password;
-     *              if the user doesn't fill in the fields;
+     *         if the user enters an invalid password;
+     *         if the user doesn't fill in the fields;
      *         409: if the user already exists;
      *         500: if there is a server error.
      */
@@ -45,6 +46,7 @@ public interface UserAPI {
 
     /**
      * Logouts a user
+     * 
      * @param tokenObjStr Token object to authenticate the user
      * @return 200: if the user seccessfully logged out;
      *         400: if the token has expired;
@@ -63,17 +65,18 @@ public interface UserAPI {
      */
     @GET
     @Path("/profile")
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    Response getProfile(@QueryParam("tokenObj") String tokenObjStr);
-
+    Response getProfile(AuthToken tokenObj);
 
     /**
      * Updates the users information
+     * 
      * @param data the new user data
-     * @return  200: if the user data was successfully updated;
-     *          403: if the token given doesn't match any existing token;
-     *          404: if the user given doesn't match any existing user;
-     *          500: if there was a server error.
+     * @return 200: if the user data was successfully updated;
+     *         403: if the token given doesn't match any existing token;
+     *         404: if the user given doesn't match any existing user;
+     *         500: if there was a server error.
      */
     @PUT
     @Path("/update")
@@ -81,14 +84,14 @@ public interface UserAPI {
     @Produces(MediaType.APPLICATION_JSON)
     Response updateProfile(ProfileData data, @QueryParam("tokenObj") String tokenObjStr);
 
-
     /**
      * Deletes the user's account
+     * 
      * @param tokenObj Token object to authenticate the user
-     * @return  200: if the user was successfully deleted;
-     *          403: if the token given doesn't match any existing token;
-     *          404: if the user given doesn't match any existing user;
-     *          500: if there was a server error.
+     * @return 200: if the user was successfully deleted;
+     *         403: if the token given doesn't match any existing token;
+     *         404: if the user given doesn't match any existing user;
+     *         500: if there was a server error.
      */
     @DELETE
     @Path("/delete")

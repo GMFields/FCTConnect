@@ -1,16 +1,27 @@
 package pt.unl.fct.di.apdc.firstwebapp.resources;
 
-
 import com.google.cloud.datastore.*;
 import pt.unl.fct.di.apdc.firstwebapp.api.AdminAPI;
+import pt.unl.fct.di.apdc.firstwebapp.factory.ConstantFactory;
+import pt.unl.fct.di.apdc.firstwebapp.factory.KeyStore;
+import pt.unl.fct.di.apdc.firstwebapp.notifications.ApnFormat;
+import pt.unl.fct.di.apdc.firstwebapp.notifications.FcmFormat;
+import pt.unl.fct.di.apdc.firstwebapp.notifications.WebFormat;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import pt.unl.fct.di.apdc.firstwebapp.util.*;
 
 import com.google.gson.Gson;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Logger;
+import com.pusher.pushnotifications.PushNotifications;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -21,220 +32,233 @@ import javax.ws.rs.core.Response.Status;
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 public class AdminResource implements AdminAPI {
 
-    private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-    KeyFactory userKeyFactory = datastore.newKeyFactory().setKind("Users");
-    KeyFactory tokenKeyFactory = datastore.newKeyFactory().setKind("Token");
-    KeyFactory emailKeyFactory = datastore.newKeyFactory().setKind("Email");
-    KeyFactory anomalyKeyFactory = datastore.newKeyFactory().setKind("Anomaly");
+	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-    private final Gson g = new Gson();
-    private static final String INVALID_LOGIN = "Missing or wrong parameter.";
-    private static final String INVALID_EMAIL = "Invalid email address";
-    private static final String INVALID_PASSWORD = "Invalid password";
-    private static final String ATTEMPTING_REGISTER = "Attempting to register the user: ";
-    private static final String USER_EXISTS = "User already exists";
-    private static final String EMAIL_EXISTS = "Email already exists";
-    private static final String USER_DOESNT_EXIST = "User doesn't exist";
-    private static final long USER_ROLE =   1;
-    private static final String INATIVO_STATE = "INATIVO";
+	private final Gson g = new Gson();
 
-    private static final String ATIVO_STATE = "ATIVO";
+	private static final Logger LOG = Logger.getLogger(AdminResource.class.getName());
 
+	private String instanceId = "a5dd11d2-e829-4a6b-bb1b-4bbd9b4862a4";
+	private String secretKey = "D346867FB36AD2CA833333F2ADAC62E763BDA15264FC06C1D0F5BE27133EF369";
+	private PushNotifications pushNot = new PushNotifications(instanceId, secretKey);
 
-    private static final Logger LOG = Logger.getLogger(UserResource.class.getName());
+	@Override
+	public Response adminLogin(String email, String password) {
+		LOG.info("Attempting to log in admin: " + email);
+		Key emailKey = KeyStore.emailKeyFactory(email);
 
-    @Override
-    public Response adminLogin(String email, String password) {
-        LOG.info("Attempting to log in admin: "+email );
-        Key emailKey = emailKeyFactory.newKey(email);
-        Entity emailEntity = datastore.get(emailKey);
+		Transaction txn = datastore.newTransaction();
 
-        if (emailEntity == null) {
-            LOG.info("Failed login attempt! Admin with email: " + email + " does not exist");
-            return Response.status(Status.NOT_FOUND).build();
-        }
+		try {
+			Entity emailEntity = txn.get(emailKey);
 
-        Key userKey = userKeyFactory.newKey(emailEntity.getString("user_username"));
+			if (emailEntity == null) {
+				LOG.info("Failed login attempt! Admin with email: " + email + " does not exist");
+				return Response.status(Status.NOT_FOUND).build();
+			}
 
-        if (userKey == null) {
-            LOG.warning("Failed login attempt! Admin with email: " + email + " does not exist");
-            return Response.status(Status.NOT_FOUND).build();
-        }
-        Entity user = datastore.get(userKey);
+			Key userKey = KeyStore.userKeyFactory(emailEntity.getString("user_username"));
 
+			Entity user = txn.get(userKey);
 
-        Transaction txn = datastore.newTransaction();
-        try {
-            if (user != null) {
-                String hashedPWD = user.getString("user_pwd");
-                if (hashedPWD.equals(DigestUtils.sha512Hex(password))) {
-                    int userRole = (int) user.getLong("user_role");
+			if (user == null) {
+				txn.rollback();
+				LOG.warning("Failed login attempt! User with email: " + email + " does not exist");
+				return Response.status(Status.NOT_FOUND).build();
+			}
 
-                    if (userRole != 4) {
-                        txn.rollback();
-                        return Response.status(Status.FORBIDDEN).build();
-                    }
+			String hashedPWD = user.getString("user_pwd");
+			if (!hashedPWD.equals(DigestUtils.sha512Hex(password))) {
+				txn.rollback();
+				return Response.status(Status.FORBIDDEN).build();
+			}
 
-                    AuthToken token = new AuthToken(emailEntity.getString("user_username"), userRole);
+			int userRole = (int) user.getLong("user_role");
 
-                    Key tokenkey = tokenKeyFactory.newKey(token.getTokenID());
+			if (userRole != 4) {
+				txn.rollback();
+				return Response.status(Status.FORBIDDEN).build();
+			}
 
-                    Entity tokenid = Entity.newBuilder(tokenkey)
-                            .set("username", token.getUsername())
-                            .set("user_role", token.getRole())
-                            .set("token_creationdata", token.creationData)
-                            .set("token_expirationdata", token.expirationData)
-                            .build();
-                    txn.add(tokenid);
+			AuthToken token = new AuthToken(emailEntity.getString("user_username"), userRole);
 
-                    txn.commit();
-                    return Response.ok(g.toJson(token)).build();
-                } else {
-                    txn.rollback();
-                    return Response.status(Status.FORBIDDEN).build();
-                }
-            } else {
-                txn.rollback();
-                LOG.warning("Failed login attempt! User with email: " + email + " does not exist");
-                return Response.status(Status.NOT_FOUND).build();
-            }
-        } finally {
-            if (txn.isActive()) {
-                txn.rollback();
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-            }
-        }
-    }
+			Key tokenKey = KeyStore.tokenKeyFactory(token.getTokenID());
 
-    @Override
-    public Response listAllUsers(String tokenObjStr) {
-        Response r = verifyAdmin(tokenObjStr);
-        if(r != null) {
-            return r;
-        }
-        Query<Entity> query = Query.newEntityQueryBuilder()
-                        .setKind("Users")
-                        .build();
+			Entity tokenId = Entity.newBuilder(tokenKey).set("username", token.getUsername())
+					.set("user_role", token.getRole()).set("token_creationdata", token.getCreationData())
+					.set("token_expirationdata", token.getExpirationData()).build();
 
-        QueryResults<Entity> results = datastore.run(query);
-        if(!results.hasNext()) {
-            return Response.status(Status.NOT_FOUND).entity("There are no users!").build();
-        }
+			txn.add(tokenId);
 
-        List<List<String>> resultList = new ArrayList<>();
-        while (results.hasNext()) {
-            Entity entity = results.next();
-            List<String> userData = new ArrayList<>();
-            userData.add(entity.getString("user_name"));
-            userData.add(entity.getString("user_email"));
-            userData.add(entity.getString("user_name"));
-            if(entity.contains("user_department")) {
-                userData.add(entity.getString("user_department"));
-            }
+			txn.commit();
+			return Response.ok(g.toJson(token)).build();
+		} catch (Exception e) {
+			txn.rollback();
+			LOG.severe(e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		} finally {
+			if (txn.isActive()) {
+				txn.rollback();
+				return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+			}
+		}
+	}
 
-            resultList.add(userData);
-        }
+	@Override
+	public Response listAllUsers(String tokenObjStr) {
+		Response r = verifyAdmin(tokenObjStr);
+		if (r.getStatus() != 200) {
+			return r;
+		}
 
-        return Response.ok(g.toJson(resultList)).build();
-    }
+		Query<Entity> query = Query.newEntityQueryBuilder().setKind("Users").build();
 
+		QueryResults<Entity> results = datastore.run(query);
+		if (!results.hasNext()) {
+			return Response.status(Status.NOT_FOUND).entity("There are no users!").build();
+		}
 
-    @Override
-    public Response listInactiveUsers(String tokenObjStr) {
-       Response r = verifyAdmin(tokenObjStr);
-       if(r != null) {
-           return r;
-       }
+		List<List<String>> resultList = new ArrayList<>();
+		while (results.hasNext()) {
+			Entity entity = results.next();
+			List<String> userData = new ArrayList<>();
+			userData.add(entity.getString("user_name"));
+			userData.add(entity.getString("user_email"));
+			userData.add(entity.getString("user_name"));
+			if (entity.contains("user_department")) {
+				userData.add(entity.getString("user_department"));
+			}
 
-        Query<Entity> query =
-                Query.newEntityQueryBuilder()
-                        .setKind("Users")
-                        .setFilter(StructuredQuery.PropertyFilter.eq("user_state", "INATIVO"))
-                        .build();
+			resultList.add(userData);
+		}
 
-        QueryResults<Entity> results = datastore.run(query);
-        if(!results.hasNext()) {
-            return Response.status(Status.NOT_FOUND).entity("There are no inactive users!").build();
-        }
+		return Response.ok(g.toJson(resultList)).build();
+	}
 
-        List<List<String>> resultList = new ArrayList<>();
-        while (results.hasNext()) {
-            Entity entity = results.next();
-            List<String> userData = new ArrayList<>();
-            userData.add(entity.getString("user_name"));
-            userData.add(entity.getString("user_email"));
-            userData.add(entity.getString("user_name"));
-            if(entity.contains("user_department")) {
-                userData.add(entity.getString("user_department"));
-            }
+	@Override
+	public Response listInactiveUsers(String tokenObjStr) {
+		Response r = verifyAdmin(tokenObjStr);
+		if (r.getStatus() != 200) {
+			return r;
+		}
 
-            resultList.add(userData);
-        }
+		Query<Entity> query = Query.newEntityQueryBuilder().setKind("Users")
+				.setFilter(StructuredQuery.PropertyFilter.eq("user_state", "INATIVO")).build();
 
-        return Response.ok(g.toJson(resultList)).build();
-    }
+		QueryResults<Entity> results = datastore.run(query);
+		if (!results.hasNext()) {
+			return Response.status(Status.NOT_FOUND).entity("There are no inactive users!").build();
+		}
 
-    public Response activateUsers(List<String> userEmails, String tokenObjStr) {
-        Response r = verifyAdmin(tokenObjStr);
+		List<List<String>> resultList = new ArrayList<>();
+		while (results.hasNext()) {
+			Entity entity = results.next();
+			List<String> userData = new ArrayList<>();
+			userData.add(entity.getString("user_name"));
+			userData.add(entity.getString("user_email"));
+			userData.add(entity.getString("user_name"));
+			if (entity.contains("user_department")) {
+				userData.add(entity.getString("user_department"));
+			}
 
-        if(r != null) {
-            return r;
-        }
+			resultList.add(userData);
+		}
 
-        Transaction txn = datastore.newTransaction();
-        try {
-            for (String email : userEmails) {
-                Key emailKey = emailKeyFactory.newKey(email);
-                Entity emailEntity = txn.get(emailKey);
+		return Response.ok(g.toJson(resultList)).build();
+	}
 
-                if (emailEntity == null) {
-                    return Response.status(Status.NOT_FOUND).entity("User email not found: " + email).build();
-                }
-                String username = emailEntity.getString("user_username");
-                Key userKey = userKeyFactory.newKey(username);
-                Entity userEntity = txn.get(userKey);
-                if (userEntity == null) {
-                    // User entity not found
-                    return Response.status(Status.NOT_FOUND).entity("User not found for email: " + email).build();
-                }
+	public Response activateUsers(List<String> userEmails, String tokenObjStr) {
+		Response r = verifyAdmin(tokenObjStr);
+		if (r.getStatus() != 200) {
+			return r;
+		}
 
-                userEntity = Entity.newBuilder(userEntity)
-                        .set("user_state", ATIVO_STATE)
-                        .build();
-                txn.update(userEntity);
-            }
-            txn.commit();
-            return Response.status(Status.OK).entity("Users activated successfully").build();
-        } catch (Exception e) {
-            txn.rollback();
-            LOG.severe(e.getMessage());
-            return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-        } finally {
-            if (txn.isActive()) {
-                txn.rollback();
-                return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-            }
-        }
-    }
+		Transaction txn = datastore.newTransaction();
 
-    private Response verifyAdmin(String tokenObjStr) {
-        TokenClass tokenObj = g.fromJson(tokenObjStr, TokenClass.class);
+		try {
+			for (String email : userEmails) {
+				Key emailKey = KeyStore.emailKeyFactory(email);
+				Entity emailEntity = txn.get(emailKey);
 
-        Key adminKey = userKeyFactory.newKey(tokenObj.getUsername());
+				if (emailEntity == null) {
+					return Response.status(Status.NOT_FOUND).entity("User email not found: " + email).build();
+				}
 
-        Entity user = datastore.get(adminKey);
-        if (user == null) {
-            return Response.status(Response.Status.NOT_FOUND).entity(USER_DOESNT_EXIST).build();
-        }
+				String username = emailEntity.getString("user_username");
 
-        int userRole = (int) user.getLong("user_role");
-        LOG.info("USER ROLE-> "+userRole);
+				Key userKey = KeyStore.userKeyFactory(username);
+				Entity userEntity = txn.get(userKey);
+				if (userEntity == null) {
+					// User entity not found
+					return Response.status(Status.NOT_FOUND).entity("User not found for email: " + email).build();
+				}
 
-        if(userRole != 4) {
-            return Response.status(Status.FORBIDDEN).entity("User doesn't have permissions").build();
-        }
+				userEntity = Entity.newBuilder(userEntity).set("user_state", ConstantFactory.ATIVO_STATE.getDesc())
+						.build();
+				txn.update(userEntity);
+			}
 
-        return null;
-    }
+			txn.commit();
+			return Response.status(Status.OK).entity("Users activated successfully").build();
+		} catch (Exception e) {
+			txn.rollback();
+			LOG.severe(e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		} finally {
+			if (txn.isActive()) {
+				txn.rollback();
+				return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			}
+		}
+	}
+
+	public void sendNotification() { // TBD o que por como argumento
+		// need client side code to work
+		// flutter client side here:
+		// https://pusher.com/docs/beams/getting-started/flutter/configure-fcm-and-apns/?ref=flutter
+		// web client side here:
+		// https://pusher.com/docs/beams/getting-started/web/sdk-integration/?ref=web
+		List<String> interests = Arrays.asList("donuts", "pizza");
+
+		Map<String, Map> publishRequest = new HashMap();
+
+		Map<String, Map> alert = new ApnFormat("secretKey", "instanceId").getApnNotification();
+		Map<String, Map> aps = new HashMap<String, Map>();
+		aps.put("aps", alert);
+		publishRequest.put("apns", aps);
+
+		Map<String, Map> fcm = new FcmFormat("title", "body").getFcmNotification();
+		publishRequest.put("fcm", fcm);
+
+		Map<String, Map> web = new WebFormat("title", "body").getWebNotification();
+		publishRequest.put("web", web);
+
+		try {
+			pushNot.publishToInterests(interests, publishRequest);
+		} catch (IOException | InterruptedException | URISyntaxException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private Response verifyAdmin(String tokenObjStr) {
+		AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
+
+		Key adminKey = KeyStore.userKeyFactory(tokenObj.getUsername());
+
+		Entity user = datastore.get(adminKey);
+		if (user == null) {
+			return Response.status(Response.Status.NOT_FOUND).entity(ConstantFactory.USER_DOESNT_EXIST.getDesc())
+					.build();
+		}
+
+		int userRole = (int) user.getLong("user_role");
+		LOG.info("USER ROLE-> " + userRole);
+
+		if (userRole != 4) {
+			return Response.status(Status.FORBIDDEN).entity("User doesn't have permissions").build();
+		}
+
+		return Response.status(Status.OK).build();
+	}
 
 }
