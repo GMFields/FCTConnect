@@ -176,7 +176,7 @@ public class AnomalyResource implements AnomalyAPI {
             txn.commit();
 
             LOG.info("Anomaly solved successfully: " + anomalyID);
-            return Response.status(Response.Status.OK).entity("Anomaly solving successfully: " + anomalyID).build();
+            return Response.status(Response.Status.OK).entity("Anomaly solved successfully: " + anomalyID).build();
         } catch (Exception e) {
             txn.rollback();
             LOG.severe("An error occurred while solving anomaly: " + e.getMessage());
@@ -265,7 +265,6 @@ public class AnomalyResource implements AnomalyAPI {
         }
 
         int userRole = (int) user.getLong("user_role");
-        LOG.info("USER ROLE-> " + userRole);
 
         if (userRole != 4) {
             return Response.status(Response.Status.FORBIDDEN).entity("User doesn't have permissions").build();

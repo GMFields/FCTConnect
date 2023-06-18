@@ -60,14 +60,14 @@ public interface UserAPI {
 
     /**
      *
-     * @param tokenObjStr
+     * @param
      * @return
      */
     @GET
     @Path("/profile")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    Response getProfile(AuthToken tokenObj);
+    Response getProfile(@QueryParam("tokenObj") String tokenObjStr);
 
     /**
      * Updates the users information

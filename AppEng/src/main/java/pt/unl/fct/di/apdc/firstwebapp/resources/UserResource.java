@@ -186,7 +186,8 @@ public class UserResource implements UserAPI {
 	}
 
 	@Override
-	public Response getProfile(AuthToken tokenObj) {
+	public Response getProfile(String tokenObjStr) {
+		AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
 
 		Key userKey = KeyStore.userKeyFactory(tokenObj.getUsername());
 		Transaction txn = datastore.newTransaction();
@@ -240,35 +241,37 @@ public class UserResource implements UserAPI {
 
 		try {
 			Entity user = txn.get(userKey);
-			Entity tokenE = txn.get(tokenKey);
-
-			if (tokenE == null) {
+			if (user == null) {
 				txn.rollback();
-				return Response.status(Status.FORBIDDEN).build();
-			}
-
-			user = Entity.newBuilder(userKey).set("user_name", data.getName()) // Acho que tens de dar set a todos os
-																				// atributos, se não eles desparecem
-					.set("user_pwd", DigestUtils.sha512Hex(data.getPassword()))
-					.set("user_creation_time", user.getString("user_creation_time")).set("profile", data.getProfile())
-					.set("landline", data.getLandline()).set("occupation", data.getOccupation())
-					.set("address", data.getAddress()).set("nif", data.getNif()).build();
-
-			datastore.put(user);
-			txn.commit();
-			return Response.ok().entity(user).build();
-		} catch (Exception e) {
-			txn.rollback();
-			LOG.severe(e.getMessage());
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-		} finally {
-			if (txn.isActive()) {
-				txn.rollback();
-				return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+				return Response.status(Response.Status.NOT_FOUND).entity("USER_NOT_FOUND").build();
+			} else {
+				user = Entity.newBuilder(userKey)
+						.set("user_name", data.getName())
+						.set("user_pwd", DigestUtils.sha512Hex(data.getPassword()))
+						.set("user_email", data.getEmail())
+						.set("user_role", data.getRole())
+						.set("user_state", data.getState())
+						.set("user_creation_time", user.getTimestamp("user_creation_time"))
+						.set("user_profile", data.getProfile())
+						.set("user_landline", data.getLandline())
+						.set("user_phone", data.getPhoneNumber())
+						.set("user_occupation", data.getOccupation())
+						.set("user_address", data.getAddress())
+						.set("user_nif", data.getNif())
+						.set("user_department", data.getDepartment())
+						.build();
+				txn.update(user);
+				txn.commit();
+				return Response.status(Response.Status.OK).entity(data).build();
 			}
 		}
-
+		finally {
+			if (txn.isActive()) {
+				txn.rollback();
+			}
+		}
 	}
+
 
 	@Override
 	public Response deleteAccount(AuthToken tokenObj) {

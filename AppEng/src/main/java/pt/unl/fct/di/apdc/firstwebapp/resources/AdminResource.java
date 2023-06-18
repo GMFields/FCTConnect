@@ -124,7 +124,7 @@ public class AdminResource implements AdminAPI {
 			List<String> userData = new ArrayList<>();
 			userData.add(entity.getString("user_name"));
 			userData.add(entity.getString("user_email"));
-			userData.add(entity.getString("user_name"));
+			userData.add(entity.getString("user_state"));
 			if (entity.contains("user_department")) {
 				userData.add(entity.getString("user_department"));
 			}
@@ -156,7 +156,7 @@ public class AdminResource implements AdminAPI {
 			List<String> userData = new ArrayList<>();
 			userData.add(entity.getString("user_name"));
 			userData.add(entity.getString("user_email"));
-			userData.add(entity.getString("user_name"));
+			userData.add(entity.getString("user_state"));
 			if (entity.contains("user_department")) {
 				userData.add(entity.getString("user_department"));
 			}
