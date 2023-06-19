@@ -5,6 +5,7 @@ import java.util.Collections;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.QueryParam;
 
 import com.pusher.rest.Pusher;
 
@@ -23,8 +24,9 @@ public class ChatResource {
 
     @POST
     @Path("/auth")
-    public Response authenticateConnection(String socketId, String channel) {
-        String auth = pusher.authenticate(socketId, channel);
+    public Response authenticateConnection(@QueryParam("socket_id") String socket_id,
+            @QueryParam("channel") String channel) {
+        String auth = pusher.authenticate(socket_id, channel);
 
         return Response.ok(auth).build();
     }

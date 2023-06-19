@@ -3,6 +3,7 @@
 <head>
     <title>Pusher Test</title>
     <script src="https://js.pusher.com/7.2/pusher.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script>
         // Enable pusher logging - don't include this in production
         Pusher.logToConsole = true;
@@ -13,9 +14,11 @@
                 return {
                     authorize: function (socketId, callback) {
                         // Make an authentication request to your server
-                        axios.post('http://localhost:8080/rest/chat/auth', {
-                            socketId: socketId,
-                            channelName: channel.name
+                        axios.post('http://localhost:8080/rest/chat/auth', null, {
+                            params: {
+                                socket_id: socketId,
+                                channel: channel.name
+                            }
                         })
                             .then(response => {
                                 // Process the authentication response from the server
