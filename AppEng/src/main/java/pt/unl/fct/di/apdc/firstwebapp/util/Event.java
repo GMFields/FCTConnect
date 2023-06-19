@@ -32,6 +32,14 @@ public class Event {
         this.eventID = UUID.randomUUID().toString();
     }
 
+    public Event(String title, String description, String date, long duration, String eventID){
+        this.title = title;
+        this.description = description;
+        this.date = date;
+        this.duration = duration;
+        this.eventID = eventID;
+    }
+
 
 
     public String getTitle(){

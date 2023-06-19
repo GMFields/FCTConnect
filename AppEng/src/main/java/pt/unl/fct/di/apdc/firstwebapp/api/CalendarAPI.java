@@ -6,7 +6,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-public interface CalendarAPI {
+public interface CalendarApi {
     @POST
     @Path("/add")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -22,7 +22,7 @@ public interface CalendarAPI {
     @Path("/edit")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    Response editEvent(@QueryParam("tokenObj") String tokenObjStr, @QueryParam("eventID") String eventID);
+    Response editEvent(@QueryParam("tokenObj") String tokenObjStr, Event event);
 
     @GET
     @Path("/get")
