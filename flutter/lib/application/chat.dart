@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(const MyApp());
@@ -57,20 +60,18 @@ class _MyAppState extends State<MyApp> {
 
     try {
       await pusher.init(
-        apiKey: _apiKey.text,
-        cluster: _cluster.text,
-        onConnectionStateChange: onConnectionStateChange,
-        onError: onError,
-        onSubscriptionSucceeded: onSubscriptionSucceeded,
-        onEvent: onEvent,
-        onSubscriptionError: onSubscriptionError,
-        onDecryptionFailure: onDecryptionFailure,
-        onMemberAdded: onMemberAdded,
-        onMemberRemoved: onMemberRemoved,
-        onSubscriptionCount: onSubscriptionCount,
-        // authEndpoint: "<Your Authendpoint Url>",
-        // onAuthorizer: onAuthorizer
-      );
+          apiKey: _apiKey.text,
+          cluster: _cluster.text,
+          onConnectionStateChange: onConnectionStateChange,
+          onError: onError,
+          onSubscriptionSucceeded: onSubscriptionSucceeded,
+          onEvent: onEvent,
+          onSubscriptionError: onSubscriptionError,
+          onDecryptionFailure: onDecryptionFailure,
+          onMemberAdded: onMemberAdded,
+          onMemberRemoved: onMemberRemoved,
+          onSubscriptionCount: onSubscriptionCount,
+          onAuthorizer: onAuthorizer);
       await pusher.connect();
       await pusher.subscribe(channelName: _channelName.text);
     } catch (e) {
@@ -80,11 +81,16 @@ class _MyAppState extends State<MyApp> {
 
   dynamic onAuthorizer(
       String channelName, String socketId, dynamic options) async {
-    return {
-      "auth": "foo:bar",
-      "channel_data": '{"user_id": 1}',
-      "shared_secret": "foobar"
-    };
+    var authUrl = "http://localhost:8080/rest/chat/auth";
+    var result = await http.post(
+      Uri.parse(authUrl),
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: 'socket_id=$socketId&channel_name=$channelName',
+    );
+    var json = jsonDecode(result.body);
+    return json;
   }
 
   void onConnectionStateChange(dynamic currentState, dynamic previousState) {

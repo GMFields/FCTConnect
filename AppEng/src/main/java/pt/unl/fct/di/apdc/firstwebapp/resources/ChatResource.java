@@ -29,8 +29,8 @@ public class ChatResource implements ChatApi {
     }
 
     @Override
-    public Response authenticateConnection(String socketId, String channel) {
-        String auth = pusher.authenticate(socketId, channel);
+    public Response authenticateConnection(String socket_id, String channel) {
+        String auth = pusher.authenticate(socket_id, channel);
 
         return Response.ok(auth).build();
     }
