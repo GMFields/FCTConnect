@@ -25,4 +25,5 @@ pt/unl/fct/di/apdc/firstwebapp/notifications/WebFormat.class
 pt/unl/fct/di/apdc/firstwebapp/api/ChatApi.class
 pt/unl/fct/di/apdc/firstwebapp/api/MapAPI.class
 pt/unl/fct/di/apdc/firstwebapp/factory/KeyStore.class
+pt/unl/fct/di/apdc/firstwebapp/util/EntityWithKey.class
 pt/unl/fct/di/apdc/firstwebapp/factory/UserRoleFactory.class
