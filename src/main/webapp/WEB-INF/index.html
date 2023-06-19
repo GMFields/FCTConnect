@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>FCM Example</title>
+    <script src="https://js.pusher.com/beams/service-worker.js"></script>
+    <script src="https://js.pusher.com/beams/1.0/push-notifications-cdn.js"></script>
+</head>
+
+<body>
+    <h1>FCM Example</h1>
+    <script>
+        const beamsClient = new PusherPushNotifications.Client({
+            instanceId: 'a5dd11d2-e829-4a6b-bb1b-4bbd9b4862a4',
+        });
+
+        beamsClient.start()
+            .then(() => beamsClient.addDeviceInterest('debug-hello'))
+            .then(() => console.log('Successfully registered and subscribed!'))
+            .catch(console.error);
+    </script>
+</body>
+
+</html>

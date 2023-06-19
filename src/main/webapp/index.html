@@ -1,24 +1,54 @@
 <!DOCTYPE html>
-<html>
 
 <head>
-    <title>FCM Example</title>
-    <script src="https://js.pusher.com/beams/service-worker.js"></script>
-    <script src="https://js.pusher.com/beams/1.0/push-notifications-cdn.js"></script>
+    <title>Pusher Test</title>
+    <script src="https://js.pusher.com/7.2/pusher.min.js"></script>
+    <script>
+        // Enable pusher logging - don't include this in production
+        Pusher.logToConsole = true;
+
+        var pusher = new Pusher('863de6ade90e73639f5e', {
+            cluster: 'eu',
+            authorizer: function (channel, options) {
+                return {
+                    authorize: function (socketId, callback) {
+                        // Make an authentication request to your server
+                        axios.post('http://localhost:8080/rest/chat/auth', {
+                            socketId: socketId,
+                            channelName: channel.name
+                        })
+                            .then(response => {
+                                // Process the authentication response from the server
+                                callback(null, response.data);
+                            })
+                            .catch(error => {
+                                // Handle authentication error
+                                callback(error, null);
+                            });
+                    }
+                };
+            }
+        });
+
+        var channel = pusher.subscribe('private-server-channel');
+        channel.bind("main", function (data) {
+            alert(JSON.stringify(data));
+        });
+
+        function sendMessage() {
+            channel.trigger("client-my-event", {
+                message: "Hello World"
+            });
+        }
+    </script>
 </head>
 
 <body>
-    <h1>FCM Example</h1>
-    <script>
-        const beamsClient = new PusherPushNotifications.Client({
-            instanceId: 'a5dd11d2-e829-4a6b-bb1b-4bbd9b4862a4',
-        });
+    <h1>Pusher Test</h1>
+    <p>
+        Try publishing an event to channel <code>my-channel</code>
+        with event name <code>my-event</code>.
 
-        beamsClient.start()
-            .then(() => beamsClient.addDeviceInterest('debug-hello'))
-            .then(() => console.log('Successfully registered and subscribed!'))
-            .catch(console.error);
-    </script>
+        <input type="button" value="send" onclick="sendMessage()">
+    </p>
 </body>
-
-</html>
