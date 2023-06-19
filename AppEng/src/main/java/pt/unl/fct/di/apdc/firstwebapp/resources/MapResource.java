@@ -43,6 +43,7 @@ public class MapResource implements MapAPI {
         try {
             Entity token = txn.get(tokenKey);
 
+
             if (token == null) {
                 txn.rollback();
                 return Response.status(Response.Status.FORBIDDEN).entity("Invalid token!").build();
@@ -61,7 +62,7 @@ public class MapResource implements MapAPI {
 
             MapData waypointObj = new MapData(latitude, longitude, name);
 
-            Key waypointKey = KeyStore.mapKeyFactory(data.getWayPointID());
+            Key waypointKey = KeyStore.mapKeyFactory(waypointObj.getWayPointID());
 
             Entity wayPoint = Entity.newBuilder(waypointKey)
                     .set("waypoint_creator", tokenObj.getUsername())
