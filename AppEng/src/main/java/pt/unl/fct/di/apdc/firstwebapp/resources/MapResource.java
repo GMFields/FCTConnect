@@ -59,19 +59,21 @@ public class MapResource implements MapAPI {
                 return Response.status(Response.Status.BAD_REQUEST).entity("Invalid name!").build();
             }
 
+            MapData waypointObj = new MapData(latitude, longitude, name);
+
             Key waypointKey = KeyStore.mapKeyFactory(data.getWayPointID());
 
             Entity wayPoint = Entity.newBuilder(waypointKey)
                     .set("waypoint_creator", tokenObj.getUsername())
                     .set("waypoint_latitude", latitude)
                     .set("waypoint_longitude", longitude)
-                    .set("waypoint_name", data.getName())
-                    .set("creation_time", data.getCreationData())
+                    .set("waypoint_name", waypointObj.getName())
+                    .set("creation_time", waypointObj.getCreationData())
                     .build();
 
             txn.add(wayPoint);
             txn.commit();
-            return Response.ok(g.toJson(data)).build();
+            return Response.ok(g.toJson(waypointObj)).build();
         } catch (Exception e) {
             txn.rollback();
             LOG.severe(e.getMessage());
@@ -87,7 +89,7 @@ public class MapResource implements MapAPI {
     @Override
     public Response deleteWayPoint(String tokenObjStr, String wayPointID) {
         AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Aqui pode ser passado como TokenClass em vez
-                                                                       // de uma String
+        // de uma String
         LOG.info("User: " + tokenObj.getUsername() + " is attempting to delete a waypoint!");
 
         Transaction txn = datastore.newTransaction();
@@ -135,7 +137,7 @@ public class MapResource implements MapAPI {
     @Override
     public Response getWayPoints(String tokenObjStr, String user_username) {
         AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Aqui também pode ser passado como AuthToken em
-                                                                       // vez de String
+        // vez de String
         LOG.info("User: " + tokenObj.getUsername() + " is attempting to retrieve waypoints for user: " + user_username);
 
         Transaction txn = datastore.newTransaction();
