@@ -22,6 +22,10 @@ public class KeyStore {
         return datastore.newKeyFactory().setKind("Anomaly").newKey(keyString);
     }
 
+    public static Key calendarKeyFactory(String keyString) {
+        return datastore.newKeyFactory().setKind("Calendar").newKey(keyString);
+    }
+
     public static Key emailKeyFactory(String keyString) {
         return datastore.newKeyFactory().setKind("Email").newKey(keyString);
     }
