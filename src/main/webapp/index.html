@@ -34,12 +34,12 @@
         });
 
         var channel = pusher.subscribe('private-server-channel');
-        channel.bind("main", function (data) {
+        channel.bind("client-main", function (data) {
             alert(JSON.stringify(data));
         });
 
         function sendMessage() {
-            channel.trigger("client-my-event", {
+            channel.trigger("client-main", {
                 message: "Hello World"
             });
         }
