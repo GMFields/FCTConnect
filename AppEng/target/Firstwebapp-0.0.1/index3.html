@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+
+<head>
+    <title>Pusher Test</title>
+    <script src="https://js.pusher.com/7.2/pusher.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <script>
+
+        // Enable pusher logging - don't include this in production
+        Pusher.logToConsole = true;
+
+        var pusher = new Pusher('863de6ade90e73639f5e', {
+            cluster: 'eu',
+            authorizer: function (channel, options) {
+                return {
+                    authorize: function (socketId, callback) {
+                        // Make an authentication request to your server
+                        axios.post('http://localhost:8080/rest/chat/auth', {
+                            socketId: socketId,
+                            channelName: channel.name
+                        })
+                            .then(response => {
+                                // Process the authentication response from the server
+                                callback(null, response.data);
+                            })
+                            .catch(error => {
+                                // Handle authentication error
+                                callback(error, null);
+                            });
+                    }
+                };
+            }
+        });
+
+        var channel = pusher.subscribe('private-server-channel');
+        channel.bind("main", function (data) {
+            alert(JSON.stringify(data));
+        });
+
+        function sendMessage() {
+            channel.trigger("client-my-event", {
+                message: "Hello World"
+            });
+        }
+    </script>
+</head>
+
+<body>
+    <h1>Pusher Test</h1>
+    <p>
+        Try publishing an event to channel <code>my-channel</code>
+        with event name <code>my-event</code>.
+
+        <input type="button" value="send" onclick="sendMessage()">
+    </p>
+</body>

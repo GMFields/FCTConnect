@@ -28,4 +28,11 @@ public class ChatResource implements ChatApi {
         return Response.ok().entity(message).build();
     }
 
+    @Override
+    public Response authenticateConnection(String socketId, String channel) {
+        String auth = pusher.authenticate(socketId, channel);
+
+        return Response.ok(auth).build();
+    }
+
 }
