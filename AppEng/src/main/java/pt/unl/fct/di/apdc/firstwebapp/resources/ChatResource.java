@@ -25,7 +25,7 @@ public class ChatResource implements ChatApi {
         Map<String, String> message = Collections.singletonMap("message", "message content");
         pusher.trigger("server-channel", "main", message);
 
-        return Response.ok().entity(message).build();
+        return Response.ok().build();
     }
 
     @Override
