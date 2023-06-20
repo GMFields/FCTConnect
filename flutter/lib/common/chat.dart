@@ -82,7 +82,7 @@ class _MyAppState extends State<MyApp> {
   Future<dynamic> onAuthorizer(
       String channelName, String socketId, dynamic options) async {
     final url = Uri.parse(
-        'http://localhost:8080/rest/chat/auth?socket_id=152770.26808&channel=private-channel');
+        'http://localhost:8080/rest/chat/auth?socket_id=$socketId&channel=$channelName');
 
     final response = await http.post(
       url,
@@ -91,9 +91,9 @@ class _MyAppState extends State<MyApp> {
       },
     );
 
-    log(response.body);
-
-    return response.body;
+    var json = jsonDecode(response.body);
+    print(json);
+    return json;
   }
 
   void onConnectionStateChange(dynamic currentState, dynamic previousState) {
@@ -133,14 +133,6 @@ class _MyAppState extends State<MyApp> {
   void onSubscriptionCount(String channelName, int subscriptionCount) {
     log("onSubscriptionCount: $channelName subscriptionCount: $subscriptionCount");
   }
-
-  /*dynamic onAuthorizer(String channelName, String socketId, dynamic options) {
-    return {
-      "auth": "foo:bar",
-      "channel_data": '{"user_id": 1}',
-      "shared_secret": "foobar"
-    };
-  }*/
 
   void onTriggerEventPressed() async {
     var eventFormValidated = _eventFormKey.currentState!.validate();
