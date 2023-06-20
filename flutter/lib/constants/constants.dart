@@ -22,3 +22,10 @@ final kBoxDecorationStyle = BoxDecoration(
     ),
   ],
 );
+
+final titleTextStyle = const TextStyle(
+  color: Colors.black,
+  fontSize: 10.0,
+  fontWeight: FontWeight.bold,
+  fontFamily: 'RobotoSlab',
+);
