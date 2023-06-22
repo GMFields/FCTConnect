@@ -89,7 +89,7 @@ flutter:
   assets:
     - assets/images/image.png
     - assets/images/FCT.png
-    - assets/credentials.json
+    #- assets/credentials.json
     - assets/images/VADER.png
    #   - images/a_dot_ham.jpeg
 

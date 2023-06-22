@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
-import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
+import 'dart:async';
+
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
-import 'package:crypto/crypto.dart';
 import 'package:http/http.dart' as http;
 
 void main() {
@@ -20,7 +21,14 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   PusherChannelsFlutter pusher = PusherChannelsFlutter.getInstance();
   String _log = 'output:\n';
+  final _apiKey = TextEditingController();
+  final _cluster = TextEditingController();
+  final _channelName = TextEditingController();
+  final _eventName = TextEditingController();
+  final _channelFormKey = GlobalKey<FormState>();
+  final _eventFormKey = GlobalKey<FormState>();
   final _listViewController = ScrollController();
+  final _data = TextEditingController();
 
   void log(String text) {
     print("LOG: $text");
@@ -36,24 +44,36 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    initPlatformState();
+  }
+
+  void onConnectPressed() async {
+    if (!_channelFormKey.currentState!.validate()) {
+      return;
+    }
+    // Remove keyboard
+    FocusScope.of(context).requestFocus(FocusNode());
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("apiKey", _apiKey.text);
+    prefs.setString("cluster", _cluster.text);
+    prefs.setString("channelName", _channelName.text);
 
     try {
-      pusher.init(
-        apiKey: "863de6ade90e73639f5e",
-        cluster: "eu",
-        onConnectionStateChange: onConnectionStateChange,
-        onError: onError,
-        onSubscriptionSucceeded: onSubscriptionSucceeded,
-        onEvent: onEvent,
-        onSubscriptionError: onSubscriptionError,
-        onDecryptionFailure: onDecryptionFailure,
-        onMemberAdded: onMemberAdded,
-        onMemberRemoved: onMemberRemoved,
-        onSubscriptionCount: onSubscriptionCount,
-        onAuthorizer: onAuthorizer,
-      );
-      pusher.connect();
-      pusher.subscribe(channelName: "private-channel");
+      await pusher.init(
+          apiKey: _apiKey.text,
+          cluster: _cluster.text,
+          onConnectionStateChange: onConnectionStateChange,
+          onError: onError,
+          onSubscriptionSucceeded: onSubscriptionSucceeded,
+          onEvent: onEvent,
+          onSubscriptionError: onSubscriptionError,
+          onDecryptionFailure: onDecryptionFailure,
+          onMemberAdded: onMemberAdded,
+          onMemberRemoved: onMemberRemoved,
+          onSubscriptionCount: onSubscriptionCount,
+          onAuthorizer: onAuthorizer);
+      await pusher.connect();
+      await pusher.subscribe(channelName: _channelName.text);
     } catch (e) {
       log("ERROR: $e");
     }
@@ -62,7 +82,7 @@ class _MyAppState extends State<MyApp> {
   Future<dynamic> onAuthorizer(
       String channelName, String socketId, dynamic options) async {
     final url = Uri.parse(
-        'http://localhost:8080/rest/chat/auth?socket_id=152770.26808&channel=private-channel');
+        'http://localhost:8080/rest/chat/auth?socket_id=$socketId&channel=$channelName');
 
     final response = await http.post(
       url,
@@ -71,9 +91,9 @@ class _MyAppState extends State<MyApp> {
       },
     );
 
-    log(response.body);
-
-    return response.body;
+    var json = jsonDecode(response.body);
+    print(json);
+    return json;
   }
 
   void onConnectionStateChange(dynamic currentState, dynamic previousState) {
@@ -114,9 +134,140 @@ class _MyAppState extends State<MyApp> {
     log("onSubscriptionCount: $channelName subscriptionCount: $subscriptionCount");
   }
 
+  void onTriggerEventPressed() async {
+    var eventFormValidated = _eventFormKey.currentState!.validate();
+
+    if (!eventFormValidated) {
+      return;
+    }
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("eventName", _eventName.text);
+    prefs.setString("data", _data.text);
+    pusher.trigger(PusherEvent(
+        channelName: _channelName.text,
+        eventName: _eventName.text,
+        data: _data.text));
+  }
+
+  // Platform messages are asynchronous, so we initialize in an async method.
+  Future<void> initPlatformState() async {
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _apiKey.text = prefs.getString("apiKey") ?? '';
+      _cluster.text = prefs.getString("cluster") ?? 'eu';
+      _channelName.text = prefs.getString("channelName") ?? 'my-channel';
+      _eventName.text = prefs.getString("eventName") ?? 'client-event';
+      _data.text = prefs.getString("data") ?? 'test';
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    throw UnimplementedError();
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text(pusher.connectionState == 'DISCONNECTED'
+              ? 'Pusher Channels Example'
+              : _channelName.text),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ListView(
+              controller: _listViewController,
+              scrollDirection: Axis.vertical,
+              shrinkWrap: true,
+              children: <Widget>[
+                if (pusher.connectionState != 'CONNECTED')
+                  Form(
+                      key: _channelFormKey,
+                      child: Column(children: <Widget>[
+                        TextFormField(
+                          controller: _apiKey,
+                          validator: (String? value) {
+                            return (value != null && value.isEmpty)
+                                ? 'Please enter your API key.'
+                                : null;
+                          },
+                          decoration:
+                              const InputDecoration(labelText: 'API Key'),
+                        ),
+                        TextFormField(
+                          controller: _cluster,
+                          validator: (String? value) {
+                            return (value != null && value.isEmpty)
+                                ? 'Please enter your cluster.'
+                                : null;
+                          },
+                          decoration: const InputDecoration(
+                            labelText: 'Cluster',
+                          ),
+                        ),
+                        TextFormField(
+                          controller: _channelName,
+                          validator: (String? value) {
+                            return (value != null && value.isEmpty)
+                                ? 'Please enter your channel name.'
+                                : null;
+                          },
+                          decoration: const InputDecoration(
+                            labelText: 'Channel',
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: onConnectPressed,
+                          child: const Text('Connect'),
+                        )
+                      ]))
+                else
+                  Form(
+                    key: _eventFormKey,
+                    child: Column(children: <Widget>[
+                      ListView.builder(
+                          scrollDirection: Axis.vertical,
+                          shrinkWrap: true,
+                          itemCount: pusher
+                              .channels[_channelName.text]?.members.length,
+                          itemBuilder: (context, index) {
+                            final member = pusher
+                                .channels[_channelName.text]!.members.values
+                                .elementAt(index);
+
+                            return ListTile(
+                                title: Text(member.userInfo.toString()),
+                                subtitle: Text(member.userId));
+                          }),
+                      TextFormField(
+                        controller: _eventName,
+                        validator: (String? value) {
+                          return (value != null && value.isEmpty)
+                              ? 'Please enter your event name.'
+                              : null;
+                        },
+                        decoration: const InputDecoration(
+                          labelText: 'Event',
+                        ),
+                      ),
+                      TextFormField(
+                        controller: _data,
+                        decoration: const InputDecoration(
+                          labelText: 'Data',
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: onTriggerEventPressed,
+                        child: const Text('Trigger Event'),
+                      ),
+                    ]),
+                  ),
+                SingleChildScrollView(
+                    scrollDirection: Axis.vertical, child: Text(_log)),
+              ]),
+        ),
+      ),
+    );
   }
 }
