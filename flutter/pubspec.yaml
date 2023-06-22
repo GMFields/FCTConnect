@@ -58,7 +58,6 @@ dependencies:
   location: ^4.4.0
   google_directions_api: ^0.9.1
   google_sign_in: ^6.1.4
-  dio: ^5.2.1+1
   pusher_beams: ^1.1.1
 
 
