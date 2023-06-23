@@ -1,0 +1,205 @@
+
+.App{
+ /* text-align: center;*/
+  height: 100vh;
+ /* display: flex;
+  /*min-height: 150vh;*/
+  /*align-items: center;*/
+  justify-content: right;
+ /* background-image: linear-gradient(180deg, #0785F2, #2CBF6C 48%, #4BA4F2); */
+ /* margin-top: -170px;*/
+}
+body{
+  padding: 0;
+  margin: 0;
+}
+
+.auth-form-container, .login-form, .register-form, button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  
+}
+
+.auth-form-container{
+  padding: 5rem;
+}
+
+label{
+  display: block;
+  color: black;
+  text-align: center;
+  padding:0.25rem 0;
+ 
+}
+
+input{
+  margin: 0.5rem 0;
+  padding: 1rem;
+  width: 300px;
+  border: none;
+  border-radius: 10px;
+  background-color: rgba(71, 71, 71, 0.2);
+}
+
+button {
+  margin: 0.25rem 0;
+  width: 333px ;
+  border: none;
+  background-color: rgba(64, 115, 74, 0.687);
+  padding: 15px;
+  border-radius: 20px;
+  cursor: pointer;
+  color: black;
+}
+
+img {
+  height: 100vh;
+  border-radius: 20px;
+  width: 60%;
+  float: left;
+  opacity: 0.80;
+}
+
+.valid {
+  color: green;
+}
+
+.invalid {
+  color: red;
+}
+
+.hide {
+  display: none;
+}
+
+.offscreen {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.instructions {
+  margin-top: 5px;
+  font-size: 12px;
+  color: #696969;
+}
+
+.forgot-password {
+  font-size: 12px;
+  font-weight: bold;
+  text-align: right;
+  margin-top: 5px;
+}
+
+
+header {
+  background-color: #0785F2;
+  padding: 10px;
+}
+
+nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+}
+
+nav li {
+  margin-right: 10px;
+}
+
+nav button {
+  background-color: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+}
+
+/* Estilo para a barra lateral */
+aside {
+  background-color: #0785F2;
+  width: 200px;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: -200px;
+  transition: left 0.3s ease;
+}
+
+aside.open {
+  left: 0;
+}
+
+aside ul {
+  list-style: none;
+  margin: 0;
+  padding: 20px;
+}
+
+.toggle-button {
+  background-color: black;
+  border: none;
+  color: #fff;
+  padding: 10px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.toggle-button span {
+  margin-left: 5px;
+}
+
+.content {
+  margin-top: 50px;
+  margin-left: 220px;
+  padding: 20px;
+}
+
+.logout-button{
+  color: #fff;
+  border: none;
+  background: none;
+  cursor: pointer;
+  width: 100px;
+
+}
+.profile-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  border: 1px solid  rgba(64, 115, 74, 0.687);
+}
+
+.profile-img {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.camera-icon-container {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+}
+
+.camera-icon {
+  background: transparent;
+  border: 5px solid rgba(64, 115, 74, 0.687);
+  cursor: pointer;
+}
+.modal {
+  background-color:  rgba(64, 115, 74, 0.146);
+  border-radius: 5%;
+  border-color: 5px solid rgba(64, 115, 74, 0.687) ;
+  /* Your modal styles here */
+}
