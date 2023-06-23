@@ -158,7 +158,7 @@
 						<outputDirectory>${project.build.directory}/Firstwebapp-0.0.1</outputDirectory>
 						<resources>
 							<resource>
-								<directory>../React/react-app/dist</directory>
+								<directory>../React/react-app/build</directory>
 								<filtering>false</filtering>
 							</resource>
 						</resources>

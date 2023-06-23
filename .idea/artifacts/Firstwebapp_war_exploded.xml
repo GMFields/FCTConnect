@@ -113,6 +113,13 @@
           <element id="library" level="project" name="Maven: com.google.api.grpc:proto-google-cloud-storage-v2:2.20.1-alpha" />
           <element id="library" level="project" name="Maven: com.google.api.grpc:grpc-google-cloud-storage-v2:2.20.1-alpha" />
           <element id="library" level="project" name="Maven: com.google.api.grpc:gapic-google-cloud-storage-v2:2.20.1-alpha" />
+          <element id="library" level="project" name="Maven: com.pusher:pusher-http-java:1.0.0" />
+          <element id="library" level="project" name="Maven: com.pusher:push-notifications-server-java:1.1.1" />
+          <element id="library" level="project" name="Maven: org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.2.10" />
+          <element id="library" level="project" name="Maven: org.jetbrains.kotlin:kotlin-stdlib:1.2.10" />
+          <element id="library" level="project" name="Maven: org.jetbrains:annotations:13.0" />
+          <element id="library" level="project" name="Maven: org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.2.10" />
+          <element id="library" level="project" name="Maven: com.auth0:java-jwt:3.7.0" />
         </element>
       </element>
       <element id="directory" name="META-INF">
