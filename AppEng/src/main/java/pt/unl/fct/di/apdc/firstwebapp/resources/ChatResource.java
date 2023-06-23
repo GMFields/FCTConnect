@@ -1,11 +1,14 @@
 package pt.unl.fct.di.apdc.firstwebapp.resources;
 
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Singleton;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import com.pusher.rest.Pusher;
 
@@ -32,13 +35,13 @@ public class ChatResource implements ChatApi {
         return Response.ok().build();
     }
 
-    public Response onlineUser(String name) {
+    public void onlineUser(String name) {
         onlineUsers.add(name);
     }
 
     public Response getOnlineUsers() {
         if (onlineUsers.isEmpty())
-            return Response.status(Status.).build();
+            return Response.status(Status.NO_CONTENT).build();
 
         return Response.ok().entity(onlineUsers).build();
     }

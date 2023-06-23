@@ -71,12 +71,19 @@ class _MyAppState extends State<MyApp> {
           onMemberAdded: onMemberAdded,
           onMemberRemoved: onMemberRemoved,
           onSubscriptionCount: onSubscriptionCount,
-          onAuthorizer: onAuthorizer);
+          onAuthorizer: onAuthorizer1);
       await pusher.connect();
       await pusher.subscribe(channelName: _channelName.text);
     } catch (e) {
       log("ERROR: $e");
     }
+  }
+
+  Future<dynamic> onAuthorizer1(
+      String channelName, String socketId, dynamic options) async {
+    dynamic res =
+        "863de6ade90e73639f5e:467331f093320652e9c114aab6ccd2f5881c7fef3c9caa17d93e9a590d28bd7c";
+    return res;
   }
 
   Future<dynamic> onAuthorizer(
