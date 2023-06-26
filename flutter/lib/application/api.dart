@@ -29,20 +29,23 @@ class CloudApi {
       final position = await Geolocator.getCurrentPosition();
       final placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
       String city = placemarks.first.locality ?? '';
-      return await bucket.writeBytes(name, imgBytes,
-          metadata: ObjectMetadata(
-              contentType: type,
-              custom: {
-                'timestamp': '$timestamp',
-                'latitude': '${position.latitude}',
-                'longitude': '${position.longitude}',
-                'city': city,
-                'locationPermission': locationPermissionGranted.toString(),
-              }
-          ));
+      
+    return await bucket.writeBytes(name, imgBytes,
+        predefinedAcl: PredefinedAcl.publicRead,
+        metadata: ObjectMetadata(
+          contentType: type,
+          custom: {
+            'timestamp': '$timestamp',
+            'latitude': '${position.latitude}',
+            'longitude': '${position.longitude}',
+            'city': city,
+            'locationPermission': locationPermissionGranted.toString(),
+          },
+        ));
     }
     else {
       return await bucket.writeBytes(name, imgBytes,
+          predefinedAcl: PredefinedAcl.publicRead,
           metadata: ObjectMetadata(
               contentType: type,
               custom: {

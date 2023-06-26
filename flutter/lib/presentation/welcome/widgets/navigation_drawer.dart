@@ -141,8 +141,8 @@ class CustomNavigationDrawer extends StatelessWidget {
             title: const Text('Calendar'),
             onTap: () {
               Navigator.pop(context);
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: ((context) => GoogleSignInButton())));
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: ((context) => CalendarApp())));
             },
           ),
           const Divider(color: Colors.black54),
