@@ -203,3 +203,11 @@ aside ul {
   border-color: 5px solid rgba(64, 115, 74, 0.687) ;
   /* Your modal styles here */
 }
+.form-select {
+  margin: 0.5rem 0;
+  padding: 1rem;
+  width: 300px;
+  border: none;
+  border-radius: 10px;
+  background-color: rgba(71, 71, 71, 0.2);
+}

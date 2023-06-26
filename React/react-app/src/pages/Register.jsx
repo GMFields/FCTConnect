@@ -27,6 +27,10 @@ const Register = (props) => {
   const [validEmail, setValidEmail] = useState(false);
   const [emailFocus, setEmailFocus] = useState(false);
 
+  const [department, setDepartment] = useState('');
+  const [role, setRole] = useState('');
+  const [username, setUserName] = useState('');
+
   const [errMsg, setErrMsg] = useState('');
 
   useEffect(() => {
@@ -54,27 +58,43 @@ const Register = (props) => {
     setErrMsg('');
   }, [name, password, matchPassword]);
 
+  const profileData = {
+    name: name,
+    username: username,
+    password: password,
+    email: email,
+    department: department,
+    role: role,
+    state:'',
+    profile:'',
+    landline:'',
+    phoneNumber:'',
+    address:'',
+    nif:''
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validPwd) {
-      try {
-        const response = await fetch(
-          `https://helical-ascent-385614.oa.r.appspot.com/rest/users/login?username=${email}&password=${password}`,
-          {
-            method: "POST",
+        try {
+          const response = await fetch('https://helical-ascent-385614.oa.r.appspot.com/rest/users/register', {
+            method: 'POST',
             headers: {
-              "Content-Type": "application/json",
+              'Content-Type': 'application/json',
             },
+            body: JSON.stringify(profileData),
+          });
+      
+          if (response.ok) {
+            const responseData = await response.json();
+            console.log('Usuário registrado com sucesso:', responseData);
+          } else {
+            console.log('Erro ao registrar usuário:', response.status);
           }
-        );
-        if (response.status === 200) {
-          console.log("SIUUUUUUUUU");
+        } catch (error) {
+          console.log('Ocorreu um erro:', error);
         }
-        // handle the response
-      } catch (error) {
-        // handle the error
-      }
-    }
+      };
   };
 
   return (
@@ -85,7 +105,7 @@ const Register = (props) => {
           <p ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</p>
           <form onSubmit={handleSubmit}>
             <label htmlFor="name">
-              Username
+              Name
               <span className={validName ? "valid" : "hide"}>
                 <FontAwesomeIcon icon={faCheck} />
               </span>
@@ -112,6 +132,18 @@ const Register = (props) => {
               <FontAwesomeIcon icon={faInfoCircle} />
               Min 4 characters.<br />
             </p>
+            <label htmlFor="name">
+              Username
+            </label>
+            <input
+              type="text"
+              name="username"
+              id="username"
+              value={username}
+              placeholder="username"
+              onChange={(e) => setUserName(e.target.value)}
+              required
+            />
             <label htmlFor="email">
               Email
               <span className={validEmail ? "valid" : "hide"}>
@@ -191,6 +223,41 @@ const Register = (props) => {
               <FontAwesomeIcon icon={faInfoCircle} />
               Must match the first password input field.<br />
             </p>
+            <label>Departamento</label>
+            <select className='form-select'
+              name="department"
+              id="department"
+              value={department}
+              onChange={(e) => setDepartment(e.target.value)}
+              required
+            >
+            <option value="">Selecione o departamento</option>
+            <option value="DI">DI</option>
+            <option value="DF">DF</option>
+            <option value="DQ">DQ</option>
+            <option value="DM">DM</option>
+            <option value="DEMI">DEMI</option>
+            <option value="DEC">DEC</option>
+            <option value="DCV">DCV</option>
+            <option value="DCT">DCT</option>
+            <option value="DCSA">DCSA</option>
+            <option value="DCM">DCM</option>
+            <option value="DCEA">DCEA</option>
+            </select> 
+          <label>Função</label>
+          <select className='form-select'
+          name="role"
+          id="role"
+          value={role}
+          onChange={(e) => setRole(e.target.value)}
+          required
+          >
+          <option value="">Selecione a função</option>
+          <option value="1">Aluno</option>
+          <option value="2">Funcionário</option>
+          <option value="3">Docente</option>
+          
+          </select>
             <button disabled={!validName || !validPwd || !validMatch}>Register </button>
             <p>Already have an Account?</p>
             <button onClick={() => props.onFormSwitch('login')}>Sign In </button>

@@ -24,43 +24,74 @@ import SearchIcon from "@material-ui/icons/Search";
 import SettingsIcon from "@material-ui/icons/Settings";
 import FolderIcon from "@material-ui/icons/Folder";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
+
 import clsx from "clsx";
 const drawerWidth = 200;
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
-    marginBottom: "1rem"
+    marginBottom: "1rem",
   },
   menuButton: {
-    marginRight: "1rem"
+    marginRight: "1rem",
   },
   drawer: {
-      width: drawerWidth
-    },
-    drawerPaper: {
-      width: drawerWidth,
-      backgroundColor: "#3D5A80",
-    },
-    drawerIcon: {
-      marginRight: theme.spacing(1),
-      color: "#ffffff"
-    },
-    drawerText: {
-      color: "#ffffff", 
-    },
-    content: {
-      flexGrow: 1,
-      marginLeft: drawerWidth,
-      padding: theme.spacing(3),
-      //backgroundColor: "#EDF5E1", // Verde claro
-      color: "#1D3557" // Verde escuro
-    }
-}));
+    width: drawerWidth,
+  },
+  drawerPaper: {
+    width: drawerWidth,
+    backgroundColor: "#3D5A80",
+  },
+  drawerIcon: {
+    marginRight: theme.spacing(1),
+    color: "#ffffff",
+  },
+  drawerText: {
+    color: "#ffffff",
+  },
+  content: {
+    flexGrow: 1,
+    marginLeft: drawerWidth,
+    padding: theme.spacing(3),
+    backgroundColor: "#EDF5E1", // Light green background
+    color: "#1D3557", // Dark green text
+  },
+  pageHeader: {
+    marginBottom: "2rem",
+    color: "#1D3557",
+    fontSize: "2rem",
+    fontWeight: "bold",
+  },
+  cardTitle: {
+    color: "#1D3557",
+    fontSize: "1.5rem",
+    fontWeight: "bold",
+  },
+  cardText: {
+    color: "#1D3557",
+    fontSize: "1rem",
+    marginBottom: "1rem",
+  },
+  cardImage: {
+    width: "150px",
+    borderRadius: "50%",
 
+  },
+  editButton: {
+    backgroundColor: "#1D3557",
+    color: "#EDF5E1",
+    padding: "0.5rem 1rem",
+    border: "none",
+    borderRadius: "4px",
+    cursor: "pointer",
+    marginTop: "1rem",
+  },
+}));
 
 const Page = (props) => {
   const token = Cookies.get('token');
   const password = Cookies.get('password');
+
   const [formData, setFormData] = useState({});
   const [profileData, setProfileData] = useState({});
   const classes = useStyles();
@@ -77,6 +108,30 @@ const Page = (props) => {
     setDrawerMini(!open);
   };
 
+  const handleLogout = () => {
+
+    fetch("https://helical-ascent-385614.oa.r.appspot.com/rest/users/logout", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: token,
+    })
+      .then(response => {
+        if (response.ok) {
+          // Logout successful
+          console.log("Logout successful");
+          props.onFormSwitch('login');
+        } else {
+          // Handle error response
+          console.error("Logout failed:", response.statusText);
+        }
+      })
+      .catch(error => {
+        // Handle network error
+        console.error("Logout failed:", error);
+      });
+  };
 
   useEffect(() => {
     // Fetch user profile data
@@ -89,7 +144,6 @@ const Page = (props) => {
       .then(response => response.json())
       .then(data => {
         console.log('Profile data result:', data);
-        
         // Set profile data
         setProfileData(data);
         // Set form data with profile data
@@ -114,8 +168,7 @@ const Page = (props) => {
           >
             <MenuIcon />
           </IconButton>
-          {/*<Typography variant="h6">oi</Typography>*/}
-          <IconButton edge="end" color="inherit" aria-label="logout">
+          <IconButton edge="end" color="inherit" aria-label="logout" onClick={handleLogout} >
             <ExitToAppIcon/>
           </IconButton>
         </Toolbar>
@@ -166,110 +219,108 @@ const Page = (props) => {
         </IconButton>
         </div>
       </Drawer>
-    <section style={{ backgroundColor: '#eee' }}>
+    <section className={classes.content}>
       <MDBContainer className="py-5">
         <MDBRow>
           <MDBCol lg="4">
             <MDBCard className="mb-4">
               <MDBCardBody className="text-center">
-                {/*<MDBCardImage
+                <MDBCardImage
                   src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp"
                   alt="avatar"
-                  className="rounded-circle"
-                  style={{ width: '150px' }}
-      fluid />*/}
-                <p className="text-muted mb-1">{profileData.profile}</p>
-                <p className="text-muted mb-4">{profileData.address}</p>
+                  className={classes.cardImage}
+                  fluid />
+                <p className={classes.cardText}>{profileData.profile}</p>
+                <p className={classes.cardText}>{profileData.address}</p>
               </MDBCardBody>
             </MDBCard>
           </MDBCol>
           <MDBCol lg="8">
             <MDBCard className="mb-4">
               <MDBCardBody>
+                <h2 className={classes.pageHeader}>Profile Information</h2>
+                <hr />
                 <MDBRow>
                   <MDBCol sm="3">
-                    <MDBCardText>Full Name</MDBCardText>
+                    <MDBCardText className={classes.cardTitle}>Full Name</MDBCardText>
                   </MDBCol>
                   <MDBCol sm="9">
-                    <MDBCardText className="text-muted">{profileData.name}</MDBCardText>
+                    <MDBCardText className={classes.cardText}>{profileData.name}</MDBCardText>
                   </MDBCol>
                 </MDBRow>
                 <hr />
                 <MDBRow>
                   <MDBCol sm="3">
-                    <MDBCardText>Email</MDBCardText>
+                    <MDBCardText className={classes.cardTitle}>Email</MDBCardText>
                   </MDBCol>
                   <MDBCol sm="9">
-                    <MDBCardText className="text-muted">{profileData.email}</MDBCardText>
+                    <MDBCardText className={classes.cardText}>{profileData.email}</MDBCardText>
                   </MDBCol>
                 </MDBRow>
                 <hr />
                 <MDBRow>
                   <MDBCol sm="3">
-                    <MDBCardText>Landline</MDBCardText>
+                    <MDBCardText className={classes.cardTitle}>Landline</MDBCardText>
                   </MDBCol>
                   <MDBCol sm="9">
-                    <MDBCardText className="text-muted">{profileData.landline}</MDBCardText>
+                    <MDBCardText className={classes.cardText}>{profileData.landline}</MDBCardText>
                   </MDBCol>
                 </MDBRow>
                 <hr />
                 <MDBRow>
                   <MDBCol sm="3">
-                    <MDBCardText>Mobile</MDBCardText>
+                    <MDBCardText className={classes.cardTitle}>Mobile</MDBCardText>
                   </MDBCol>
                   <MDBCol sm="9">
-                    <MDBCardText className="text-muted">{profileData.phoneNumber}</MDBCardText>
+                    <MDBCardText className={classes.cardText}>{profileData.phoneNumber}</MDBCardText>
                   </MDBCol>
                 </MDBRow>
                 <hr />
                 <MDBRow>
                   <MDBCol sm="3">
-                    <MDBCardText>Address</MDBCardText>
+                    <MDBCardText className={classes.cardTitle}>Address</MDBCardText>
                   </MDBCol>
                   <MDBCol sm="9">
-                    <MDBCardText className="text-muted">{profileData.address}</MDBCardText>
+                    <MDBCardText className={classes.cardText}>{profileData.address}</MDBCardText>
                   </MDBCol>
                 </MDBRow>
                 {/* Add more fields here */}
                 <hr />
                 <MDBRow>
                   <MDBCol sm="3">
-                    <MDBCardText>Username</MDBCardText>
+                    <MDBCardText className={classes.cardTitle}>Username</MDBCardText>
                   </MDBCol>
                   <MDBCol sm="9">
-                    <MDBCardText className="text-muted">{profileData.username}</MDBCardText>
+                    <MDBCardText className={classes.cardText}>{profileData.username}</MDBCardText>
                   </MDBCol>
                 </MDBRow>
                 <hr />
                 <MDBRow>
                   <MDBCol sm="3">
-                    <MDBCardText>Password</MDBCardText>
+                    <MDBCardText className={classes.cardTitle}>Password</MDBCardText>
                   </MDBCol>
                   <MDBCol sm="9">
-                    <MDBCardText className="text-muted">{password}</MDBCardText>
+                    <MDBCardText className={classes.cardText}>{password}</MDBCardText>
                   </MDBCol>
                 </MDBRow>
                 <hr />
                 <MDBRow>
                   <MDBCol sm="3">
-                    <MDBCardText>Role</MDBCardText>
+                    <MDBCardText className={classes.cardTitle}>Role</MDBCardText>
                   </MDBCol>
                   <MDBCol sm="9">
-                    <MDBCardText className="text-muted">{profileData.role}</MDBCardText>
+                    <MDBCardText className={classes.cardText}>{profileData.role}</MDBCardText>
                   </MDBCol>
                 </MDBRow>
               </MDBCardBody>
             </MDBCard>
-
           </MDBCol>
         </MDBRow>
       </MDBContainer>
     </section>
-    <button onClick={() => props.onFormSwitch('edit') }>Editar</button>
+    <button className={classes.editButton} onClick={() => props.onFormSwitch('edit') }>Editar</button>
     </div>
   );
-
 }
 
 export default Page;
-

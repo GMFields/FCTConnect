@@ -23,6 +23,7 @@ import FolderIcon from "@material-ui/icons/Folder";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp"
 
 import { parseDate } from "./util";
+import Cookies from "js-cookie";
 
 const drawerWidth = 250;
 
@@ -66,7 +67,7 @@ const useStyles = makeStyles((theme) => ({
 
 const Home = (props) => {
   const rssFeed = "https://www.fct.unl.pt/noticias/rss.xml";
-
+  const token = Cookies.get('token');
   const classes = useStyles();
   const MAX_ARTICLES = 10;
 
@@ -81,6 +82,31 @@ const Home = (props) => {
 
     setDrawerOpen(open);
     setDrawerMini(!open);
+  };
+
+  const handleLogout = () => {
+
+    fetch("https://helical-ascent-385614.oa.r.appspot.com/rest/users/logout", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: token,
+    })
+      .then(response => {
+        if (response.ok) {
+          // Logout successful
+          console.log("Logout successful");
+          props.onFormSwitch('login');
+        } else {
+          // Handle error response
+          console.error("Logout failed:", response.statusText);
+        }
+      })
+      .catch(error => {
+        // Handle network error
+        console.error("Logout failed:", error);
+      });
   };
 
   
@@ -127,7 +153,7 @@ const Home = (props) => {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6">Latest Posts</Typography>
-          <IconButton edge="end" color="inherit" aria-label="logout">
+          <IconButton edge="end" color="inherit" aria-label="logout" onClick={handleLogout}>
             <ExitToAppIcon/>
           </IconButton>
         </Toolbar>
