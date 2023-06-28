@@ -7,7 +7,6 @@ import EditProfile from './pages/EditProfile';
 //import ProfilePage from './pages/ProfilePage';
 import Page from './pages/Page';
 
-
 const App = () => {
   const [currentForm, setCurrentForm] = useState('login');
 
@@ -27,6 +26,8 @@ const App = () => {
         return <Page onFormSwitch={toggleForm}/>;
       case 'edit':
         return <EditProfile onFormSwitch={toggleForm}/>;
+     /* case 'map':
+        return <MapPage onFormSwitch={toggleForm}/>;*/
       default:
         return null;
     }

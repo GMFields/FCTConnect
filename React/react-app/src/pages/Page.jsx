@@ -20,41 +20,53 @@ import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/Menu";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 import NotificationsIcon from "@material-ui/icons/Notifications";
-import SearchIcon from "@material-ui/icons/Search";
-import SettingsIcon from "@material-ui/icons/Settings";
-import FolderIcon from "@material-ui/icons/Folder";
+import MapIcon from "@material-ui/icons/Map";
+import HomeIcon from "@material-ui/icons/Home";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
+import CalendarMonthIcon from '@material-ui/icons/CalendarToday';
+import ChatIcon from '@material-ui/icons/Chat';
 
 import clsx from "clsx";
 const drawerWidth = 200;
 
 const useStyles = makeStyles((theme) => ({
+  smallButton : {
+    width:"100%",
+  },
   appBar: {
-    marginBottom: "1rem",
+    marginBottom: "0.5rem",
+    backgroundColor: "#2596be",
   },
   menuButton: {
-    marginRight: "1rem",
+    marginRight: "1rem"
   },
   drawer: {
-    width: drawerWidth,
+    width: drawerWidth
   },
   drawerPaper: {
     width: drawerWidth,
-    backgroundColor: "#3D5A80",
+    backgroundColor: "#2596be"
   },
   drawerIcon: {
     marginRight: theme.spacing(1),
     color: "#ffffff",
+    fontSize: "1rem"
   },
   drawerText: {
     color: "#ffffff",
+    fontSize: "0.9rem"
   },
   content: {
     flexGrow: 1,
-    marginLeft: drawerWidth,
+    marginLeft: "400px",
     padding: theme.spacing(3),
-    backgroundColor: "#EDF5E1", // Light green background
+    backgroundColor: "#fef6e4", // Light green background
     color: "#1D3557", // Dark green text
+    width: "30%",
+    borderRadius: "10%",
+    display: "flex",
+    justifyContent: "center",
+    border: "2px solid #808080", 
   },
   pageHeader: {
     marginBottom: "2rem",
@@ -75,7 +87,6 @@ const useStyles = makeStyles((theme) => ({
   cardImage: {
     width: "150px",
     borderRadius: "50%",
-
   },
   editButton: {
     backgroundColor: "#1D3557",
@@ -85,6 +96,10 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: "4px",
     cursor: "pointer",
     marginTop: "1rem",
+  },
+  infoBox: {
+    fontSize: "0.9rem",
+    marginBottom: "0.5rem",
   },
 }));
 
@@ -109,7 +124,6 @@ const Page = (props) => {
   };
 
   const handleLogout = () => {
-
     fetch("https://helical-ascent-385614.oa.r.appspot.com/rest/users/logout", {
       method: "DELETE",
       headers: {
@@ -135,7 +149,7 @@ const Page = (props) => {
 
   useEffect(() => {
     // Fetch user profile data
-    fetch(`https://helical-ascent-385614.oa.r.appspot.com/rest/users/profile?tokenObj=${token}` , {
+    fetch(`https://helical-ascent-385614.oa.r.appspot.com/rest/users/profile?tokenObj=${token}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json; charset=utf-8",
@@ -154,10 +168,26 @@ const Page = (props) => {
       });
   }, [token]);
 
+  const renderInfoBox = (title, value) => {
+    if (value && value !== "") {
+      return (
+        <MDBRow>
+          <MDBCol sm="3">
+            <MDBCardText className={classes.cardTitle}>{title}</MDBCardText>
+          </MDBCol>
+          <MDBCol sm="9">
+            <MDBCardText className={classes.cardText}>{value}</MDBCardText>
+          </MDBCol>
+        </MDBRow>
+      );
+    } else {
+      return null;
+    }
+  };
 
   return (
     <div>
-        <AppBar position="static" className={classes.appBar}>
+      <AppBar position="static" className={classes.appBar}>
         <Toolbar style={{ justifyContent: "space-between" }}>
           <IconButton
             edge="start"
@@ -168,12 +198,12 @@ const Page = (props) => {
           >
             <MenuIcon />
           </IconButton>
-          <IconButton edge="end" color="inherit" aria-label="logout" onClick={handleLogout} >
-            <ExitToAppIcon/>
+          <IconButton edge="end" color="inherit" aria-label="logout" onClick={handleLogout}>
+            <ExitToAppIcon />
           </IconButton>
         </Toolbar>
       </AppBar>
-        <Drawer
+      <Drawer
         anchor="left"
         open={drawerOpen}
         onClose={toggleDrawer(false)}
@@ -187,140 +217,82 @@ const Page = (props) => {
         }}
       >
         <div role="presentation">
-        <IconButton onClick={() => props.onFormSwitch('profile')}>
-          <AccountCircleIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
+        <IconButton className={classes.smallButton} onClick={() => props.onFormSwitch('home')}> 
+          <HomeIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
           <Typography variant="body1" className={classes.drawerText}>
-          Profile
+          Home
           </Typography>
-        </IconButton>
-        <IconButton>
-          <NotificationsIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
-          <Typography variant="body1" className={classes.drawerText}>
-          Notifications
-          </Typography>
-        </IconButton>
-        <IconButton>
-          <SearchIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
-          <Typography variant="body1" className={classes.drawerText}>
-          Search
-          </Typography>
-        </IconButton>
-        <IconButton>
-          <SettingsIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
-          <Typography variant="body1" className={classes.drawerText}>
-          Settings
-          </Typography>
-        </IconButton>
-        <IconButton>
-          <FolderIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
-          <Typography variant="body1" className={classes.drawerText}>
-          Files
-          </Typography>
-        </IconButton>
+        </IconButton >
+          <IconButton className={classes.smallButton} onClick={() => props.onFormSwitch('profile')}>
+            <AccountCircleIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
+            <Typography variant="body1" className={classes.drawerText}>
+              Perfil
+            </Typography>
+          </IconButton>
+          <IconButton className={classes.smallButton}>
+            <NotificationsIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
+            <Typography variant="body1" className={classes.drawerText}>
+              Notificações
+            </Typography>
+          </IconButton>
+          <IconButton className={classes.smallButton} onClick={() => props.onFormSwitch('map')}>
+            <MapIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
+            <Typography variant="body1" className={classes.drawerText}>
+              Mapa
+            </Typography>
+          </IconButton>
+          <IconButton className={classes.smallButton}>
+            <CalendarMonthIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
+            <Typography variant="body1" className={classes.drawerText}>
+              Calendário
+            </Typography>
+          </IconButton>
+          <IconButton className={classes.smallButton}>
+            <ChatIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
+            <Typography variant="body1" className={classes.drawerText}>
+              Chat
+            </Typography>
+          </IconButton>
         </div>
       </Drawer>
-    <section className={classes.content}>
-      <MDBContainer className="py-5">
-        <MDBRow>
-          <MDBCol lg="4">
-            <MDBCard className="mb-4">
-              <MDBCardBody className="text-center">
-                <MDBCardImage
-                  src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp"
-                  alt="avatar"
-                  className={classes.cardImage}
-                  fluid />
-                <p className={classes.cardText}>{profileData.profile}</p>
-                <p className={classes.cardText}>{profileData.address}</p>
-              </MDBCardBody>
-            </MDBCard>
-          </MDBCol>
-          <MDBCol lg="8">
-            <MDBCard className="mb-4">
-              <MDBCardBody>
-                <h2 className={classes.pageHeader}>Profile Information</h2>
-                <hr />
-                <MDBRow>
-                  <MDBCol sm="3">
-                    <MDBCardText className={classes.cardTitle}>Full Name</MDBCardText>
-                  </MDBCol>
-                  <MDBCol sm="9">
-                    <MDBCardText className={classes.cardText}>{profileData.name}</MDBCardText>
-                  </MDBCol>
-                </MDBRow>
-                <hr />
-                <MDBRow>
-                  <MDBCol sm="3">
-                    <MDBCardText className={classes.cardTitle}>Email</MDBCardText>
-                  </MDBCol>
-                  <MDBCol sm="9">
-                    <MDBCardText className={classes.cardText}>{profileData.email}</MDBCardText>
-                  </MDBCol>
-                </MDBRow>
-                <hr />
-                <MDBRow>
-                  <MDBCol sm="3">
-                    <MDBCardText className={classes.cardTitle}>Landline</MDBCardText>
-                  </MDBCol>
-                  <MDBCol sm="9">
-                    <MDBCardText className={classes.cardText}>{profileData.landline}</MDBCardText>
-                  </MDBCol>
-                </MDBRow>
-                <hr />
-                <MDBRow>
-                  <MDBCol sm="3">
-                    <MDBCardText className={classes.cardTitle}>Mobile</MDBCardText>
-                  </MDBCol>
-                  <MDBCol sm="9">
-                    <MDBCardText className={classes.cardText}>{profileData.phoneNumber}</MDBCardText>
-                  </MDBCol>
-                </MDBRow>
-                <hr />
-                <MDBRow>
-                  <MDBCol sm="3">
-                    <MDBCardText className={classes.cardTitle}>Address</MDBCardText>
-                  </MDBCol>
-                  <MDBCol sm="9">
-                    <MDBCardText className={classes.cardText}>{profileData.address}</MDBCardText>
-                  </MDBCol>
-                </MDBRow>
-                {/* Add more fields here */}
-                <hr />
-                <MDBRow>
-                  <MDBCol sm="3">
-                    <MDBCardText className={classes.cardTitle}>Username</MDBCardText>
-                  </MDBCol>
-                  <MDBCol sm="9">
-                    <MDBCardText className={classes.cardText}>{profileData.username}</MDBCardText>
-                  </MDBCol>
-                </MDBRow>
-                <hr />
-                <MDBRow>
-                  <MDBCol sm="3">
-                    <MDBCardText className={classes.cardTitle}>Password</MDBCardText>
-                  </MDBCol>
-                  <MDBCol sm="9">
-                    <MDBCardText className={classes.cardText}>{password}</MDBCardText>
-                  </MDBCol>
-                </MDBRow>
-                <hr />
-                <MDBRow>
-                  <MDBCol sm="3">
-                    <MDBCardText className={classes.cardTitle}>Role</MDBCardText>
-                  </MDBCol>
-                  <MDBCol sm="9">
-                    <MDBCardText className={classes.cardText}>{profileData.role}</MDBCardText>
-                  </MDBCol>
-                </MDBRow>
-              </MDBCardBody>
-            </MDBCard>
-          </MDBCol>
-        </MDBRow>
-      </MDBContainer>
-    </section>
-    <button className={classes.editButton} onClick={() => props.onFormSwitch('edit') }>Editar</button>
+      <section className={classes.content}>
+        <MDBContainer className="py-5">
+          <MDBRow>
+            <MDBCol lg="4">
+              <MDBCard className="mb-4">
+                <MDBCardBody className="text-center">
+                  <MDBCardImage
+                    src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp"
+                    alt="avatar"
+                    className={clsx(classes.cardImage, "rounded-circle")}
+                    style={{ width: "100px", height: "100px" }}
+                    fluid
+                  />
+                </MDBCardBody>
+              </MDBCard>
+            </MDBCol>
+            <MDBCol lg="8">
+              <MDBCard className="mb-4">
+                <MDBCardBody>
+                  {renderInfoBox("Nome", profileData.name)}
+                  {renderInfoBox("Email", profileData.email)}
+                  {renderInfoBox("Telefone", profileData.landline)}
+                  {renderInfoBox("Telemóvel", profileData.phoneNumber)}
+                  {renderInfoBox("Endereço", profileData.address)}
+                  {renderInfoBox("Username", profileData.username)}
+                  {renderInfoBox("Password", password)}
+                  {renderInfoBox("Função", profileData.role)}
+                  {renderInfoBox("Departamento", profileData.department)}
+                  {renderInfoBox("Estado", profileData.state)}
+                  <MDBBtn className={classes.editButton} onClick={() => props.onFormSwitch('edit')}>Editar</MDBBtn>
+                </MDBCardBody>
+              </MDBCard>
+            </MDBCol>
+          </MDBRow>
+        </MDBContainer>
+      </section>
     </div>
   );
-}
+};
 
 export default Page;

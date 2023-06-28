@@ -17,17 +17,21 @@ import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/Menu";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 import NotificationsIcon from "@material-ui/icons/Notifications";
-import SearchIcon from "@material-ui/icons/Search";
-import SettingsIcon from "@material-ui/icons/Settings";
-import FolderIcon from "@material-ui/icons/Folder";
-import ExitToAppIcon from "@material-ui/icons/ExitToApp"
+import MapIcon from "@material-ui/icons/Map";
+import ExitToAppIcon from "@material-ui/icons/ExitToApp";
+import CalendarMonthIcon from '@material-ui/icons/CalendarToday';
+import ChatIcon from '@material-ui/icons/Chat';
+import HomeIcon from '@material-ui/icons/Home';
 
 import { parseDate } from "./util";
 import Cookies from "js-cookie";
 
-const drawerWidth = 250;
+const drawerWidth = 200;
 
 const useStyles = makeStyles((theme) => ({
+  smallButton : {
+    width:"100%",
+  },
   root: {
     maxWidth: "100%",
     margin: "1.5rem",
@@ -39,7 +43,8 @@ const useStyles = makeStyles((theme) => ({
     minWidth: "100%"
   },
   appBar: {
-    marginBottom: "1rem"
+    marginBottom: "0.75rem",
+    backgroundColor: "#2596be"
   },
   menuButton: {
     marginRight: "1rem"
@@ -49,14 +54,17 @@ const useStyles = makeStyles((theme) => ({
   },
   drawerPaper: {
     width: drawerWidth,
-    backgroundColor: theme.palette.primary.main, 
+    backgroundColor: "#2596be"
+    
   },
   drawerIcon: {
     marginRight: theme.spacing(1),
-    color: "#ffffff"
+    color: "#ffffff",
+    fontSize: "0rem"
   },
   drawerText: {
     color: "#ffffff", 
+    fontSize: "0.9rem"
   },
   content: {
     flexGrow: 1,
@@ -152,7 +160,7 @@ const Home = (props) => {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6">Latest Posts</Typography>
+          {/*<Typography variant="h6">Noticias</Typography>*/}
           <IconButton edge="end" color="inherit" aria-label="logout" onClick={handleLogout}>
             <ExitToAppIcon/>
           </IconButton>
@@ -172,43 +180,49 @@ const Home = (props) => {
         }}
       >
         <div role="presentation">
-        <IconButton onClick={() => props.onFormSwitch('profile')}> 
+        <IconButton   className={classes.smallButton} onClick={() => props.onFormSwitch('home')}> 
+          <HomeIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
+          <Typography variant="body1" className={classes.drawerText}>
+          Home
+          </Typography>
+        </IconButton>
+        <IconButton   className={classes.smallButton} onClick={() => props.onFormSwitch('profile')}> 
           <AccountCircleIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
           <Typography variant="body1" className={classes.drawerText}>
-          Profile
+          Perfil
           </Typography>
         </IconButton>
-        <IconButton>
-          <NotificationsIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
+        <IconButton className={classes.smallButton} >
+          <NotificationsIcon  className={clsx(classes.drawerIcon, classes.drawerText)} />
           <Typography variant="body1" className={classes.drawerText}>
-          Notifications
+          Notificações
           </Typography>
         </IconButton>
-        <IconButton>
-          <SearchIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
+        <IconButton className={classes.smallButton} onClick={() => props.onFormSwitch('map')}> 
+          <MapIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
           <Typography variant="body1" className={classes.drawerText}>
-          Search
+          Mapa
           </Typography>
         </IconButton>
-        <IconButton>
-          <SettingsIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
+        <IconButton className={classes.smallButton}>
+          <CalendarMonthIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
           <Typography variant="body1" className={classes.drawerText}>
-          Settings
+          Calendário
           </Typography>
         </IconButton>
-        <IconButton>
-          <FolderIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
+        <IconButton className={classes.smallButton}>
+          <ChatIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
           <Typography variant="body1" className={classes.drawerText}>
-          Files
+          Chat
           </Typography>
         </IconButton>
         </div>
       </Drawer>
       <main className={classes.content}>
         <Container maxWidth="lg">
-        <Typography variant="h5" component="h2" className={classes.recentPosts}>
+        {/*<Typography variant="h5" component="h2" className={classes.recentPosts}>
             Recent Posts
-          </Typography>
+          </Typography>*/}
           <Grid container spacing={3}>
             {articles.length > 0 ? (
               articles.map((item) => (
