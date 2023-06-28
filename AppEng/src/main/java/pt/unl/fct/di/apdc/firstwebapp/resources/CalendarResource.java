@@ -16,7 +16,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 
@@ -258,17 +260,23 @@ public class CalendarResource implements CalendarApi {
             }
 
             Query<Entity> query = Query.newEntityQueryBuilder()
-                    .setKind("Calendargit") // Replace "event" with the appropriate kind of your entity
+                    .setKind("Calendar")
                     .setFilter(StructuredQuery.PropertyFilter.eq("username", tokenObj.getUsername()))
                     .build();
 
             QueryResults<Entity> results = datastore.run(query);
 
-            List<Entity> entities = new ArrayList<>();
+            List<Map<String, Object>> entitiesProperties = new ArrayList<>();
 
             while (results.hasNext()) {
                 Entity entity = results.next();
-                entities.add(entity);
+                Map<String, Object> properties = new HashMap<>();
+                for (String propertyName : entity.getNames()) {
+                    Value<?> value = entity.getValue(propertyName);
+                    properties.put(propertyName, value.get());
+                    LOG.info("Event: " + entity.getString("event_title"));
+                }
+                entitiesProperties.add(properties);
                 LOG.info("Event: " + entity.getString("event_title"));
             }
 
@@ -277,7 +285,7 @@ public class CalendarResource implements CalendarApi {
 
             LOG.info("Get all events successfully");
             return Response.status(Response.Status.OK)
-                    .entity(g.toJson(entities)).build();
+                    .entity(g.toJson(entitiesProperties)).build();
         } catch (Exception e) {
             txn.rollback();
             LOG.severe("An error occurred while getting event: " + e.getMessage());
