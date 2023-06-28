@@ -174,8 +174,10 @@ public class MapResource implements MapAPI {
                 Double latitude = waypoint.getDouble("waypoint_latitude");
                 Double longitude = waypoint.getDouble("waypoint_longitude");
                 String name = waypoint.getString("waypoint_name");
+                String wayPointID = waypoint.getKey().getName();
 
                 MapData mapData = new MapData(latitude, longitude, name);
+                mapData.setWayPointID(wayPointID);
                 waypointList.add(mapData);
             }
 

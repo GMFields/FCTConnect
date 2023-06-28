@@ -24,7 +24,6 @@ import javax.ws.rs.core.Response.Status;
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 public class UserResource implements UserAPI {
 	Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-	// Datastore datastore =
 	// DatastoreOptions.newBuilder().setHost("http://localhost:8081").setProjectId("helical-ascent-385614").build().getService();
 
 	private final Gson g = new Gson();
@@ -135,7 +134,8 @@ public class UserResource implements UserAPI {
 			Key tokenkey = KeyStore.tokenKeyFactory(token.getTokenID());
 
 			Entity tokenid = Entity.newBuilder(tokenkey).set("username", token.getUsername())
-					.set("user_role", token.getRole()).set("token_creationdata", token.getCreationData())
+					.set("user_role", token.getRole())
+					.set("token_creationdata", token.getCreationData())
 					.set("token_expirationdata", token.getExpirationData()).build();
 			txn.add(tokenid);
 
