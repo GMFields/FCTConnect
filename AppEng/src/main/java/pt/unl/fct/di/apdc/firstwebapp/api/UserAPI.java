@@ -56,7 +56,7 @@ public interface UserAPI {
     @Path("/logout")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    Response userLogout(AuthToken tokenObjStr);
+    Response userLogout(@QueryParam("tokenObj") String tokenObjStr);
 
     /**
      *
