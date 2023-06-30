@@ -156,7 +156,9 @@ public class UserResource implements UserAPI {
 	}
 
 	@Override
-	public Response userLogout(AuthToken tokenObj) {
+	public Response userLogout(String tokenObjStr) {
+		AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
+
 		LOG.fine("Attempt to logout user: " + tokenObj.getUsername());
 
 		Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
