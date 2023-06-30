@@ -1,10 +1,9 @@
 package pt.unl.fct.di.apdc.firstwebapp.util;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+
 import java.util.UUID;
 
 public class Event {
@@ -15,11 +14,15 @@ public class Event {
 
     private String eventID;
 
-    private String dateFormat = "yyyy-MM-dd'T'HH:mm:ssXXX";
+    private static String dateFormat = "yyyy-MM-dd'T'HH:mm:ssXXX";
+    private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern(dateFormat);
 
 
 
-    DateFormat formatter = new SimpleDateFormat(dateFormat);
+
+
+
+
 
     public Event(){
     }
@@ -38,6 +41,7 @@ public class Event {
         this.date = date;
         this.duration = duration;
         this.eventID = eventID;
+        System.out.println();
     }
 
 
@@ -55,16 +59,9 @@ public class Event {
     }
 
     public String getEndDate() {
-        Date enddate = null;
-        try {
-            enddate = formatter.parse(date);
-        } catch (ParseException e) {
-            // Handle the parsing exception
-        }
-        Date calendar = new Date(enddate.getTime() + duration);
-        Date updatedEndDate = calendar;
-        String formattedEndDate = formatter.format(updatedEndDate);
-        return formattedEndDate;
+        OffsetDateTime offsetDateTime = OffsetDateTime.parse(date, formatter);
+        OffsetDateTime updatedEndDate = offsetDateTime.plusNanos(duration * 1_000_000);
+        return updatedEndDate.format(formatter);
     }
 
     public String getDescription(){
