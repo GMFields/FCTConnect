@@ -2,7 +2,7 @@ package pt.unl.fct.di.apdc.firstwebapp.util;
 
 import java.util.UUID;
 
-public class MapData {
+public class    MapData {
 
     private double latitude, longitude;
     private long creationData;
@@ -56,7 +56,7 @@ public class MapData {
         return this.wayPointID;
     }
 
-    public void setWayPointIDID(String wayPointID) {
+    public void setWayPointID(String wayPointID) {
         this.wayPointID = wayPointID;
     }
 }
