@@ -36,4 +36,16 @@ public interface CalendarApi {
     @Produces(MediaType.APPLICATION_JSON)
     Response getEvents(@QueryParam("tokenObj") String tokenObjStr);
 
+    @POST
+    @Path("/addaccess")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    Response addAccess(@QueryParam("tokenObj") String tokenObjStr, @QueryParam("username") String username);
+
+    @DELETE
+    @Path("/addaccess")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    Response removeAccess(@QueryParam("tokenObj") String tokenObjStr, @QueryParam("username") String username);
+
 }
