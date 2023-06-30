@@ -33,4 +33,8 @@ public class KeyStore {
     public static Key mapKeyFactory(String keyString) {
         return datastore.newKeyFactory().setKind("Waypoint").newKey(keyString);
     }
+
+    public static Key CalendarAccessKeyFactory(String keyString) {
+        return datastore.newKeyFactory().setKind("CalendarAccess").newKey(keyString);
+    }
 }
