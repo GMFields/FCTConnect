@@ -27,47 +27,68 @@ import CalendarMonthIcon from '@material-ui/icons/CalendarToday';
 import ChatIcon from '@material-ui/icons/Chat';
 
 import clsx from "clsx";
+import { UploadAvatar } from './UploadAvatar';
 const drawerWidth = 200;
 
 const useStyles = makeStyles((theme) => ({
+  background:{
+    backgroundColor: " #a49fa5",
+  },
+  containerWrapper: {
+    display: "flex",
+    justifyContent: "space-between",
+  },
   smallButton : {
     width:"100%",
   },
   appBar: {
-    marginBottom: "0.5rem",
-    backgroundColor: "#2596be",
+    marginBottom: "0.75rem",
+    background: "#2596be", //"linear-gradient(to right, #27C1FA, #14D466)",
   },
   menuButton: {
-    marginRight: "1rem"
+    marginRight: "1rem",
+    //width:"20%",
   },
   drawer: {
-    width: drawerWidth
+    width: drawerWidth,
+    
   },
   drawerPaper: {
     width: drawerWidth,
-    backgroundColor: "#2596be"
+    background: "#2596be",// "linear-gradient(to right, #27C1FA, #14D466)",
   },
   drawerIcon: {
     marginRight: theme.spacing(1),
-    color: "#ffffff",
+    color: "#fffff",
     fontSize: "1rem"
   },
   drawerText: {
     color: "#ffffff",
     fontSize: "0.9rem"
   },
-  content: {
-    flexGrow: 1,
-    marginLeft: "400px",
-    padding: theme.spacing(3),
-    backgroundColor: "#fef6e4", // Light green background
-    color: "#1D3557", // Dark green text
-    width: "30%",
-    borderRadius: "10%",
+  content1: {
+    flex: "0.5",
+    marginTop: "7%",
+    marginLeft: drawerWidth,
+    marginRight:"5%",
+    backgroundColor: "#ffffff",
+    color: "#1D3557",
+    height: "60%",
     display: "flex",
     justifyContent: "center",
-    border: "2px solid #808080", 
+    border: "2px solid #808080",
   },
+  content2: {
+    flex: "1",
+    marginRight:"5%",
+    backgroundColor: "#ffffff",
+    color: "#1D3557",
+    height: "90%",
+    display: "flex",
+    justifyContent: "center",
+    border: "2px solid #808080",
+  },
+  
   pageHeader: {
     marginBottom: "2rem",
     color: "#1D3557",
@@ -75,21 +96,22 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: "bold",
   },
   cardTitle: {
-    color: "#1D3557",
-    fontSize: "1.5rem",
+    color: "#1468A2",
+    fontSize: "1rem",
+    marginBottom: "0.25rem",
     fontWeight: "bold",
   },
   cardText: {
     color: "#1D3557",
     fontSize: "1rem",
-    marginBottom: "1rem",
   },
   cardImage: {
     width: "150px",
     borderRadius: "50%",
+    marginBottom:"5%"
   },
   editButton: {
-    backgroundColor: "#1D3557",
+    backgroundColor: "#1468A2",
     color: "#EDF5E1",
     padding: "0.5rem 1rem",
     border: "none",
@@ -186,7 +208,7 @@ const Page = (props) => {
   };
 
   return (
-    <div>
+    <div className={classes.background}>
       <AppBar position="static" className={classes.appBar}>
         <Toolbar style={{ justifyContent: "space-between" }}>
           <IconButton
@@ -229,7 +251,7 @@ const Page = (props) => {
               Perfil
             </Typography>
           </IconButton>
-          <IconButton className={classes.smallButton}>
+          <IconButton className={classes.smallButton}  onClick={() => props.onFormSwitch('notificacions')}>
             <NotificationsIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
             <Typography variant="body1" className={classes.drawerText}>
               Notificações
@@ -241,13 +263,13 @@ const Page = (props) => {
               Mapa
             </Typography>
           </IconButton>
-          <IconButton className={classes.smallButton}>
+          <IconButton className={classes.smallButton}  onClick={() => props.onFormSwitch('calendar')}>
             <CalendarMonthIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
             <Typography variant="body1" className={classes.drawerText}>
               Calendário
             </Typography>
           </IconButton>
-          <IconButton className={classes.smallButton}>
+          <IconButton className={classes.smallButton}  onClick={() => props.onFormSwitch('chat')}>
             <ChatIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
             <Typography variant="body1" className={classes.drawerText}>
               Chat
@@ -255,31 +277,42 @@ const Page = (props) => {
           </IconButton>
         </div>
       </Drawer>
-      <section className={classes.content}>
-        <MDBContainer className="py-5">
+      <div className={classes.containerWrapper}>
+        <MDBContainer className={classes.content1}>
           <MDBRow>
             <MDBCol lg="4">
               <MDBCard className="mb-4">
                 <MDBCardBody className="text-center">
-                  <MDBCardImage
+                <MDBCardImage
                     src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp"
                     alt="avatar"
                     className={clsx(classes.cardImage, "rounded-circle")}
                     style={{ width: "100px", height: "100px" }}
                     fluid
+                    onClick={<UploadAvatar></UploadAvatar>}
                   />
+                <MDBCol lg="8">
+                <MDBCard className="mb-4">
+                <MDBCardBody>
+                  {renderInfoBox("Nome", profileData.name)}
+                  {renderInfoBox("Username", profileData.username)}
+                </MDBCardBody>
+                </MDBCard>
+                </MDBCol>
                 </MDBCardBody>
               </MDBCard>
-            </MDBCol>
+              </MDBCol>
+          </MDBRow>
+        </MDBContainer>
+        <MDBContainer  className={classes.content2}>
+          <MDBRow>
             <MDBCol lg="8">
               <MDBCard className="mb-4">
                 <MDBCardBody>
-                  {renderInfoBox("Nome", profileData.name)}
                   {renderInfoBox("Email", profileData.email)}
                   {renderInfoBox("Telefone", profileData.landline)}
                   {renderInfoBox("Telemóvel", profileData.phoneNumber)}
                   {renderInfoBox("Endereço", profileData.address)}
-                  {renderInfoBox("Username", profileData.username)}
                   {renderInfoBox("Password", password)}
                   {renderInfoBox("Função", profileData.role)}
                   {renderInfoBox("Departamento", profileData.department)}
@@ -290,7 +323,8 @@ const Page = (props) => {
             </MDBCol>
           </MDBRow>
         </MDBContainer>
-      </section>
+        <div/>
+    </div>
     </div>
   );
 };

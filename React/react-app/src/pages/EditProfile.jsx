@@ -15,28 +15,27 @@ import CalendarMonthIcon from '@material-ui/icons/CalendarToday';
 import ChatIcon from '@material-ui/icons/Chat';
 import HomeIcon from "@material-ui/icons/Home";
 import {MDBBtn} from 'mdb-react-ui-kit';
+import Avatar from "react-avatar-edit";
 
 import clsx from "clsx";
 const drawerWidth = 200;
 
 
 const useStyles = makeStyles((theme) => ({
-  smallButton: {
+  background:{
+    backgroundColor: " #a49fa5",
+  },
+  containerWrapper: {
+    display: "flex",
+    justifyContent: "space-between",
+  },
+  smallButton : {
     width:"100%",
-  },
-  root: {
-    maxWidth: "100%",
-    margin: "1.5rem",
-    backgroundColor: "#fef6e4",
-    color: "#f582ae"
-  },
-  media: {
-    height: 300,
-    minWidth: "100%"
   },
   appBar: {
     marginBottom: "0.75rem",
-    backgroundColor: "#2596be"
+    background: "#2596be",
+    //"linear-gradient(to right, #27C1FA, #14D466)",
   },
   menuButton: {
     marginRight: "1rem"
@@ -46,14 +45,7 @@ const useStyles = makeStyles((theme) => ({
   },
   drawerPaper: {
     width: drawerWidth,
-    backgroundColor: "#2596be"
-    
-  },
-  cardText: {
-    color: "#1D3557",
-    fontSize: "1rem bold",
-    marginBottom: "1rem",
-    textAlign: "center"
+    background: "#2596be",//"#6ECBDF",
   },
   drawerIcon: {
     marginRight: theme.spacing(1),
@@ -61,32 +53,62 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "1rem"
   },
   drawerText: {
-    color: "#ffffff", 
+    color: "#ffffff",
     fontSize: "0.9rem"
   },
   content: {
-    flexGrow: 1,
-    marginLeft: "400px",
-    padding: theme.spacing(3),
-    backgroundColor: "#fef6e4", // Light green background
-    color: "#1D3557", // Dark green text
-    width: "30%",
-    borderRadius: "10%",
+    flex: "0.5",
+    marginLeft: "20%",
+    marginRight:"20%",
+    backgroundColor: "#ffffff",
+    color: "#1D3557",
+    height: "60%",
     display: "flex",
     justifyContent: "center",
-    border: "2px solid #808080", 
+    border: "2px solid #808080",
+  },
+  content2: {
+    flex: "1",
+    marginRight:"5%",
+    backgroundColor: "#ffffff",
+    color: "#1D3557",
+    height: "90%",
+    display: "flex",
+    justifyContent: "center",
+    border: "2px solid #808080",
+  },
+  
+  pageHeader: {
+    marginBottom: "2rem",
+    color: "#1D3557",
+    fontSize: "2rem",
+    fontWeight: "bold",
+  },
+  cardText: {
+    color: "#1468A2",
+    fontSize: "1rem",
+    marginBottom: "0.5rem",
+    fontWeight: "bold",
+  },
+  cardImage: {
+    width: "150px",
+    borderRadius: "50%",
+    marginBottom:"5%"
   },
   saveButton: {
-    backgroundColor: "#1D3557",
+    backgroundColor: "#1468A2",
     color: "#EDF5E1",
-    padding: "0.5rem 1rem",
     border: "none",
     borderRadius: "4px",
     cursor: "pointer",
     marginTop: "1rem",
   },
+  infoBox: {
+    fontSize: "0.9rem",
+    marginBottom: "0.5rem",
+  },
   input:{
-   margin: "0.5rem 0",
+   marginLeft: "5%",
    padding:"3%",
    backgroundColor: "rgba(71, 71, 71, 0.2)"
  }
@@ -94,7 +116,6 @@ const useStyles = makeStyles((theme) => ({
 const EditProfile = (props) => {
   const token = Cookies.get('token');
 
-  const [profileData, setProfileData] = useState({});
   const classes = useStyles();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -134,6 +155,17 @@ const EditProfile = (props) => {
   };
 
   const [formData, setFormData] = useState({});
+  const[src, setSrc] = useState(null);
+  const[preview, setPreview] = useState(null);
+  
+  
+  const onCrop = (view) =>{
+      setPreview(view)
+  }
+
+  const onClose = () =>{
+      setPreview(null)
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -190,7 +222,7 @@ const EditProfile = (props) => {
   };
 
   return (
-    <div className='edit'>
+    <div className={classes.background}>
     <AppBar position="static" className={classes.appBar}>
       <Toolbar style={{ justifyContent: "space-between" }}>
         <IconButton
@@ -233,7 +265,7 @@ const EditProfile = (props) => {
             Perfil
           </Typography>
         </IconButton>
-        <IconButton className={classes.smallButton} >
+        <IconButton className={classes.smallButton}  onClick={() => props.onFormSwitch('notificacions')} >
           <NotificationsIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
           <Typography variant="body1" className={classes.drawerText}>
             Notificações
@@ -245,13 +277,13 @@ const EditProfile = (props) => {
             Mapa
           </Typography>
         </IconButton>
-        <IconButton className={classes.smallButton} >
+        <IconButton className={classes.smallButton}  onClick={() => props.onFormSwitch('calendar')} >
           <CalendarMonthIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
           <Typography variant="body1" className={classes.drawerText}>
             Calendário
           </Typography>
         </IconButton>
-        <IconButton className={classes.smallButton}>
+        <IconButton className={classes.smallButton}  onClick={() => props.onFormSwitch('chat')}>
           <ChatIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
           <Typography variant="body1" className={classes.drawerText}>
             Chat
@@ -261,106 +293,100 @@ const EditProfile = (props) => {
     </Drawer>
     
     <div className={classes.content }>
+    
+    
+      	 
       <form onSubmit={handleSubmit}>
-        <label className={classes.cardText}>
-          Nome:
-          <input className={classes.input}
+        <label className={classes.cardText}>Nome:</label>
+        <input className={classes.input}
             type='text'
             name='name'
             value={formData.name || ''}
             onChange={handleChange}
+            required
           />
-        </label>
-        <label  className={classes.cardText}>
-          Palavra-passe:
-          <input  className={classes.input}
+        <label  className={classes.cardText}>Palavra-passe:</label>
+        <input  className={classes.input}
             type='text'
             name='password'
             value={formData.password || ''}
             onChange={handleChange}
+            required
           />
-        </label>
-        <label  className={classes.cardText}>
-          Email:
-          <input  className={classes.input}
+        <label  className={classes.cardText}>Email:</label>
+        <input  className={classes.input}
             type='text'
             name='email'
             value={formData.email || ''}
             onChange={handleChange}
+            required
           />
-        </label>
-        <label className={classes.cardText}>
-          Função:
-          <input className={classes.input}
+        <label className={classes.cardText}>Função:</label>
+        <input className={classes.input}
             type='number'
             name='role'
             value={formData.role || ''}
             onChange={handleChange}
-          />
-        </label>
-        <label className={classes.cardText}>
-          Estado:
-          <input className={classes.input}
+            required
+        />
+        <label className={classes.cardText}>Estado:</label>
+        <input className={classes.input}
             type='text'
             name='state'
             value={formData.state || ''}
             onChange={handleChange}
+            required
           />
-        </label>
-        <label className={classes.cardText}>
-          Profile:
-          <input className={classes.input}
+        <label className={classes.cardText}>Profile:</label>
+        <input className={classes.input}
             type='text'
             name='profile'
             value={formData.profile || ''}
             onChange={handleChange}
+            required
           />
-        </label>
-        <label className={classes.cardText}>
-          Telefone:
-          <input className={classes.input}
+        
+        <label className={classes.cardText}>Telefone:</label>
+        <input className={classes.input}
             type='text'
             name='phoneNumber'
             value={formData.phoneNumber || ''}
             onChange={handleChange}
+            required
           />
-        </label>
-        <label className={classes.cardText}>
-          Ocupação:
-          <input className={classes.input}
+        
+        <label className={classes.cardText}>Ocupação:</label>
+        <input className={classes.input}
             type='text'
             name='occupation'
             value={formData.occupation || ''}
             onChange={handleChange}
+            required
           />
-        </label>
-        <label className={classes.cardText}>
-          Endereço:
-          <input className={classes.input}
+        <label className={classes.cardText}>Endereço:</label>
+        <input className={classes.input}
             type='text'
             name='address'
             value={formData.address || ''}
             onChange={handleChange}
+            required
           />
-        </label>
-        <label className={classes.cardText}>
-          Nif:
-          <input className={classes.input}
+        <label className={classes.cardText}>Nif:</label>
+        <input className={classes.input}
             type='text'
             name='nif'
             value={formData.nif || ''}
             onChange={handleChange}
+            required
           />
-        </label>
-        <label className={classes.cardText}>
-          Departamento:
-          <input className={classes.input}
+        <label className={classes.cardText}>Departamento:</label>
+        <input className={classes.input}
             type='text'
             name='department'
             value={formData.department || ''}
             onChange={handleChange}
+            required
           />
-        </label>
         <MDBBtn className={classes.saveButton} onClick={() => props.onFormSwitch('profile')}>Guardar</MDBBtn>
       </form>
     </div>

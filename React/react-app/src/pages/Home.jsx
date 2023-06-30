@@ -192,7 +192,7 @@ const Home = (props) => {
           Perfil
           </Typography>
         </IconButton>
-        <IconButton className={classes.smallButton} >
+        <IconButton className={classes.smallButton}  onClick={() => props.onFormSwitch('notificacions')}>
           <NotificationsIcon  className={clsx(classes.drawerIcon, classes.drawerText)} />
           <Typography variant="body1" className={classes.drawerText}>
           Notificações
@@ -204,13 +204,13 @@ const Home = (props) => {
           Mapa
           </Typography>
         </IconButton>
-        <IconButton className={classes.smallButton}>
+        <IconButton className={classes.smallButton}  onClick={() => props.onFormSwitch('calendar')}>
           <CalendarMonthIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
           <Typography variant="body1" className={classes.drawerText}>
           Calendário
           </Typography>
         </IconButton>
-        <IconButton className={classes.smallButton}>
+        <IconButton className={classes.smallButton}  onClick={() => props.onFormSwitch('chat')}>
           <ChatIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
           <Typography variant="body1" className={classes.drawerText}>
           Chat
@@ -248,20 +248,20 @@ const Home = (props) => {
                           <Typography gutterBottom variant="h5" component="h2">
                             {item.title}
                           </Typography>
-                          <Typography
+                          {/*<Typography
                             variant="body2"
                             color="textSecondary"
                             component="p"
                           >
                             {parseDate(item.pubDate)}
-                          </Typography>
+                        </Typography>*/}
                         </CardContent>
                       </CardActionArea>
-                      <CardActions>
+                      {/*<CardActions>
                         <Button size="small" color="primary">
                           Learn More
                         </Button>
-                      </CardActions>
+                        </CardActions>*/}
                     </Card>
                   </a>
                 </Grid>
