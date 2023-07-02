@@ -305,15 +305,18 @@ public class CalendarResource implements CalendarApi {
 
 
         Transaction txn = datastore.newTransaction();
-        Entity user = txn.get(userKey);
 
-        if(user == null){
-            txn.rollback();
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
+
+
 
 
         try {
+            Entity user = txn.get(userKey);
+            if(user == null){
+                txn.rollback();
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+
             Entity token = txn.get(tokenKey);
 
             if (token == null) {
@@ -350,16 +353,28 @@ public class CalendarResource implements CalendarApi {
     }
 
     @Override
-    public Response removeAccess(String tokenObjStr, String email) {
+    public Response removeAccess(String tokenObjStr, String username) {
         AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Pode ser passado como TokenClass
         LOG.fine("User: " + tokenObj.getUsername() + " is attempting to get an event!");
 
         Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
-
+        Key userKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
 
         Transaction txn = datastore.newTransaction();
 
+
         try {
+
+
+            Entity user = txn.get(userKey);
+
+            if(user == null){
+                txn.rollback();
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+
+
+
             Entity token = txn.get(tokenKey);
 
             if (token == null) {
@@ -367,7 +382,14 @@ public class CalendarResource implements CalendarApi {
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
 
+            Key accessKey = KeyStore.CalendarAccessKeyFactory(username);
 
+            Entity accessEntity = Entity.newBuilder(accessKey)
+                    .set(tokenObj.getUsername(), tokenObj.getUsername())
+                    .build();
+
+
+            txn.add(accessEntity);
 
 
             txn.commit();
