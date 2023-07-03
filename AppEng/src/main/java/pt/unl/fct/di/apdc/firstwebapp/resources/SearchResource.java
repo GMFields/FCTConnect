@@ -77,7 +77,7 @@ public class SearchResource implements SearchAPI {
                         null, null, null, null, null, department);
             }
 
-            
+
             txn.commit();
             return Response.ok(g.toJson(userProfile)).build();
         } catch (Exception e) {
