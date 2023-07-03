@@ -20,20 +20,21 @@ public class SearchResource implements SearchAPI {
 
     private final Gson g = new Gson();
 
-    private static final Logger LOG = Logger.getLogger(UserResource.class.getName());
+    private static final Logger LOG = Logger.getLogger(SearchResource.class.getName());
     public SearchResource() {
     }
     @Override
     public Response getUser(String tokenObjStr, String username) {
+        LOG.info("Get user attempt by user: " + username);
         AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
         Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
         Key userKey = KeyStore.userKeyFactory(username);
         Transaction txn = datastore.newTransaction();
-
+        LOG.info("Passa aqui: " + username);
         try {
             Entity token = txn.get(tokenKey);
             Entity user = txn.get(userKey);
-
+            LOG.info("Passa aqui 2: " + username);
             if (token == null) {
                 txn.rollback();
                 return Response.status(Response.Status.FORBIDDEN).build();
@@ -45,14 +46,14 @@ public class SearchResource implements SearchAPI {
             }
 
 
-
+            LOG.info("Passa aqui 3: " + username);
             String state = user.getString("user_state");// Ativo ou não
 
             if(!state.equals("ATIVO")){
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
 
-
+            LOG.info("Passa aqui 4: " + username);
 
             String email = user.getString("user_email");
             String name = user.getString("user_name");
@@ -62,13 +63,13 @@ public class SearchResource implements SearchAPI {
             String profile = user.contains("user_profile") ? user.getString("user_profile") : "";// Publico ou privado
 
             ProfileData userProfile;
-
+            LOG.info("Passa aqui 5: " + username);
 
             if(profile.equals("privado")) {
                 userProfile = new ProfileData(null, tokenObj.getUsername(),null, name, -1, null,
                         null,
                         null, null, null, null, null, null);
-                    return null;
+
             }
 
             else {
@@ -76,7 +77,6 @@ public class SearchResource implements SearchAPI {
                         null,
                         null, null, null, null, null, department);
             }
-
 
             txn.commit();
             return Response.ok(g.toJson(userProfile)).build();
