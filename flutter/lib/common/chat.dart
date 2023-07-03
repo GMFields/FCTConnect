@@ -7,13 +7,8 @@ import 'package:http/http.dart' as http;
 
 class Chat {
   PusherChannelsFlutter pusher = PusherChannelsFlutter.getInstance();
-  List<String> onlineMembers = [];
 
   Chat() {
-    pusherInit();
-  }
-
-  void pusherInit() {
     try {
       pusher.init(
           apiKey: "863de6ade90e73639f5e",
@@ -33,13 +28,6 @@ class Chat {
     } catch (e) {
       print("ERROR: $e");
     }
-  }
-
-  List<String> getOnlineMembers() {
-    onlineMembers.add("Jõao");
-    onlineMembers.add("Catarina");
-    onlineMembers.add("Francisco");
-    return onlineMembers;
   }
 
   Future<dynamic> onAuthorizer(
@@ -69,7 +57,11 @@ class Chat {
 
   void onEvent(PusherEvent event) {
     print("onEvent: $event");
-    if (event.eventName == "online-event") onlineMembers.add(event.data);
+
+    if (event.eventName == "main") {
+      //pusher.subscribe(channelName: event.data);
+      print(event.data);
+    }
   }
 
   void onSubscriptionSucceeded(String channelName, dynamic data) {
@@ -97,5 +89,34 @@ class Chat {
   void onSubscriptionCount(String channelName, int subscriptionCount) {
     print(
         "onSubscriptionCount: $channelName subscriptionCount: $subscriptionCount");
+  }
+
+  Future<List> getOnlineUser() async {
+    final url = Uri.parse('http://localhost:8080/rest/chat/online');
+
+    final response = await http.get(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+      },
+    );
+
+    var json = jsonDecode(response.body);
+    print(json);
+    return json;
+  }
+
+  Future<void> setOnline(String user) async {
+    final url = Uri.parse('http://localhost:8080/rest/chat/new');
+
+    final response = await http.post(
+      url.replace(queryParameters: {'name': user}),
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+      },
+    );
+
+    //var json = jsonDecode(response.body);
+    print(response.body);
   }
 }
