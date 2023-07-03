@@ -1,18 +1,36 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'dart:async';
 
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
 import 'package:http/http.dart' as http;
 
-class Chat {
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   PusherChannelsFlutter pusher = PusherChannelsFlutter.getInstance();
+  List<String> onlineMembers = [];
 
   Chat() {
+    pusherInit();
+  }
+
+  void pusherInit() {
     try {
-      pusher.init(
-          apiKey: "863de6ade90e73639f5e",
-          cluster: "eu",
+      await pusher.init(
+          apiKey: _apiKey.text,
+          cluster: _cluster.text,
           onConnectionStateChange: onConnectionStateChange,
           onError: onError,
           onSubscriptionSucceeded: onSubscriptionSucceeded,
@@ -23,17 +41,17 @@ class Chat {
           onMemberRemoved: onMemberRemoved,
           onSubscriptionCount: onSubscriptionCount,
           onAuthorizer: onAuthorizer);
-      pusher.connect();
-      pusher.subscribe(channelName: "server-channel");
+      await pusher.connect();
+      await pusher.subscribe(channelName: _channelName.text);
     } catch (e) {
-      print("ERROR: $e");
+      log("ERROR: $e");
     }
   }
 
   Future<dynamic> onAuthorizer(
       String channelName, String socketId, dynamic options) async {
     final url = Uri.parse(
-        'http://localhost:8080/rest/chat/auth?socket_id=$socketId&channel=$channelName');
+        'http://localhost:8080/rest/chat/auth?socket_id=152770.26808&channel=private-channel');
 
     final response = await http.post(
       url,
@@ -42,53 +60,192 @@ class Chat {
       },
     );
 
-    var json = jsonDecode(response.body);
-    print(json);
-    return json;
+    log(response.body);
+
+    return response.body;
   }
 
   void onConnectionStateChange(dynamic currentState, dynamic previousState) {
-    print("Connection: $currentState");
+    log("Connection: $currentState");
   }
 
   void onError(String message, int? code, dynamic e) {
-    print("onError: $message code: $code exception: $e");
+    log("onError: $message code: $code exception: $e");
   }
 
   void onEvent(PusherEvent event) {
-    print("onEvent: $event");
-
-    if (event.eventName == "main") {
-      //pusher.subscribe(channelName: event.data);
-      print(event.data);
-    }
+    log("onEvent: $event");
   }
 
   void onSubscriptionSucceeded(String channelName, dynamic data) {
-    print("onSubscriptionSucceeded: $channelName data: $data");
+    log("onSubscriptionSucceeded: $channelName data: $data");
     final me = pusher.getChannel(channelName)?.me;
-    print("Me: $me");
+    log("Me: $me");
   }
 
   void onSubscriptionError(String message, dynamic e) {
-    print("onSubscriptionError: $message Exception: $e");
+    log("onSubscriptionError: $message Exception: $e");
   }
 
   void onDecryptionFailure(String event, String reason) {
-    print("onDecryptionFailure: $event reason: $reason");
+    log("onDecryptionFailure: $event reason: $reason");
   }
 
   void onMemberAdded(String channelName, PusherMember member) {
-    print("onMemberAdded: $channelName user: $member");
+    log("onMemberAdded: $channelName user: $member");
   }
 
   void onMemberRemoved(String channelName, PusherMember member) {
-    print("onMemberRemoved: $channelName user: $member");
+    log("onMemberRemoved: $channelName user: $member");
   }
 
   void onSubscriptionCount(String channelName, int subscriptionCount) {
-    print(
-        "onSubscriptionCount: $channelName subscriptionCount: $subscriptionCount");
+    log("onSubscriptionCount: $channelName subscriptionCount: $subscriptionCount");
+  }
+
+  /*dynamic onAuthorizer(String channelName, String socketId, dynamic options) {
+    return {
+      "auth": "foo:bar",
+      "channel_data": '{"user_id": 1}',
+      "shared_secret": "foobar"
+    };
+  }*/
+
+  void onTriggerEventPressed() async {
+    var eventFormValidated = _eventFormKey.currentState!.validate();
+
+    if (!eventFormValidated) {
+      return;
+    }
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("eventName", _eventName.text);
+    prefs.setString("data", _data.text);
+    pusher.trigger(PusherEvent(
+        channelName: _channelName.text,
+        eventName: _eventName.text,
+        data: _data.text));
+  }
+
+  // Platform messages are asynchronous, so we initialize in an async method.
+  Future<void> initPlatformState() async {
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _apiKey.text = prefs.getString("apiKey") ?? '';
+      _cluster.text = prefs.getString("cluster") ?? 'eu';
+      _channelName.text = prefs.getString("channelName") ?? 'my-channel';
+      _eventName.text = prefs.getString("eventName") ?? 'client-event';
+      _data.text = prefs.getString("data") ?? 'test';
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text(pusher.connectionState == 'DISCONNECTED'
+              ? 'Pusher Channels Example'
+              : _channelName.text),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ListView(
+              controller: _listViewController,
+              scrollDirection: Axis.vertical,
+              shrinkWrap: true,
+              children: <Widget>[
+                if (pusher.connectionState != 'CONNECTED')
+                  Form(
+                      key: _channelFormKey,
+                      child: Column(children: <Widget>[
+                        TextFormField(
+                          controller: _apiKey,
+                          validator: (String? value) {
+                            return (value != null && value.isEmpty)
+                                ? 'Please enter your API key.'
+                                : null;
+                          },
+                          decoration:
+                              const InputDecoration(labelText: 'API Key'),
+                        ),
+                        TextFormField(
+                          controller: _cluster,
+                          validator: (String? value) {
+                            return (value != null && value.isEmpty)
+                                ? 'Please enter your cluster.'
+                                : null;
+                          },
+                          decoration: const InputDecoration(
+                            labelText: 'Cluster',
+                          ),
+                        ),
+                        TextFormField(
+                          controller: _channelName,
+                          validator: (String? value) {
+                            return (value != null && value.isEmpty)
+                                ? 'Please enter your channel name.'
+                                : null;
+                          },
+                          decoration: const InputDecoration(
+                            labelText: 'Channel',
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: onConnectPressed,
+                          child: const Text('Connect'),
+                        )
+                      ]))
+                else
+                  Form(
+                    key: _eventFormKey,
+                    child: Column(children: <Widget>[
+                      ListView.builder(
+                          scrollDirection: Axis.vertical,
+                          shrinkWrap: true,
+                          itemCount: pusher
+                              .channels[_channelName.text]?.members.length,
+                          itemBuilder: (context, index) {
+                            final member = pusher
+                                .channels[_channelName.text]!.members.values
+                                .elementAt(index);
+
+                            return ListTile(
+                                title: Text(member.userInfo.toString()),
+                                subtitle: Text(member.userId));
+                          }),
+                      TextFormField(
+                        controller: _eventName,
+                        validator: (String? value) {
+                          return (value != null && value.isEmpty)
+                              ? 'Please enter your event name.'
+                              : null;
+                        },
+                        decoration: const InputDecoration(
+                          labelText: 'Event',
+                        ),
+                      ),
+                      TextFormField(
+                        controller: _data,
+                        decoration: const InputDecoration(
+                          labelText: 'Data',
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: onTriggerEventPressed,
+                        child: const Text('Trigger Event'),
+                      ),
+                    ]),
+                  ),
+                SingleChildScrollView(
+                    scrollDirection: Axis.vertical, child: Text(_log)),
+              ]),
+        ),
+      ),
+    );
   }
 
   Future<List> getOnlineUser() async {

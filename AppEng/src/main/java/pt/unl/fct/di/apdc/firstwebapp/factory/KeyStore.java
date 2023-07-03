@@ -43,4 +43,8 @@ public class KeyStore {
         return datastore.newKeyFactory().addAncestor(PathElement.of("Post", parentId)).setKind("Reply")
                 .newKey(keyString);
     }
+
+    public static Key CalendarAccessKeyFactory(String keyString) {
+        return datastore.newKeyFactory().setKind("CalendarAccess").newKey(keyString);
+    }
 }

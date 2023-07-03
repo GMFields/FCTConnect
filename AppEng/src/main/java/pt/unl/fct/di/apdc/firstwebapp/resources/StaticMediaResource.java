@@ -1,6 +1,7 @@
 package pt.unl.fct.di.apdc.firstwebapp.resources;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -64,6 +65,7 @@ public class StaticMediaResource extends HttpServlet implements StaticMediaAPI  
 		// Upload to Google Cloud Storage (see Google's documentation)
 		Storage storage = StorageOptions.getDefaultInstance().getService();
 		BlobId blobId = BlobId.of(bucketName, srcFilename);
+
 		BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
 									.setAcl(Collections.singletonList(Acl.newBuilder(Acl.User.ofAllUsers(),Acl.Role.READER).build()))
 									.setContentType(req.getContentType())
@@ -75,6 +77,7 @@ public class StaticMediaResource extends HttpServlet implements StaticMediaAPI  
 		try (WriteChannel writer = storage.writer(blobInfo)) {
 			writer.write(ByteBuffer.wrap(content));
 			System.out.println("Wrote to " + srcFilename + " in bucket " + bucketName + " using a WriteChannel.");
+			System.out.println(blobInfo.getMediaLink());
 		}
 	}
 }

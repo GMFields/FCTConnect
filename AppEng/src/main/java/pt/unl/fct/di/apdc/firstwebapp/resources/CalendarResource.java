@@ -15,8 +15,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Logger;
 
 
@@ -258,17 +257,23 @@ public class CalendarResource implements CalendarApi {
             }
 
             Query<Entity> query = Query.newEntityQueryBuilder()
-                    .setKind("Calendargit") // Replace "event" with the appropriate kind of your entity
+                    .setKind("Calendar")
                     .setFilter(StructuredQuery.PropertyFilter.eq("username", tokenObj.getUsername()))
                     .build();
 
             QueryResults<Entity> results = datastore.run(query);
 
-            List<Entity> entities = new ArrayList<>();
+            List<Map<String, Object>> entitiesProperties = new ArrayList<>();
 
             while (results.hasNext()) {
                 Entity entity = results.next();
-                entities.add(entity);
+                Map<String, Object> properties = new HashMap<>();
+                for (String propertyName : entity.getNames()) {
+                    Value<?> value = entity.getValue(propertyName);
+                    properties.put(propertyName, value.get());
+                    LOG.info("Event: " + entity.getString("event_title"));
+                }
+                entitiesProperties.add(properties);
                 LOG.info("Event: " + entity.getString("event_title"));
             }
 
@@ -277,7 +282,7 @@ public class CalendarResource implements CalendarApi {
 
             LOG.info("Get all events successfully");
             return Response.status(Response.Status.OK)
-                    .entity(g.toJson(entities)).build();
+                    .entity(g.toJson(entitiesProperties)).build();
         } catch (Exception e) {
             txn.rollback();
             LOG.severe("An error occurred while getting event: " + e.getMessage());
@@ -288,4 +293,120 @@ public class CalendarResource implements CalendarApi {
             }
         }
     }
+
+    @Override
+    public Response addAccess(String tokenObjStr, String username) {
+        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Pode ser passado como TokenClass
+        LOG.fine("User: " + tokenObj.getUsername() + " is attempting add access!");
+
+        Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
+        Key userKey = KeyStore.userKeyFactory(username);
+
+
+
+        Transaction txn = datastore.newTransaction();
+
+
+
+
+
+        try {
+            Entity user = txn.get(userKey);
+            if(user == null){
+                txn.rollback();
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+
+            Entity token = txn.get(tokenKey);
+
+            if (token == null) {
+                txn.rollback();
+                return Response.status(Response.Status.FORBIDDEN).build();
+            }
+
+
+            Key accessKey = KeyStore.CalendarAccessKeyFactory(username);
+
+
+
+            Entity accessEntity = Entity.newBuilder(accessKey)
+                    .set(tokenObj.getUsername(), tokenObj.getUsername())
+                    .build();
+
+
+            txn.add(accessEntity);
+
+            txn.commit();
+
+            LOG.info("add access successfully");
+            return Response.status(Response.Status.OK)
+                    .build();
+        } catch (Exception e) {
+            txn.rollback();
+            LOG.severe("An error occurred while adding access: " + e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            if (txn.isActive()) {
+                txn.rollback();
+            }
+        }
+    }
+
+    @Override
+    public Response removeAccess(String tokenObjStr, String username) {
+        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Pode ser passado como TokenClass
+        LOG.fine("User: " + tokenObj.getUsername() + " is attempting to get an event!");
+
+        Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
+        Key userKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
+
+        Transaction txn = datastore.newTransaction();
+
+
+        try {
+
+
+            Entity user = txn.get(userKey);
+
+            if(user == null){
+                txn.rollback();
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+
+
+
+            Entity token = txn.get(tokenKey);
+
+            if (token == null) {
+                txn.rollback();
+                return Response.status(Response.Status.FORBIDDEN).build();
+            }
+
+            Key accessKey = KeyStore.CalendarAccessKeyFactory(username);
+
+            Entity accessEntity = Entity.newBuilder(accessKey)
+                    .set(tokenObj.getUsername(), tokenObj.getUsername())
+                    .build();
+
+
+            txn.add(accessEntity);
+
+
+            txn.commit();
+
+            LOG.info("Get all events successfully");
+            return Response.status(Response.Status.OK)
+                    .build();
+        } catch (Exception e) {
+            txn.rollback();
+            LOG.severe("An error occurred while getting event: " + e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            if (txn.isActive()) {
+                txn.rollback();
+            }
+        }
+    }
+
+
 }
