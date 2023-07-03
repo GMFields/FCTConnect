@@ -143,7 +143,8 @@ public class AdminResource implements AdminAPI {
 		}
 
 		Query<Entity> query = Query.newEntityQueryBuilder().setKind("Users")
-				.setFilter(StructuredQuery.PropertyFilter.eq("user_state", "INATIVO")).build();
+				.setFilter(StructuredQuery.PropertyFilter.eq("user_state", "INATIVO"))
+				.build();
 
 		QueryResults<Entity> results = datastore.run(query);
 		if (!results.hasNext()) {

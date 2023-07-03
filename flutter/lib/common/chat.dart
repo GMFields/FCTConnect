@@ -20,44 +20,13 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   PusherChannelsFlutter pusher = PusherChannelsFlutter.getInstance();
-  String _log = 'output:\n';
-  final _apiKey = TextEditingController();
-  final _cluster = TextEditingController();
-  final _channelName = TextEditingController();
-  final _eventName = TextEditingController();
-  final _channelFormKey = GlobalKey<FormState>();
-  final _eventFormKey = GlobalKey<FormState>();
-  final _listViewController = ScrollController();
-  final _data = TextEditingController();
+  List<String> onlineMembers = [];
 
-  void log(String text) {
-    print("LOG: $text");
-    setState(() {
-      _log += text + "\n";
-      Timer(
-          const Duration(milliseconds: 100),
-          () => _listViewController
-              .jumpTo(_listViewController.position.maxScrollExtent));
-    });
+  Chat() {
+    pusherInit();
   }
 
-  @override
-  void initState() {
-    super.initState();
-    initPlatformState();
-  }
-
-  void onConnectPressed() async {
-    if (!_channelFormKey.currentState!.validate()) {
-      return;
-    }
-    // Remove keyboard
-    FocusScope.of(context).requestFocus(FocusNode());
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString("apiKey", _apiKey.text);
-    prefs.setString("cluster", _cluster.text);
-    prefs.setString("channelName", _channelName.text);
-
+  void pusherInit() {
     try {
       await pusher.init(
           apiKey: _apiKey.text,
@@ -277,5 +246,34 @@ class _MyAppState extends State<MyApp> {
         ),
       ),
     );
+  }
+
+  Future<List> getOnlineUser() async {
+    final url = Uri.parse('http://localhost:8080/rest/chat/online');
+
+    final response = await http.get(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+      },
+    );
+
+    var json = jsonDecode(response.body);
+    print(json);
+    return json;
+  }
+
+  Future<void> setOnline(String user) async {
+    final url = Uri.parse('http://localhost:8080/rest/chat/new');
+
+    final response = await http.post(
+      url.replace(queryParameters: {'name': user}),
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+      },
+    );
+
+    //var json = jsonDecode(response.body);
+    print(response.body);
   }
 }
