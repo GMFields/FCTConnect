@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import javax.inject.Singleton;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import com.google.cloud.datastore.*;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
@@ -294,8 +295,15 @@ public class ChatResource implements ChatApi {
 
             LOG.warning("aaa");
 
-            KeyFactory newPostKey = datastore.newKeyFactory().addAncestor(PathElement.of("Users", username));
+            KeyFactory newPostKey = datastore.newKeyFactory();
+            PathElement a = PathElement.of("Users", username);
 
+            if (post.getKey().getAncestors().contains(a)) {
+                txn.rollback();
+                return Response.status(Status.CREATED).build();
+            }
+
+            newPostKey.addAncestor(a);
             for (PathElement p : post.getKey().getAncestors()) {
                 newPostKey.addAncestor(p);
             }

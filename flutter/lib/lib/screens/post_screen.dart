@@ -126,7 +126,7 @@ class _PostScreenState extends State<PostScreen> {
     var data = {
       'question': widget.question.question,
       'content': widget.question.content,
-      'votes': widget.question.votes,
+      'votes': widget.question.votes + 1,
       'repliesCount': widget.question.repliesCount,
       'views': widget.question.views,
       'created_at': widget.question.created_at,
