@@ -31,7 +31,7 @@ public class Post {
         this.repliesCount = repliesCount;
         this.views = views;
         this.created_at = created_at;
-        this.author = question;
+        this.author = author;
         this.id = id;
     }
 

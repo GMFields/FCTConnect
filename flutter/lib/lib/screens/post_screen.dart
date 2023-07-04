@@ -116,6 +116,64 @@ class _PostScreenState extends State<PostScreen> {
     }
   }
 
+  Future<void> likePost() async {
+    /*final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('token');
+  if (token == null) {
+    throw Exception('Token not found in cache');
+  }*/
+
+    var data = {
+      'question': widget.question.question,
+      'content': widget.question.content,
+      'votes': widget.question.votes,
+      'repliesCount': widget.question.repliesCount,
+      'views': widget.question.views,
+      'created_at': widget.question.created_at,
+      'author': widget.question.author.name,
+      'id': widget.question.id,
+    };
+
+    final response = await http.post(
+        Uri.parse(
+            "https://helical-ascent-385614.oa.r.appspot.com/rest/forum/updatepost") /*.replace(queryParameters: {'tokenObj': token})*/,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(data));
+
+    if (response.statusCode == 200) {
+      print("liked successfully");
+    } else {
+      throw Exception('Failed to fetch anomalies');
+    }
+  }
+
+  Future<void> likeReply(Question question, Reply reply) async {
+    /*final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('token');
+  if (token == null) {
+    throw Exception('Token not found in cache');
+  }*/
+
+    var data = {
+      "author": "jao" /*prefs.getString('email')*/,
+      "content": reply.content,
+      "votes": reply.likes + 1,
+      "id": question.id,
+    };
+
+    final response = await http.post(
+        Uri.parse(
+            "https://helical-ascent-385614.oa.r.appspot.com/rest/forum/addreply") /*.replace(queryParameters: {'tokenObj': token})*/,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(data));
+
+    if (response.statusCode == 200) {
+      print("liked successfully");
+    } else {
+      throw Exception('Failed to fetch anomalies');
+    }
+  }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -238,10 +296,18 @@ class _PostScreenState extends State<PostScreen> {
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: <Widget>[
-                              Icon(
-                                MdiIcons.thumbUp,
-                                color: Colors.grey.withOpacity(0.5),
-                                size: 22,
+                              MouseRegion(
+                                cursor: SystemMouseCursors.click,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    likePost();
+                                  },
+                                  child: Icon(
+                                    MdiIcons.thumbUp,
+                                    color: Colors.grey.withOpacity(0.5),
+                                    size: 22,
+                                  ),
+                                ),
                               ),
                               const SizedBox(width: 4.0),
                               Text(
@@ -377,10 +443,18 @@ class _PostScreenState extends State<PostScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: <Widget>[
-                                Icon(
-                                  MdiIcons.thumbUp,
-                                  color: Colors.grey.withOpacity(0.5),
-                                  size: 20,
+                                MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      likeReply(widget.question, reply);
+                                    },
+                                    child: Icon(
+                                      MdiIcons.thumbUp,
+                                      color: Colors.grey.withOpacity(0.5),
+                                      size: 20,
+                                    ),
+                                  ),
                                 ),
                                 const SizedBox(width: 5.0),
                                 Text(

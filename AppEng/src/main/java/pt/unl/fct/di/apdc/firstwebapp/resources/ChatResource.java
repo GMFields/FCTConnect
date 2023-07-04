@@ -64,8 +64,70 @@ public class ChatResource implements ChatApi {
                     .set("views", post.getViews())
                     .set("created_at", post.getCreated_at())
                     .set("author", post.getAuthor())
+                    .set("id", post.getId())
                     .build();
-            txn.add(postEntity);
+            txn.put(postEntity);
+
+            txn.commit();
+
+            return Response.status(Response.Status.OK).build();
+        } catch (Exception e) {
+            txn.rollback();
+            LOG.severe("An error occurred while reporting anomaly: " + e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            if (txn.isActive()) {
+                txn.rollback();
+            }
+        }
+    }
+
+    @Override
+    public Response updatePost(Post post/* , String tokenObjStr */) {
+        // AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Pode ser
+        // passado como TokenClass
+        // LOG.fine("User: " + tokenObj.getUsername() + " is attempting to post to
+        // forum!");
+
+        // Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
+
+        Transaction txn = datastore.newTransaction();
+
+        try {
+            // Entity token = txn.get(tokenKey);
+
+            /*
+             * if (token == null) {
+             * txn.rollback();
+             * return Response.status(Response.Status.FORBIDDEN).build();
+             * }
+             */
+
+            Query<Entity> query = Query.newEntityQueryBuilder()
+                    .setKind("Post")
+                    .setFilter(PropertyFilter.eq("id", post.getId()))
+                    .build();
+
+            QueryResults<Entity> results = datastore.run(query);
+
+            if (!results.hasNext()) {
+                txn.rollback();
+                return Response.status(Response.Status.FORBIDDEN).build();
+            }
+
+            Entity postEntity = results.next();
+
+            postEntity = Entity.newBuilder(postEntity.getKey())
+                    .set("question", post.getQuestion())
+                    .set("content", post.getContent())
+                    .set("votes", post.getVotes())
+                    .set("repliesCount", post.getRepliesCount())
+                    .set("views", post.getViews())
+                    .set("created_at", post.getCreated_at())
+                    .set("author", post.getAuthor())
+                    .set("id", post.getId())
+                    .build();
+            txn.put(postEntity);
 
             txn.commit();
 
@@ -131,7 +193,7 @@ public class ChatResource implements ChatApi {
     }
 
     @Override
-    public Response bookmarkPost(String postId, String username /* , String tokenObjStr */) {
+    public Response updateReply(Post reply) {
         // AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Pode ser
         // passado como TokenClass
         // LOG.fine("User: " + tokenObj.getUsername() + " is attempting to post to
@@ -139,7 +201,62 @@ public class ChatResource implements ChatApi {
 
         // Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
 
-        Key postKey = KeyStore.postKeyFactory(postId);
+        Transaction txn = datastore.newTransaction();
+
+        try {
+            // Entity token = txn.get(tokenKey);
+
+            /*
+             * if (token == null) {
+             * txn.rollback();
+             * return Response.status(Response.Status.FORBIDDEN).build();
+             * }
+             */
+
+            Query<Entity> query = Query.newEntityQueryBuilder()
+                    .setKind("Reply")
+                    .setFilter(PropertyFilter.eq("author", reply.getAuthor()))
+                    .build();
+
+            QueryResults<Entity> results = datastore.run(query);
+
+            if (!results.hasNext()) {
+                txn.rollback();
+                return Response.status(Response.Status.FORBIDDEN).build();
+            }
+
+            Entity replyEntity = results.next();
+
+            replyEntity = Entity.newBuilder(replyEntity.getKey())
+                    .set("author", reply.getAuthor())
+                    .set("content", reply.getContent())
+                    .set("likes", reply.getLikes())
+                    .build();
+            txn.put(replyEntity);
+
+            txn.commit();
+
+            return Response.status(Response.Status.OK).build();
+        } catch (Exception e) {
+            txn.rollback();
+            LOG.severe("An error occurred while reporting anomaly: " + e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            if (txn.isActive()) {
+                txn.rollback();
+            }
+        }
+    }
+
+    @Override
+    public Response bookmarkPost(String postId, String username /* , String tokenObjStr */) { // TODO um user n pode dar
+                                                                                              // 2 vezes bookmark
+        // AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Pode ser
+        // passado como TokenClass
+        // LOG.fine("User: " + tokenObj.getUsername() + " is attempting to post to
+        // forum!");
+
+        // Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
 
         Key userKey = KeyStore.userKeyFactory(username);
 
@@ -155,17 +272,31 @@ public class ChatResource implements ChatApi {
              * }
              */
 
-            Entity post = txn.get(postKey);
-            Entity user = txn.get(userKey);
+            Query<Entity> query = Query.newEntityQueryBuilder()
+                    .setKind("Post")
+                    .setFilter(PropertyFilter.eq("id", postId))
+                    .build();
 
-            if (post == null || user == null) {
+            QueryResults<Entity> results = datastore.run(query);
+
+            if (!results.hasNext()) {
                 txn.rollback();
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
 
+            Entity post = results.next();
+            Entity user = txn.get(userKey);
+
+            if (user == null) {
+                txn.rollback();
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+
+            LOG.warning("aaa");
+
             KeyFactory newPostKey = datastore.newKeyFactory().addAncestor(PathElement.of("Users", username));
 
-            for (PathElement p : postKey.getAncestors()) {
+            for (PathElement p : post.getKey().getAncestors()) {
                 newPostKey.addAncestor(p);
             }
 
@@ -177,9 +308,10 @@ public class ChatResource implements ChatApi {
                     .set("views", post.getLong("views"))
                     .set("created_at", post.getString("created_at"))
                     .set("author", post.getString("author"))
+                    .set("id", postId)
                     .build();
 
-            txn.delete(postKey);
+            txn.delete(post.getKey());
             txn.put(postEntity);
 
             txn.commit();
@@ -221,8 +353,11 @@ public class ChatResource implements ChatApi {
 
         List<Post> resultList = new ArrayList<>();
 
+        Entity a = null;
+
         while (results.hasNext()) {
             Entity e = results.next();
+            a = e;
             Post p = new Post(e.getString("question"), e.getString("content"), (int) e.getLong("votes"),
                     (int) e.getLong("repliesCount"), (int) e.getLong("views"),
                     e.getString("created_at"),

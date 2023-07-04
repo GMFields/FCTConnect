@@ -60,7 +60,7 @@ Future<void> bookmarkPost(String id) async {
           "https://helical-ascent-385614.oa.r.appspot.com/rest/forum/addbookmark")
       .replace(queryParameters: {
     'postId': id,
-    'username': 'jao'
+    'username': 'admin'
   }) /*.replace(queryParameters: {'tokenObj': token})*/);
 
   if (response.statusCode == 200) {
@@ -165,16 +165,19 @@ class _PostsState extends State<Posts> {
                                     ),
                                   ],
                                 ),
-                                GestureDetector(
-                                  onTap: () {
-                                    bookmarkPost(question.id);
-                                  },
-                                  child: Icon(
-                                    MdiIcons.bookmark,
-                                    color: Colors.grey.withOpacity(0.6),
-                                    size: 26,
+                                MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      bookmarkPost(question.id);
+                                    },
+                                    child: Icon(
+                                      MdiIcons.bookmark,
+                                      color: Colors.grey.withOpacity(0.6),
+                                      size: 26,
+                                    ),
                                   ),
-                                )
+                                ),
                               ],
                             ),
                           ),

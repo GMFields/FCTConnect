@@ -21,8 +21,18 @@ public interface ChatApi {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/updatepost")
+    Response updatePost(Post post /* @QueryParam("tokenObjStr") String tokenObjStr */);
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
     @Path("/addreply")
     Response addReply(Post reply /* String tokenObjStr */);
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/updatereply")
+    Response updateReply(Post reply /* String tokenObjStr */);
 
     @POST
     @Path("/addbookmark")
