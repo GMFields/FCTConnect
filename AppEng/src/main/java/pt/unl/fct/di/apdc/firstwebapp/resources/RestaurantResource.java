@@ -42,7 +42,6 @@ public class RestaurantResource implements RestaurantAPI {
         Key restaurantKey = KeyStore.restaurantKeyFactory(data.getName());
 
         try {
-
             Entity restaurant = txn.get(restaurantKey);
             if(restaurant != null) {
                 txn.rollback();
@@ -119,7 +118,7 @@ public class RestaurantResource implements RestaurantAPI {
     public Response getRestaurant(String tokenObjStr, String restaurantName) {
         AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
 
-        LOG.info(tokenObj.getUsername() + " is trying to search for a specific restaurant");
+        LOG.info(tokenObj.getUsername() + " is trying to search for "+restaurantName);
 
         Transaction txn = datastore.newTransaction();
         Key restaurantKey = KeyStore.restaurantKeyFactory(restaurantName);
@@ -131,17 +130,7 @@ public class RestaurantResource implements RestaurantAPI {
                 return Response.status(Response.Status.NOT_FOUND).entity(ConstantFactory.RESTAURANT_NOT_FOUND.getDesc()).build();
             }
 
-            String name = restaurant.getString("restaurant_name");
-            String location = restaurant.getString("restaurant_location");
-            List<StringValue> managerValues = restaurant.getList("restaurant_managers");
-            String takeAwayService = restaurant.getString("restaurant_takeAwayService");
-
-            List<String> restaurantManagers = new ArrayList<>();
-            for (StringValue managerValue : managerValues) {
-                restaurantManagers.add(String.valueOf(managerValue));
-            }
-
-            RestaurantData restaurantData = new RestaurantData(name, location, restaurantManagers, takeAwayService);
+            RestaurantData restaurantData = restaurantObject(restaurant);
 
             return Response.status(Response.Status.OK).entity(restaurantData).build();
         } catch (Exception e) {
@@ -159,7 +148,35 @@ public class RestaurantResource implements RestaurantAPI {
 
     @Override
     public Response getRestaurants(String tokenObjStr) {
-        return null;
+        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
+        LOG.info(tokenObj.getUsername() + " is trying to list all the restaurants");
+
+        Query<Entity> query = Query.newEntityQueryBuilder()
+                .setKind("Restaurant")
+                .build();
+
+        Transaction txn = datastore.newTransaction();
+
+        try {
+            QueryResults<Entity> results = txn.run(query);
+            List<RestaurantData> restaurantDataList = new ArrayList<>();
+
+            while (results.hasNext()) {
+                Entity restaurantEntity = results.next();
+                RestaurantData restaurantData = restaurantObject(restaurantEntity);
+                restaurantDataList.add(restaurantData);
+            }
+            return Response.status(Response.Status.OK).entity(restaurantDataList).build();
+        } catch (Exception e) {
+            txn.rollback();
+            LOG.severe(e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            if (txn.isActive()) {
+                txn.rollback();
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            }
+        }
     }
 
     @Override
@@ -211,6 +228,20 @@ public class RestaurantResource implements RestaurantAPI {
         return null;
     }
 
+    private RestaurantData restaurantObject(Entity restaurantEntity) {
+        String name = restaurantEntity.getString("restaurant_name");
+        String location = restaurantEntity.getString("restaurant_location");
+        List<StringValue> managerValues = restaurantEntity.getList("restaurant_managers");
+        String takeAwayService = restaurantEntity.getString("restaurant_takeAwayService");
 
+        List<String> restaurantManagers = new ArrayList<>();
+        for (StringValue managerValue : managerValues) {
+            restaurantManagers.add(String.valueOf(managerValue));
+        }
+
+        RestaurantData restaurantData = new RestaurantData(name, location, restaurantManagers, takeAwayService);
+
+        return restaurantData;
+    }
 
 }
