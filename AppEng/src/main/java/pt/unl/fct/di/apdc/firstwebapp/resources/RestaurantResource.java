@@ -117,8 +117,45 @@ public class RestaurantResource implements RestaurantAPI {
 
     @Override
     public Response getRestaurant(String tokenObjStr, String restaurantName) {
-        return null;
+        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
+
+        LOG.info(tokenObj.getUsername() + " is trying to search for a specific restaurant");
+
+        Transaction txn = datastore.newTransaction();
+        Key restaurantKey = KeyStore.restaurantKeyFactory(restaurantName);
+
+        try {
+            Entity restaurant = txn.get(restaurantKey);
+            if (restaurant == null) {
+                txn.rollback();
+                return Response.status(Response.Status.NOT_FOUND).entity(ConstantFactory.RESTAURANT_NOT_FOUND.getDesc()).build();
+            }
+
+            String name = restaurant.getString("restaurant_name");
+            String location = restaurant.getString("restaurant_location");
+            List<StringValue> managerValues = restaurant.getList("restaurant_managers");
+            String takeAwayService = restaurant.getString("restaurant_takeAwayService");
+
+            List<String> restaurantManagers = new ArrayList<>();
+            for (StringValue managerValue : managerValues) {
+                restaurantManagers.add(String.valueOf(managerValue));
+            }
+
+            RestaurantData restaurantData = new RestaurantData(name, location, restaurantManagers, takeAwayService);
+
+            return Response.status(Response.Status.OK).entity(restaurantData).build();
+        } catch (Exception e) {
+            txn.rollback();
+            LOG.severe(e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            if (txn.isActive()) {
+                txn.rollback();
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            }
+        }
     }
+
 
     @Override
     public Response getRestaurants(String tokenObjStr) {
