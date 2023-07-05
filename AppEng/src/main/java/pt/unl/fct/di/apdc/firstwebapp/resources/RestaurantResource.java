@@ -227,7 +227,7 @@ public class RestaurantResource implements RestaurantAPI {
 
         List<String> restaurantManagers = new ArrayList<>();
         for (StringValue managerValue : managerValues) {
-            restaurantManagers.add(String.valueOf(managerValue));
+            restaurantManagers.add(managerValue.get());
         }
 
         RestaurantData restaurantData = new RestaurantData(name, location, restaurantManagers, takeAwayService);
