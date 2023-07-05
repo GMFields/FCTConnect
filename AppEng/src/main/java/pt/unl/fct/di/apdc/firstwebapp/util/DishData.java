@@ -7,16 +7,19 @@ public class DishData {
     private String dishName;
     private boolean isVegan;
     private double price;
-    private String tokenID;
+    private String dishID;
+    private String dishType;
 
     public DishData() {}
 
-    public DishData(String restaurantName, String dishName, boolean isVegan, double price) {
+    public DishData(String restaurantName, String dishName, boolean isVegan, double price, String dishType) {
         this.restaurantName = restaurantName;
         this.dishName = dishName;
         this.isVegan = isVegan;
         this.price = price;
-        this.tokenID = UUID.randomUUID().toString();
+        this.dishType = dishType;
+        this.dishID = UUID.randomUUID().toString();
+
     }
 
     public String getRestaurantName() {
@@ -35,12 +38,12 @@ public class DishData {
         this.dishName = dishName;
     }
 
-    public boolean isVegan() {
+    public boolean isIsVegan() {
         return isVegan;
     }
 
-    public void setVegan(boolean vegan) {
-        isVegan = vegan;
+    public void setIsVegan(boolean isVegan) {
+        this.isVegan = isVegan;
     }
 
     public double getPrice() {
@@ -51,11 +54,17 @@ public class DishData {
         this.price = price;
     }
 
-    public String getTokenID() {
-        return tokenID;
+    public String getDishID() {
+        return dishID;
     }
 
-    public void setTokenID(String tokenID) {
-        this.tokenID = tokenID;
+    public void setDishID(String dishID) {
+        this.dishID = dishID;
+    }
+
+    public String getDishType() {return dishType;}
+
+    public void setDishType(String dishType) {
+        this.dishType = dishType;
     }
 }

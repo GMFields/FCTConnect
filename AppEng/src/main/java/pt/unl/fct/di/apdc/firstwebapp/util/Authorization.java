@@ -89,4 +89,20 @@ public class Authorization {
 				&& data.getRestaurantManagers() != null && !data.getRestaurantManagers().isEmpty();
 	}
 
+	public static boolean isDishDataValid(DishData data) {
+		if (data.getRestaurantName() == null || data.getRestaurantName().isEmpty() ||
+				data.getDishName() == null || data.getDishName().isEmpty() ||
+				data.getDishType() == null || data.getDishType().isEmpty()) {
+			return false;
+		}
+
+		if (data.getPrice() < 0) {
+			return false;
+		}
+
+		return true;
+	}
+
+
+
 }

@@ -1,6 +1,7 @@
 package pt.unl.fct.di.apdc.firstwebapp.resources;
 
 import pt.unl.fct.di.apdc.firstwebapp.factory.ConstantFactory;
+import pt.unl.fct.di.apdc.firstwebapp.util.DishData;
 import pt.unl.fct.di.apdc.firstwebapp.util.RestaurantData;
 import pt.unl.fct.di.apdc.firstwebapp.util.Authorization;
 import pt.unl.fct.di.apdc.firstwebapp.api.RestaurantAPI;
@@ -26,6 +27,7 @@ public class RestaurantResource implements RestaurantAPI {
     private static final Logger LOG = Logger.getLogger(RestaurantResource.class.getName());
 
 
+    public RestaurantResource() {}
 
     @Override
     public Response addRestaurant(String tokenObjStr, RestaurantData data) {
@@ -100,7 +102,7 @@ public class RestaurantResource implements RestaurantAPI {
             txn.delete(restaurantKey);
             LOG.info("Restaurant deleted: " + restaurantName);
             txn.commit();
-            return Response.status(Response.Status.OK).build();
+            return Response.status(Response.Status.OK).entity(ConstantFactory.RESTAURANT_DELETED).build();
         } catch (Exception e) {
             txn.rollback();
             LOG.severe(e.getMessage());
@@ -151,7 +153,7 @@ public class RestaurantResource implements RestaurantAPI {
         try {
             QueryResults<Entity> results = datastore.run(query);
             if(!results.hasNext()) {
-                return Response.status(Response.Status.NO_CONTENT).entity("No restaurants found").build();
+                return Response.status(Response.Status.NO_CONTENT).entity(ConstantFactory.RESTAURANTS_NOT_FOUND).build();
             }
 
             List<RestaurantData> restaurantDataList = new ArrayList<>();
@@ -171,34 +173,81 @@ public class RestaurantResource implements RestaurantAPI {
 
 
     @Override
-    public Response addDailyDish(String tokenObjStr, String restaurantName, String dishName) {
+    public Response addDish(String tokenObjStr, String restaurantName, DishData data) {
+        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
+        LOG.info(tokenObj.getUsername() + " is trying to add a dish with the name "+data.getDishName());
+
+        Transaction txn = datastore.newTransaction();
+        LOG.info("1");
+        Key restaurantKey = KeyStore.restaurantKeyFactory(restaurantName);
+        LOG.info("2");
+
+        try {
+            Entity restaurant = txn.get(restaurantKey);
+            if (restaurant == null) {
+                txn.rollback();
+                return Response.status(Response.Status.NOT_FOUND).entity(ConstantFactory.RESTAURANT_NOT_FOUND.getDesc()).build();
+            }
+
+            List<String> managers = getRestaurantManagers(restaurantName);
+            LOG.info("3");
+            if(managers == null || managers.isEmpty()) {
+                txn.rollback();
+                return Response.status(Response.Status.NOT_FOUND).entity(ConstantFactory.NO_MANAGERS_FOUND+restaurantName).build();
+            }
+            if(!isManager(tokenObj.getUsername(), managers)) {
+                txn.rollback();
+                return Response.status(Response.Status.FORBIDDEN).entity(ConstantFactory.INSUFFICIENT_PERMISSIONS).build();
+            }
+            LOG.info("4");
+            if(!restaurantName.equalsIgnoreCase(data.getRestaurantName())) {
+                txn.rollback();
+                return Response.status(Response.Status.FORBIDDEN).entity("Adding a dish to the wrong restaurant").build();
+            }
+            LOG.info("5");
+            DishData newDish = new DishData(restaurantName, data.getDishName(), data.isIsVegan(),
+                    data.getPrice(), data.getDishType());
+            LOG.info("6");
+
+            if(Authorization.isDishDataValid(newDish)) {
+                txn.rollback();
+                return Response.status(Response.Status.BAD_REQUEST).entity("Invalid data! Missing or Null Fields or negative prices!").build();
+            }
+
+            Key dishKey = KeyStore.dishKeyFactory(newDish.getDishID());
+            LOG.info("7");
+
+            Entity dishEntity = Entity.newBuilder(dishKey)
+                    .set("restaurant_name", restaurantName)
+                    .set("dish_name", data.getDishName())
+                    .set("isVegan", data.isIsVegan())
+                    .set("dish_price", data.getPrice())
+                    .set("dish_type", data.getDishType())
+                    .build();
+
+            txn.add(dishEntity);
+            LOG.info("Dish added "+data.getDishName()+" to restaurant: "+data.getRestaurantName());
+            txn.commit();
+            return Response.status(Response.Status.CREATED).entity("Dish created successfully ").build();
+        } catch (Exception e) {
+        txn.rollback();
+        LOG.severe(e.getMessage());
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            if (txn.isActive()) {
+                txn.rollback();
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            }
+        }
+    }
+
+
+
+    @Override
+    public Response removeDish(String tokenObjStr, String restaurantName, String dishName) {
         return null;
     }
 
-    @Override
-    public Response addFixedMenuDish(String tokenObjStr, String restaurantName, String dishName) {
-        return null;
-    }
-
-    @Override
-    public Response addDessert(String tokenObjStr, String restaurantName, String dessert) {
-        return null;
-    }
-
-    @Override
-    public Response removeDailyDish(String tokenObjStr, String restaurantName, String dishName) {
-        return null;
-    }
-
-    @Override
-    public Response removeFixedMenuDish(String tokenObjStr, String restaurantName, String dishName) {
-        return null;
-    }
-
-    @Override
-    public Response removeDessert(String tokenObjStr, String restaurantName, String dessertName) {
-        return null;
-    }
 
     private Response verifyAdmin(String tokenObjStr) {
         AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
@@ -234,5 +283,31 @@ public class RestaurantResource implements RestaurantAPI {
 
         return restaurantData;
     }
+
+    private List<String> getRestaurantManagers(String restaurantName) {
+        List<String> restaurantManagers = new ArrayList<>();
+        Key restaurantKey = KeyStore.restaurantKeyFactory(restaurantName);
+        Entity restaurantEntity = datastore.get(restaurantKey);
+        if (restaurantEntity == null) {
+            return null;
+        } else {
+            List<StringValue> managerValues = restaurantEntity.getList("restaurant_managers");
+
+            for (StringValue managerValue : managerValues) {
+                restaurantManagers.add(managerValue.get());
+            }
+        }
+        return restaurantManagers;
+    }
+
+    private boolean isManager(String username, List<String> restaurantMangers) {
+        boolean isOwner = false;
+        for(String m : restaurantMangers) {
+            if(username.equals(m))
+                isOwner = true;
+        }
+        return isOwner;
+    }
+
 
 }

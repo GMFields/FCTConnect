@@ -12,14 +12,17 @@ public enum ConstantFactory {
     INATIVO_STATE("INATIVO"),
     INACTIVE_ACCOUNT("Account is not active, contact an admin!"),
     WRONG_PASSWORD("Wrong password"),
-
     ATIVO_STATE("ATIVO"),
-
     INVALID_DATA("Invalid Data"),
-
     RESTAURANT_EXISTS("A restaurant with that name already exists"),
+    RESTAURANT_NOT_FOUND("There is no restaurant with that name"),
+    RESTAURANTS_NOT_FOUND("No restaurants found"),
+    RESTAURANT_ADDED("Restaurant added"),
+    RESTAURANT_DELETED("Restaurant deleted"),
+    INSUFFICIENT_PERMISSIONS("Doesn't have permissions"),
+    NO_MANAGERS_FOUND("No owners found for restaurant ");
 
-    RESTAURANT_NOT_FOUND("There is no restaurant with that name");
+
 
 
 

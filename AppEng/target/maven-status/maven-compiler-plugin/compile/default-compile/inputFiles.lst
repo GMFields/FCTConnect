@@ -5,13 +5,14 @@ C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\ap
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\EmailParser.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\notifications\WebFormat.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\EntityWithKey.java
+C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\RestaurantData.java
+C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\DishData.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\api\EmailAPI.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\resources\MapResource.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\api\AdminAPI.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\Authorization.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\notifications\Notification.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\factory\ConstantFactory.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\EmailUtils.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\resources\StaticMediaResource.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\AuthToken.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\MapData.java
@@ -22,9 +23,11 @@ C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\ap
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\factory\UserRoleFactory.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\Event.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\api\MapAPI.java
+C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\EmailSender.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\factory\KeyStore.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\api\UserAPI.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\api\ChatApi.java
+C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\api\RestaurantAPI.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\notifications\ApnFormat.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\resources\SearchResource.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\resources\UserResource.java
@@ -32,5 +35,6 @@ C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\ap
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\api\AnomalyAPI.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\resources\CalendarResource.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\resources\ChatResource.java
+C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\resources\RestaurantResource.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\Post.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\api\StaticMediaAPI.java

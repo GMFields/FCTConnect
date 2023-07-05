@@ -1,5 +1,6 @@
 package pt.unl.fct.di.apdc.firstwebapp.api;
 
+import pt.unl.fct.di.apdc.firstwebapp.util.DishData;
 import pt.unl.fct.di.apdc.firstwebapp.util.RestaurantData;
 
 import javax.ws.rs.*;
@@ -25,32 +26,17 @@ public interface RestaurantAPI {
     @Produces(MediaType.APPLICATION_JSON)
     Response getRestaurants(@QueryParam("tokenObj") String tokenObjStr);
 
-    @PUT
-    @Path("/{restaurantName}/daily-dishes")
+    @POST
+    @Path("/{restaurantName}/dish")
     @Consumes(MediaType.APPLICATION_JSON)
-    Response addDailyDish(@QueryParam("tokenObj") String tokenObjStr, @PathParam("restaurantName") String restaurantName, String dishName);
+    Response addDish(@QueryParam("tokenObj") String tokenObjStr, @PathParam("restaurantName") String restaurantName, DishData data);
 
-    @PUT
-    @Path("/{restaurantName}/fixed-menu")
-    @Consumes(MediaType.APPLICATION_JSON)
-    Response addFixedMenuDish(@QueryParam("tokenObj") String tokenObjStr, @PathParam("restaurantName") String restaurantName, String dishName);
-
-    @PUT
-    @Path("/{restaurantName}/dessert")
-    @Consumes(MediaType.APPLICATION_JSON)
-    Response addDessert(@QueryParam("tokenObj") String tokenObjStr, @PathParam("restaurantName") String restaurantName, String dessert);
 
     @DELETE
-    @Path("/{restaurantName}/daily-dishes/{dishName}")
-    Response removeDailyDish(@QueryParam("tokenObj") String tokenObjStr, @PathParam("restaurantName") String restaurantName, @PathParam("dishName") String dishName);
+    @Path("/{restaurantName}/dish/{dishName}")
+    Response removeDish(@QueryParam("tokenObj") String tokenObjStr, @PathParam("restaurantName") String restaurantName, @PathParam("dishName") String dishName);
 
-    @DELETE
-    @Path("/{restaurantName}/fixed-menu/{dishName}")
-    Response removeFixedMenuDish(@QueryParam("tokenObj") String tokenObjStr, @PathParam("restaurantName") String restaurantName, @PathParam("dishName") String dishName);
 
-    @DELETE
-    @Path("/{restaurantName}/dessert/{dessertName}")
-    Response removeDessert(@QueryParam("tokenObj") String tokenObjStr, @PathParam("restaurantName") String restaurantName, @PathParam("dessertName") String dessertName);
 
 
 
