@@ -118,15 +118,13 @@ public class RestaurantResource implements RestaurantAPI {
     public Response getRestaurant(String tokenObjStr, String restaurantName) {
         AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
 
-        LOG.info(tokenObj.getUsername() + " is trying to search for "+restaurantName);
+        LOG.info(tokenObj.getUsername() + " is trying to search for " + restaurantName);
 
-        Transaction txn = datastore.newTransaction();
         Key restaurantKey = KeyStore.restaurantKeyFactory(restaurantName);
 
         try {
-            Entity restaurant = txn.get(restaurantKey);
+            Entity restaurant = datastore.get(restaurantKey);
             if (restaurant == null) {
-                txn.rollback();
                 return Response.status(Response.Status.NOT_FOUND).entity(ConstantFactory.RESTAURANT_NOT_FOUND.getDesc()).build();
             }
 
@@ -134,16 +132,11 @@ public class RestaurantResource implements RestaurantAPI {
 
             return Response.status(Response.Status.OK).entity(restaurantData).build();
         } catch (Exception e) {
-            txn.rollback();
             LOG.severe(e.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        } finally {
-            if (txn.isActive()) {
-                txn.rollback();
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-            }
         }
     }
+
 
 
     @Override
@@ -155,10 +148,12 @@ public class RestaurantResource implements RestaurantAPI {
                 .setKind("Restaurant")
                 .build();
 
-        Transaction txn = datastore.newTransaction();
-
         try {
-            QueryResults<Entity> results = txn.run(query);
+            QueryResults<Entity> results = datastore.run(query);
+            if(!results.hasNext()) {
+                return Response.status(Response.Status.NO_CONTENT).entity("No restaurants found").build();
+            }
+
             List<RestaurantData> restaurantDataList = new ArrayList<>();
 
             while (results.hasNext()) {
@@ -166,18 +161,14 @@ public class RestaurantResource implements RestaurantAPI {
                 RestaurantData restaurantData = restaurantObject(restaurantEntity);
                 restaurantDataList.add(restaurantData);
             }
+
             return Response.status(Response.Status.OK).entity(restaurantDataList).build();
         } catch (Exception e) {
-            txn.rollback();
             LOG.severe(e.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        } finally {
-            if (txn.isActive()) {
-                txn.rollback();
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-            }
         }
     }
+
 
     @Override
     public Response addDailyDish(String tokenObjStr, String restaurantName, String dishName) {

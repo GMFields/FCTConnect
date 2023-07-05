@@ -1,4 +1,5 @@
 pt\unl\fct\di\apdc\firstwebapp\util\EmailParser.class
+pt\unl\fct\di\apdc\firstwebapp\util\DishData.class
 pt\unl\fct\di\apdc\firstwebapp\util\Event.class
 pt\unl\fct\di\apdc\firstwebapp\notifications\Notification.class
 pt\unl\fct\di\apdc\firstwebapp\api\EmailAPI.class
@@ -6,7 +7,6 @@ pt\unl\fct\di\apdc\firstwebapp\util\EmailSender.class
 pt\unl\fct\di\apdc\firstwebapp\util\Post.class
 pt\unl\fct\di\apdc\firstwebapp\resources\AnomalyResource.class
 pt\unl\fct\di\apdc\firstwebapp\resources\Parser.class
-pt\unl\fct\di\apdc\firstwebapp\util\RestaurantData$Dish.class
 pt\unl\fct\di\apdc\firstwebapp\api\SearchAPI.class
 pt\unl\fct\di\apdc\firstwebapp\resources\MapResource.class
 pt\unl\fct\di\apdc\firstwebapp\filters\AdditionalResponseHeadersFilter.class
