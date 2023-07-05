@@ -239,17 +239,22 @@ public class CalendarResource implements CalendarApi {
     }
 
     @Override
-    public Response getEvents(String tokenObjStr) {
+    public Response getEvents(String tokenObjStr, String username) {
         AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Pode ser passado como TokenClass
         LOG.fine("User: " + tokenObj.getUsername() + " is attempting to get an event!");
 
         Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
+        Key userKey = KeyStore.CalendarAccessKeyFactory(tokenObj.getUsername());
 
 
         Transaction txn = datastore.newTransaction();
 
         try {
             Entity token = txn.get(tokenKey);
+            Entity user = txn.get(userKey);
+            if(user == null || user.getString(username) == null){
+                return Response.status(Response.Status.FORBIDDEN).build();
+            }
 
             if (token == null) {
                 txn.rollback();
@@ -258,7 +263,7 @@ public class CalendarResource implements CalendarApi {
 
             Query<Entity> query = Query.newEntityQueryBuilder()
                     .setKind("Calendar")
-                    .setFilter(StructuredQuery.PropertyFilter.eq("username", tokenObj.getUsername()))
+                    .setFilter(StructuredQuery.PropertyFilter.eq("username", username))
                     .build();
 
             QueryResults<Entity> results = datastore.run(query);
