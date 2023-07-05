@@ -1,19 +1,22 @@
 package pt.unl.fct.di.apdc.firstwebapp.resources;
 
-import com.google.cloud.datastore.Datastore;
-import com.google.cloud.datastore.DatastoreOptions;
-import com.google.cloud.datastore.Entity;
-import com.google.cloud.datastore.Key;
-import com.google.gson.Gson;
-import pt.unl.fct.di.apdc.firstwebapp.api.RestaurantAPI;
 import pt.unl.fct.di.apdc.firstwebapp.factory.ConstantFactory;
+import pt.unl.fct.di.apdc.firstwebapp.util.RestaurantData;
+import pt.unl.fct.di.apdc.firstwebapp.util.Authorization;
+import pt.unl.fct.di.apdc.firstwebapp.api.RestaurantAPI;
 import pt.unl.fct.di.apdc.firstwebapp.factory.KeyStore;
 import pt.unl.fct.di.apdc.firstwebapp.util.AuthToken;
-import pt.unl.fct.di.apdc.firstwebapp.util.RestaurantData;
 
-import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
+import javax.ws.rs.Path;
+
+import com.google.cloud.datastore.*;
+import com.google.gson.Gson;
+
+
 
 @Path("/restaurant")
 public class RestaurantResource implements RestaurantAPI {
@@ -31,8 +34,56 @@ public class RestaurantResource implements RestaurantAPI {
             return r;
         }
 
+        if(!Authorization.isDataValid(data)) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(ConstantFactory.INVALID_DATA.getDesc()).build();
+        }
 
-        return null;
+        Transaction txn = datastore.newTransaction();
+        Key restaurantKey = KeyStore.restaurantKeyFactory(data.getName());
+
+        try {
+
+            Entity restaurant = txn.get(restaurantKey);
+            if(restaurant != null) {
+                txn.rollback();
+                return Response.status(Response.Status.CONFLICT).entity(ConstantFactory.RESTAURANT_EXISTS.getDesc()).build();
+            }
+            List<StringValue> dailyDishes;
+            List<StringValue> fixedMenus;
+            List<StringValue> desserts;
+
+            List<String> restaurantManagers = data.getRestaurantManagers();
+            List<StringValue> convertedManagers = new ArrayList<>();
+
+            for (String manager : restaurantManagers) {
+                StringValue managerValue = StringValue.of(manager);
+                convertedManagers.add(managerValue);
+            }
+
+            restaurant = Entity.newBuilder(restaurantKey)
+                    .set("restaurant_name", data.getName())
+                    .set("restaurant_location", data.getLocation())
+                    .set("restaurant_dailyDishes", new ArrayList<>())
+                    .set("restaurant_fixedMenus", new ArrayList<>())
+                    .set("restaurant_desserts", new ArrayList<>())
+                    .set("restaurant_managers", convertedManagers)
+                    .set("restaurant_takeAwayService", "")
+                    .build();
+
+            txn.add(restaurant);
+            LOG.info("Restaurant added "+data.getName());
+            txn.commit();
+            return Response.status(Response.Status.CREATED).entity(data).build();
+        } catch (Exception e) {
+            txn.rollback();
+            LOG.severe(e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            if (txn.isActive()) {
+                txn.rollback();
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            }
+        }
     }
 
     @Override
@@ -87,7 +138,7 @@ public class RestaurantResource implements RestaurantAPI {
 
         Entity user = datastore.get(adminKey);
         if (user == null) {
-            return Response.status(Response.Status.NOT_FOUND).entity(constantFactory.USER_DOESNT_EXIST).build();
+            return Response.status(Response.Status.NOT_FOUND).entity(constantFactory.USER_DOESNT_EXIST.getDesc()).build();
         }
 
         int userRole = (int) user.getLong("user_role");
@@ -98,4 +149,7 @@ public class RestaurantResource implements RestaurantAPI {
 
         return null;
     }
+
+
+
 }

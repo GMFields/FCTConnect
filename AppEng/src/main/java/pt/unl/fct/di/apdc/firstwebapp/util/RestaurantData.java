@@ -9,7 +9,6 @@ public class RestaurantData {
     private List<String> dailyDishes;
     private List<String> fixedMenus;
     private List<String> desserts;
-
     private List<String> restaurantManagers;
     private String takeAwayService;
 
@@ -26,7 +25,6 @@ public class RestaurantData {
         this.restaurantManagers = restaurantManagers;
         this.takeAwayService = takeAwayService;
     }
-
 
     public String getName() {
         return name;

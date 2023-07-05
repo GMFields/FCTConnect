@@ -12,7 +12,15 @@ public enum ConstantFactory {
     INATIVO_STATE("INATIVO"),
     INACTIVE_ACCOUNT("Account is not active, contact an admin!"),
     WRONG_PASSWORD("Wrong password"),
-    ATIVO_STATE("ATIVO");
+
+    ATIVO_STATE("ATIVO"),
+
+    INVALID_DATA("Invalid Data"),
+
+    RESTAURANT_EXISTS("A restaurant with that name already exists");
+
+
+
 
     private final String description;
 

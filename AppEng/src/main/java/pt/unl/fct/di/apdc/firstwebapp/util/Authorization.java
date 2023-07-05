@@ -83,4 +83,10 @@ public class Authorization {
 		return false;
 	}
 
+	public static boolean isDataValid(RestaurantData data) {
+		return data.getName() != null && !data.getName().isEmpty()
+				&& data.getLocation() != null && !data.getLocation().isEmpty()
+				&& data.getRestaurantManagers() != null && !data.getRestaurantManagers().isEmpty();
+	}
+
 }
