@@ -17,7 +17,9 @@ public enum ConstantFactory {
 
     INVALID_DATA("Invalid Data"),
 
-    RESTAURANT_EXISTS("A restaurant with that name already exists");
+    RESTAURANT_EXISTS("A restaurant with that name already exists"),
+
+    RESTAURANT_NOT_FOUND("There is no restaurant with that name");
 
 
 

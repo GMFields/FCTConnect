@@ -48,9 +48,7 @@ public class RestaurantResource implements RestaurantAPI {
                 txn.rollback();
                 return Response.status(Response.Status.CONFLICT).entity(ConstantFactory.RESTAURANT_EXISTS.getDesc()).build();
             }
-            List<StringValue> dailyDishes;
-            List<StringValue> fixedMenus;
-            List<StringValue> desserts;
+
 
             List<String> restaurantManagers = data.getRestaurantManagers();
             List<StringValue> convertedManagers = new ArrayList<>();
@@ -63,9 +61,6 @@ public class RestaurantResource implements RestaurantAPI {
             restaurant = Entity.newBuilder(restaurantKey)
                     .set("restaurant_name", data.getName())
                     .set("restaurant_location", data.getLocation())
-                    .set("restaurant_dailyDishes", new ArrayList<>())
-                    .set("restaurant_fixedMenus", new ArrayList<>())
-                    .set("restaurant_desserts", new ArrayList<>())
                     .set("restaurant_managers", convertedManagers)
                     .set("restaurant_takeAwayService", "")
                     .build();
@@ -88,8 +83,37 @@ public class RestaurantResource implements RestaurantAPI {
 
     @Override
     public Response deleteRestaurant(String tokenObjStr, String restaurantName) {
-        return null;
+        Response r = verifyAdmin(tokenObjStr);
+        if (r != null) {
+            return r;
+        }
+
+        Transaction txn = datastore.newTransaction();
+        Key restaurantKey = KeyStore.restaurantKeyFactory(restaurantName);
+
+        try {
+            Entity restaurant = txn.get(restaurantKey);
+            if (restaurant == null) {
+                txn.rollback();
+                return Response.status(Response.Status.NOT_FOUND).entity(ConstantFactory.RESTAURANT_NOT_FOUND.getDesc()).build();
+            }
+
+            txn.delete(restaurantKey);
+            LOG.info("Restaurant deleted: " + restaurantName);
+            txn.commit();
+            return Response.status(Response.Status.OK).build();
+        } catch (Exception e) {
+            txn.rollback();
+            LOG.severe(e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            if (txn.isActive()) {
+                txn.rollback();
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            }
+        }
     }
+
 
     @Override
     public Response getRestaurant(String tokenObjStr, String restaurantName) {
