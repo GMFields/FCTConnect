@@ -10,52 +10,52 @@ public class RestaurantResource implements RestaurantAPI {
 
 
     @Override
-    public Response addRestaurant(RestaurantData data) {
+    public Response addRestaurant(String tokenObjStr, RestaurantData data) {
         return null;
     }
 
     @Override
-    public Response deleteRestaurant(String restaurantName) {
+    public Response deleteRestaurant(String tokenObjStr, String restaurantName) {
         return null;
     }
 
     @Override
-    public Response getRestaurant(String restaurantName) {
+    public Response getRestaurant(String tokenObjStr, String restaurantName) {
         return null;
     }
 
     @Override
-    public Response getRestaurants() {
+    public Response getRestaurants(String tokenObjStr) {
         return null;
     }
 
     @Override
-    public Response addDailyDish(String restaurantName, String dishName) {
+    public Response addDailyDish(String tokenObjStr, String restaurantName, String dishName) {
         return null;
     }
 
     @Override
-    public Response addFixedMenuDish(String restaurantName, String dishName) {
+    public Response addFixedMenuDish(String tokenObjStr, String restaurantName, String dishName) {
         return null;
     }
 
     @Override
-    public Response addDessert(String restaurantName, String dessert) {
+    public Response addDessert(String tokenObjStr, String restaurantName, String dessert) {
         return null;
     }
 
     @Override
-    public Response removeDailyDish(String id, String dishName) {
+    public Response removeDailyDish(String tokenObjStr, String restaurantName, String dishName) {
         return null;
     }
 
     @Override
-    public Response removeFixedMenuDish(String id, String dishName) {
+    public Response removeFixedMenuDish(String tokenObjStr, String restaurantName, String dishName) {
         return null;
     }
 
     @Override
-    public Response removeDessert(String id, String dessertName) {
+    public Response removeDessert(String tokenObjStr, String restaurantName, String dessertName) {
         return null;
     }
 }

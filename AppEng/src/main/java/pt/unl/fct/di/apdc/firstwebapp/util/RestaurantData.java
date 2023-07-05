@@ -9,17 +9,21 @@ public class RestaurantData {
     private List<String> dailyDishes;
     private List<String> fixedMenus;
     private List<String> desserts;
+
+    private List<String> restaurantManagers;
     private String takeAwayService;
 
     public RestaurantData() {
     }
 
-    public RestaurantData(String name, String location, List<String> dailyDishes, List<String> fixedMenus, List<String> desserts, String takeAwayService) {
+    public RestaurantData(String name, String location, List<String> dailyDishes, List<String> fixedMenus,
+                          List<String> desserts, List<String> restaurantManagers, String takeAwayService) {
         this.name = name;
         this.location = location;
         this.dailyDishes = dailyDishes;
         this.fixedMenus = fixedMenus;
         this.desserts = desserts;
+        this.restaurantManagers = restaurantManagers;
         this.takeAwayService = takeAwayService;
     }
 
@@ -62,6 +66,14 @@ public class RestaurantData {
 
     public void setDesserts(List<String> desserts) {
         this.desserts = desserts;
+    }
+
+    public List<String> getRestaurantManagers() {
+        return restaurantManagers;
+    }
+
+    public void setRestaurantManagers(List<String> restaurantManagers) {
+        this.restaurantManagers = restaurantManagers;
     }
 
     public String getTakeAwayService() {
