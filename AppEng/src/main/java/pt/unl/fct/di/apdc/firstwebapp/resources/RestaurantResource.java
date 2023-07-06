@@ -228,7 +228,7 @@ public class RestaurantResource implements RestaurantAPI {
             txn.add(dishEntity);
             LOG.info("Dish added "+data.getDishName()+" to restaurant: "+data.getRestaurantName());
             txn.commit();
-            return Response.status(Response.Status.CREATED).entity("Dish created successfully ").build();
+            return Response.status(Response.Status.CREATED).entity("Dish created successfully "+newDish.getDishID()).build();
         } catch (Exception e) {
         txn.rollback();
         LOG.severe(e.getMessage());
@@ -252,7 +252,7 @@ public class RestaurantResource implements RestaurantAPI {
         LOG.info("1");
         Key restaurantKey = KeyStore.restaurantKeyFactory(restaurantName);
         LOG.info("2");
-        Key dishKey = KeyStore.restaurantKeyFactory(dishID);
+        Key dishKey = KeyStore.dishKeyFactory(dishID);
 
         try {
             Entity restaurant = txn.get(restaurantKey);
