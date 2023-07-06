@@ -302,6 +302,174 @@ public class RestaurantResource implements RestaurantAPI {
         }
     }
 
+    @Override
+    public Response getDesserts(String tokenObjStr, String restaurantName) {
+        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
+
+        LOG.info(tokenObj.getUsername() + " is trying to get desserts for restaurant: " + restaurantName);
+
+        Key restaurantKey = KeyStore.restaurantKeyFactory(restaurantName);
+        Entity restaurant = datastore.get(restaurantKey);
+        if (restaurant == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity(ConstantFactory.RESTAURANT_NOT_FOUND.getDesc()).build();
+        }
+
+        List<String> managers = getRestaurantManagers(restaurantName);
+        LOG.info("3");
+        if(managers == null || managers.isEmpty()) {
+            return Response.status(Response.Status.NOT_FOUND).entity(ConstantFactory.NO_MANAGERS_FOUND+restaurantName).build();
+        }
+        if(!isManager(tokenObj.getUsername(), managers)) {
+            return Response.status(Response.Status.FORBIDDEN).entity(ConstantFactory.INSUFFICIENT_PERMISSIONS).build();
+        }
+
+
+        List<List<String>> resultList = new ArrayList<>();
+        try {
+
+            Query<Entity> query = Query.newEntityQueryBuilder()
+                    .setKind("Dish")
+                    .setFilter(StructuredQuery.CompositeFilter.and(
+                            StructuredQuery.PropertyFilter.eq("restaurant_name", restaurantName),
+                            StructuredQuery.PropertyFilter.eq("dish_type", "dessert")
+                    ))
+                    .build();
+            search(resultList, query);
+
+            LOG.info("Retrieved desserts for restaurant: " + restaurantName);
+            return Response.status(Response.Status.OK).entity(g.toJson(resultList)).build();
+        } catch (Exception e) {
+            LOG.severe(e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
+    @Override
+    public Response getDailyDishes(String tokenObjStr, String restaurantName) {
+        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
+
+        LOG.info(tokenObj.getUsername() + " is trying to get daily dishes for restaurant: " + restaurantName);
+
+        Key restaurantKey = KeyStore.restaurantKeyFactory(restaurantName);
+        Entity restaurant = datastore.get(restaurantKey);
+        if (restaurant == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity(ConstantFactory.RESTAURANT_NOT_FOUND.getDesc()).build();
+        }
+
+        List<String> managers = getRestaurantManagers(restaurantName);
+        if(managers == null || managers.isEmpty()) {
+            return Response.status(Response.Status.NOT_FOUND).entity(ConstantFactory.NO_MANAGERS_FOUND+restaurantName).build();
+        }
+        if(!isManager(tokenObj.getUsername(), managers)) {
+            return Response.status(Response.Status.FORBIDDEN).entity(ConstantFactory.INSUFFICIENT_PERMISSIONS).build();
+        }
+
+
+        List<List<String>> resultList = new ArrayList<>();
+        try {
+
+            Query<Entity> query = Query.newEntityQueryBuilder()
+                    .setKind("Dish")
+                    .setFilter(StructuredQuery.CompositeFilter.and(
+                            StructuredQuery.PropertyFilter.eq("restaurant_name", restaurantName),
+                            StructuredQuery.PropertyFilter.eq("dish_type", "dailyDish")
+                    ))
+                    .build();
+            search(resultList, query);
+
+            LOG.info("Retrieved daily dishes for restaurant: " + restaurantName);
+            return Response.status(Response.Status.OK).entity(g.toJson(resultList)).build();
+        } catch (Exception e) {
+            LOG.severe(e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @Override
+    public Response getMenus(String tokenObjStr, String restaurantName) {
+        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
+
+        LOG.info(tokenObj.getUsername() + " is trying to get menus for restaurant: " + restaurantName);
+
+        Key restaurantKey = KeyStore.restaurantKeyFactory(restaurantName);
+        Entity restaurant = datastore.get(restaurantKey);
+        if (restaurant == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity(ConstantFactory.RESTAURANT_NOT_FOUND.getDesc()).build();
+        }
+
+        List<String> managers = getRestaurantManagers(restaurantName);
+        LOG.info("3");
+        if(managers == null || managers.isEmpty()) {
+            return Response.status(Response.Status.NOT_FOUND).entity(ConstantFactory.NO_MANAGERS_FOUND+restaurantName).build();
+        }
+        if(!isManager(tokenObj.getUsername(), managers)) {
+            return Response.status(Response.Status.FORBIDDEN).entity(ConstantFactory.INSUFFICIENT_PERMISSIONS).build();
+        }
+
+
+        List<List<String>> resultList = new ArrayList<>();
+        try {
+
+            Query<Entity> query = Query.newEntityQueryBuilder()
+                    .setKind("Dish")
+                    .setFilter(StructuredQuery.CompositeFilter.and(
+                            StructuredQuery.PropertyFilter.eq("restaurant_name", restaurantName),
+                            StructuredQuery.PropertyFilter.eq("dish_type", "menu")
+                    ))
+                    .build();
+            search(resultList, query);
+
+            LOG.info("Retrieved menus for restaurant: " + restaurantName);
+            return Response.status(Response.Status.OK).entity(g.toJson(resultList)).build();
+        } catch (Exception e) {
+            LOG.severe(e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @Override
+    public Response getSoups(String tokenObjStr, String restaurantName) {
+        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
+
+        LOG.info(tokenObj.getUsername() + " is trying to get soups for restaurant: " + restaurantName);
+
+        Key restaurantKey = KeyStore.restaurantKeyFactory(restaurantName);
+        Entity restaurant = datastore.get(restaurantKey);
+        if (restaurant == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity(ConstantFactory.RESTAURANT_NOT_FOUND.getDesc()).build();
+        }
+
+        List<String> managers = getRestaurantManagers(restaurantName);
+        LOG.info("3");
+        if(managers == null || managers.isEmpty()) {
+            return Response.status(Response.Status.NOT_FOUND).entity(ConstantFactory.NO_MANAGERS_FOUND+restaurantName).build();
+        }
+        if(!isManager(tokenObj.getUsername(), managers)) {
+            return Response.status(Response.Status.FORBIDDEN).entity(ConstantFactory.INSUFFICIENT_PERMISSIONS).build();
+        }
+
+
+        List<List<String>> resultList = new ArrayList<>();
+        try {
+
+            Query<Entity> query = Query.newEntityQueryBuilder()
+                    .setKind("Dish")
+                    .setFilter(StructuredQuery.CompositeFilter.and(
+                            StructuredQuery.PropertyFilter.eq("restaurant_name", restaurantName),
+                            StructuredQuery.PropertyFilter.eq("dish_type", "soup")
+                    ))
+                    .build();
+            search(resultList, query);
+
+            LOG.info("Retrieved soups for restaurant: " + restaurantName);
+            return Response.status(Response.Status.OK).entity(g.toJson(resultList)).build();
+        } catch (Exception e) {
+            LOG.severe(e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 
     private Response verifyAdmin(String tokenObjStr) {
         AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
@@ -361,6 +529,27 @@ public class RestaurantResource implements RestaurantAPI {
                 isOwner = true;
         }
         return isOwner;
+    }
+
+    private void search(List<List<String>> resultList, Query<Entity> query) {
+        QueryResults<Entity> results = datastore.run(query);
+        while (results.hasNext()) {
+            Entity dishEntity = results.next();
+            String dishName = dishEntity.getString("dish_name");
+            String dishPrice = String.valueOf(dishEntity.getDouble("dish_price"));
+            String dishType = dishEntity.getString("dish_type");
+            String isVegan = String.valueOf(dishEntity.getBoolean("isVegan"));
+            String dishID = dishEntity.getKey().getName();
+
+            List<String> dishInfo = new ArrayList<>();
+            dishInfo.add(dishName);
+            dishInfo.add(dishPrice);
+            dishInfo.add(dishType);
+            dishInfo.add(isVegan);
+            dishInfo.add(dishID);
+
+            resultList.add(dishInfo);
+        }
     }
 
 

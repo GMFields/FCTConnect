@@ -36,6 +36,26 @@ public interface RestaurantAPI {
     @Path("/{restaurantName}/dish/{dishID}")
     Response removeDish(@QueryParam("tokenObj") String tokenObjStr, @PathParam("restaurantName") String restaurantName, @PathParam("dishID") String dishID);
 
+    @GET
+    @Path("/{restaurantName}/soups")
+    @Produces(MediaType.APPLICATION_JSON)
+    Response getSoups(@QueryParam("tokenObj") String tokenObjStr, @PathParam("restaurantName") String restaurantName);
+
+    @GET
+    @Path("/{restaurantName}/dailyDishes")
+    @Produces(MediaType.APPLICATION_JSON)
+    Response getDailyDishes(@QueryParam("tokenObj") String tokenObjStr, @PathParam("restaurantName") String restaurantName);
+
+    @GET
+    @Path("/{restaurantName}/menus")
+    @Produces(MediaType.APPLICATION_JSON)
+    Response getMenus(@QueryParam("tokenObj") String tokenObjStr, @PathParam("restaurantName") String restaurantName);
+
+    @GET
+    @Path("/{restaurantName}/desserts")
+    @Produces(MediaType.APPLICATION_JSON)
+    Response getDesserts(@QueryParam("tokenObj") String tokenObjStr, @PathParam("restaurantName") String restaurantName);
+
 
 
 
