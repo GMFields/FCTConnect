@@ -3,7 +3,7 @@ inbound_services:
 - warmup
 auto_id_policy: default
 beta_settings:
-  'source_reference': 'https://github.com/GMFields/DiscipulosAMD.git#0eda57d2386b9076b4160b0e63355d855a8d5516'
+  'source_reference': 'https://github.com/GMFields/DiscipulosAMD.git#b3a07f1514c91b766339b23cdc85d9657a956a90'
 handlers:
 - url: (/.*/)
   static_files: __static__\1index.html

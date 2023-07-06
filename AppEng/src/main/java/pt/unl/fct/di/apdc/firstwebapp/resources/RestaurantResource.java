@@ -209,7 +209,7 @@ public class RestaurantResource implements RestaurantAPI {
                     data.getPrice(), data.getDishType());
             LOG.info("6");
 
-            if(Authorization.isDishDataValid(newDish)) {
+            if(!Authorization.isDishDataValid(newDish)) {
                 txn.rollback();
                 return Response.status(Response.Status.BAD_REQUEST).entity("Invalid data! Missing or Null Fields or negative prices!").build();
             }
@@ -244,8 +244,62 @@ public class RestaurantResource implements RestaurantAPI {
 
 
     @Override
-    public Response removeDish(String tokenObjStr, String restaurantName, String dishName) {
-        return null;
+    public Response removeDish(String tokenObjStr, String restaurantName, String dishID) {
+        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
+        LOG.info(tokenObj.getUsername() + " is trying to remove a dish");
+
+        Transaction txn = datastore.newTransaction();
+        LOG.info("1");
+        Key restaurantKey = KeyStore.restaurantKeyFactory(restaurantName);
+        LOG.info("2");
+        Key dishKey = KeyStore.restaurantKeyFactory(dishID);
+
+        try {
+            Entity restaurant = txn.get(restaurantKey);
+            if (restaurant == null) {
+                txn.rollback();
+                return Response.status(Response.Status.NOT_FOUND).entity(ConstantFactory.RESTAURANT_NOT_FOUND.getDesc()).build();
+            }
+
+            Entity dishEntity = txn.get(dishKey);
+            if (dishEntity == null) {
+                txn.rollback();
+                return Response.status(Response.Status.NOT_FOUND).entity("Dish not found").build();
+            }
+            String resName = dishEntity.getString("restaurant_name");
+            String dishName = dishEntity.getString("dish_name");
+
+            List<String> managers = getRestaurantManagers(restaurantName);
+            LOG.info("3");
+            if (managers == null || managers.isEmpty()) {
+                txn.rollback();
+                return Response.status(Response.Status.NOT_FOUND).entity(ConstantFactory.NO_MANAGERS_FOUND + restaurantName).build();
+            }
+            if (!isManager(tokenObj.getUsername(), managers)) {
+                txn.rollback();
+                return Response.status(Response.Status.FORBIDDEN).entity(ConstantFactory.INSUFFICIENT_PERMISSIONS).build();
+            }
+            LOG.info("4");
+            if (!restaurantName.equalsIgnoreCase(resName)) {
+                txn.rollback();
+                return Response.status(Response.Status.FORBIDDEN).entity("Removing a dish from the wrong restaurant").build();
+            }
+            LOG.info("5");
+
+            txn.delete(dishKey);
+            LOG.info("Dish removed: " + dishName + " from restaurant: " + restaurantName);
+            txn.commit();
+            return Response.status(Response.Status.OK).entity("Dish removed successfully").build();
+        } catch (Exception e) {
+            txn.rollback();
+            LOG.severe(e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            if (txn.isActive()) {
+                txn.rollback();
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            }
+        }
     }
 
 

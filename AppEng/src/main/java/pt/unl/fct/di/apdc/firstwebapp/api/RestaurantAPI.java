@@ -33,8 +33,8 @@ public interface RestaurantAPI {
 
 
     @DELETE
-    @Path("/{restaurantName}/dish/{dishName}")
-    Response removeDish(@QueryParam("tokenObj") String tokenObjStr, @PathParam("restaurantName") String restaurantName, @PathParam("dishName") String dishName);
+    @Path("/{restaurantName}/dish/{dishID}")
+    Response removeDish(@QueryParam("tokenObj") String tokenObjStr, @PathParam("restaurantName") String restaurantName, @PathParam("dishID") String dishID);
 
 
 

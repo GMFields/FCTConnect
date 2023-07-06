@@ -1,5 +1,8 @@
 package pt.unl.fct.di.apdc.firstwebapp.util;
 
+
+import java.util.logging.Logger;
+
 public class Authorization {
 
 	private static int USER, GBO, GA, GS, SU;
@@ -11,6 +14,9 @@ public class Authorization {
 		Authorization.GS = 4;
 		Authorization.SU = 5;
 	}
+
+	private static final Logger LOG = Logger.getLogger(Authorization.class.getName());
+
 
 	public static boolean isDataFormatted(String username, String password, String name, String email) {
 		return isValid(username, password, name, email) && isValidEmail(email) && isValidPassword(password);
@@ -90,13 +96,28 @@ public class Authorization {
 	}
 
 	public static boolean isDishDataValid(DishData data) {
+		LOG.info(data.getRestaurantName());
+		LOG.info(data.getDishName());
+		LOG.info(data.getDishType());
+		LOG.info(String.valueOf(data.getPrice()));
+
+		LOG.info(String.valueOf(data.getRestaurantName() == null));
+		LOG.info(String.valueOf(data.getRestaurantName().isEmpty()));
+		LOG.info(String.valueOf(data.getRestaurantName() == null));
+		LOG.info(String.valueOf(data.getDishName() == null));
+		LOG.info(String.valueOf(data.getDishName().isEmpty()));
+		LOG.info(String.valueOf(data.getDishType() == null));
+		LOG.info(String.valueOf(data.getDishType().isEmpty()));
+
+		LOG.info(String.valueOf(data.getPrice() < 0.00));
+
 		if (data.getRestaurantName() == null || data.getRestaurantName().isEmpty() ||
 				data.getDishName() == null || data.getDishName().isEmpty() ||
 				data.getDishType() == null || data.getDishType().isEmpty()) {
 			return false;
 		}
 
-		if (data.getPrice() < 0) {
+		if (data.getPrice() < 0.00) {
 			return false;
 		}
 
