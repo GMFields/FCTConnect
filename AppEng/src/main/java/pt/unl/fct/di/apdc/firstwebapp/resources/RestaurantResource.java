@@ -64,6 +64,7 @@ public class RestaurantResource implements RestaurantAPI {
                     .set("restaurant_location", data.getLocation())
                     .set("restaurant_managers", convertedManagers)
                     .set("restaurant_takeAwayService", "")
+                    .set("restaurant_URL", data.getURL())
                     .build();
 
             txn.add(restaurant);
@@ -495,13 +496,14 @@ public class RestaurantResource implements RestaurantAPI {
         String location = restaurantEntity.getString("restaurant_location");
         List<StringValue> managerValues = restaurantEntity.getList("restaurant_managers");
         String takeAwayService = restaurantEntity.getString("restaurant_takeAwayService");
+        String URL = restaurantEntity.getString("restaurant_URL");
 
         List<String> restaurantManagers = new ArrayList<>();
         for (StringValue managerValue : managerValues) {
             restaurantManagers.add(managerValue.get());
         }
 
-        RestaurantData restaurantData = new RestaurantData(name, location, restaurantManagers, takeAwayService);
+        RestaurantData restaurantData = new RestaurantData(name, location, restaurantManagers, takeAwayService, URL);
 
         return restaurantData;
     }

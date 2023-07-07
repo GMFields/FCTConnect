@@ -11,15 +11,18 @@ public class RestaurantData {
     private List<String> restaurantManagers;
     private String takeAwayService;
 
+    private String URL;
+
     public RestaurantData() {
     }
 
     private final Gson g = new Gson();
-    public RestaurantData(String name, String location, List<String> restaurantManagers, String takeAwayService) {
+    public RestaurantData(String name, String location, List<String> restaurantManagers, String takeAwayService, String URL) {
         this.name = name;
         this.location = location;
         this.restaurantManagers = restaurantManagers;
         this.takeAwayService = takeAwayService;
+        this.URL = URL;
     }
 
     public String getName() {
@@ -53,5 +56,9 @@ public class RestaurantData {
     public void setTakeAwayService(String takeAwayService) {
         this.takeAwayService = takeAwayService;
     }
+
+    public String getURL() { return URL; }
+
+    public void setURL(String URL) { this.URL = URL; }
 
 }
