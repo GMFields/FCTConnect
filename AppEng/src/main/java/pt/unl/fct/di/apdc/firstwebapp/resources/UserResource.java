@@ -13,6 +13,7 @@ import pt.unl.fct.di.apdc.firstwebapp.util.*;
 
 //import com.google.gson.Gson;
 
+import java.io.IOException;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Path;
@@ -74,6 +75,13 @@ public class UserResource implements UserAPI {
 					.set("user_department", data.getDepartment()).build();
 
 			txn.add(user);
+			try {
+				EmailSender emailSender = EmailSender.getInstance();
+				emailSender.sendEmail("emailDosDiscipulos", data.getEmail(), "Sending with SendGrid is Fun", "and easy to do anywhere, even with Java");
+			} catch (IOException ex) {
+				// Handle exception
+			}
+
 			LOG.info("User registered: " + data.getUsername());
 			txn.commit();
 			return Response.status(Status.CREATED).entity(data).build(); // TODO @GMFields verificar se é preciso enviar

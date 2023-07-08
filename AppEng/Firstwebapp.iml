@@ -128,14 +128,12 @@
     <orderEntry type="library" name="Maven: org.jetbrains.kotlin:kotlin-stdlib:1.2.10" level="project" />
     <orderEntry type="library" name="Maven: org.jetbrains:annotations:13.0" level="project" />
     <orderEntry type="library" name="Maven: org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.2.10" level="project" />
-    <orderEntry type="library" name="Maven: com.auth0:java-jwt:4.4.0" level="project" />
-    <orderEntry type="library" name="Maven: com.mailjet:mailjet-client:5.2.3" level="project" />
-    <orderEntry type="library" name="Maven: com.squareup.okhttp3:okhttp:4.10.0" level="project" />
-    <orderEntry type="library" name="Maven: com.squareup.okio:okio-jvm:3.0.0" level="project" />
-    <orderEntry type="library" name="Maven: org.jetbrains.kotlin:kotlin-stdlib-common:1.5.31" level="project" />
-    <orderEntry type="library" name="Maven: org.json:json:20230227" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: com.auth0:java-jwt:3.7.0" level="project" />
     <orderEntry type="library" name="Maven: javax.mail:javax.mail-api:1.6.1" level="project" />
     <orderEntry type="library" name="Maven: javax.activation:activation:1.1" level="project" />
     <orderEntry type="library" name="Maven: com.sun.mail:javax.mail:1.6.1" level="project" />
+    <orderEntry type="library" name="Maven: com.sendgrid:sendgrid-java:4.5.0" level="project" />
+    <orderEntry type="library" name="Maven: com.sendgrid:java-http-client:4.5.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bouncycastle:bcprov-jdk15on:1.65" level="project" />
   </component>
 </module>

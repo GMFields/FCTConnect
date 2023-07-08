@@ -1,64 +1,45 @@
 package pt.unl.fct.di.apdc.firstwebapp.util;
 
-import com.mailjet.client.ClientOptions;
-import com.mailjet.client.MailjetClient;
-import com.mailjet.client.transactional.SendContact;
-import com.mailjet.client.transactional.SendEmailsRequest;
-import com.mailjet.client.transactional.TransactionalEmail;
+import com.sendgrid.*;
+import com.sendgrid.helpers.mail.Mail;
+import com.sendgrid.helpers.mail.objects.Content;
+import com.sendgrid.helpers.mail.objects.Email;
+
+import java.io.IOException;
 
 public class EmailSender {
 
-    private final String MAILJET_API_KEY = "9618a0d57d3132e7531937792f774415";
-    private final String MAILJET_SECRET_KEY = "5512f8165aeb37bd4202876185b2db36";
-
+    private final String SENDGRID_API_KEY = "IRBUSCARAPIKEYAOSITE";
     private static EmailSender instance;
 
-    MailjetClient client;
+    private EmailSender() {
+    }
 
-    public final static EmailSender getInstance() {
-        if(instance == null)
+    public static EmailSender getInstance() {
+        if (instance == null)
             instance = new EmailSender();
 
         return instance;
     }
 
-    private EmailSender() {
-        ClientOptions options = ClientOptions.builder()
-                .apiKey(MAILJET_API_KEY)
-                .apiSecretKey(MAILJET_SECRET_KEY)
-                .build();
+    public void sendEmail(String fromEmail, String toEmail, String subject, String body) throws IOException {
+        Email from = new Email(fromEmail);
+        Email to = new Email(toEmail);
+        Content content = new Content("text/plain", body);
+        Mail mail = new Mail(from, subject, to, content);
 
-        client = new MailjetClient(options);
-    }
-
-    private boolean sendEmail(String subject, String body) {
+        SendGrid sg = new SendGrid(SENDGRID_API_KEY);
+        Request request = new Request();
         try {
-            TransactionalEmail message = TransactionalEmail
-                    .builder()
-                    .to(new SendContact("ane.nunes@gmail.com", null))
-                    .from(new SendContact("afonsonunes19@gmail.com", "afonso"))
-                    .subject(subject)
-                    .textPart(body)
-                    .build();
-
-            SendEmailsRequest request = SendEmailsRequest
-                    .builder()
-                    .message(message)
-                    .build();
-
-            request.sendWith(client);
-
-            return true;
-        } catch (Exception e) {
-            return false;
+            request.setMethod(Method.POST);
+            request.setEndpoint("mail/send");
+            request.setBody(mail.build());
+            Response response = sg.api(request);
+            System.out.println(response.getStatusCode());
+            System.out.println(response.getBody());
+            System.out.println(response.getHeaders());
+        } catch (IOException ex) {
+            throw ex;
         }
     }
-
-    public boolean welcomeMail(String userEmail) {
-        String body = "Bem vindo à plataforma";
-
-        return sendEmail("Welcome", body);
-    }
-
-
 }
