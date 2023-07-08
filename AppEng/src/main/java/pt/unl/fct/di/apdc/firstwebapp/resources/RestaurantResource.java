@@ -315,16 +315,6 @@ public class RestaurantResource implements RestaurantAPI {
             return Response.status(Response.Status.NOT_FOUND).entity(ConstantFactory.RESTAURANT_NOT_FOUND.getDesc()).build();
         }
 
-        List<String> managers = getRestaurantManagers(restaurantName);
-        LOG.info("3");
-        if(managers == null || managers.isEmpty()) {
-            return Response.status(Response.Status.NOT_FOUND).entity(ConstantFactory.NO_MANAGERS_FOUND+restaurantName).build();
-        }
-        if(!isManager(tokenObj.getUsername(), managers)) {
-            return Response.status(Response.Status.FORBIDDEN).entity(ConstantFactory.INSUFFICIENT_PERMISSIONS).build();
-        }
-
-
         List<List<String>> resultList = new ArrayList<>();
         try {
 
@@ -358,15 +348,6 @@ public class RestaurantResource implements RestaurantAPI {
             return Response.status(Response.Status.NOT_FOUND).entity(ConstantFactory.RESTAURANT_NOT_FOUND.getDesc()).build();
         }
 
-        List<String> managers = getRestaurantManagers(restaurantName);
-        if(managers == null || managers.isEmpty()) {
-            return Response.status(Response.Status.NOT_FOUND).entity(ConstantFactory.NO_MANAGERS_FOUND+restaurantName).build();
-        }
-        if(!isManager(tokenObj.getUsername(), managers)) {
-            return Response.status(Response.Status.FORBIDDEN).entity(ConstantFactory.INSUFFICIENT_PERMISSIONS).build();
-        }
-
-
         List<List<String>> resultList = new ArrayList<>();
         try {
 
@@ -399,16 +380,6 @@ public class RestaurantResource implements RestaurantAPI {
             return Response.status(Response.Status.NOT_FOUND).entity(ConstantFactory.RESTAURANT_NOT_FOUND.getDesc()).build();
         }
 
-        List<String> managers = getRestaurantManagers(restaurantName);
-        LOG.info("3");
-        if(managers == null || managers.isEmpty()) {
-            return Response.status(Response.Status.NOT_FOUND).entity(ConstantFactory.NO_MANAGERS_FOUND+restaurantName).build();
-        }
-        if(!isManager(tokenObj.getUsername(), managers)) {
-            return Response.status(Response.Status.FORBIDDEN).entity(ConstantFactory.INSUFFICIENT_PERMISSIONS).build();
-        }
-
-
         List<List<String>> resultList = new ArrayList<>();
         try {
 
@@ -440,16 +411,6 @@ public class RestaurantResource implements RestaurantAPI {
         if (restaurant == null) {
             return Response.status(Response.Status.NOT_FOUND).entity(ConstantFactory.RESTAURANT_NOT_FOUND.getDesc()).build();
         }
-
-        List<String> managers = getRestaurantManagers(restaurantName);
-        LOG.info("3");
-        if(managers == null || managers.isEmpty()) {
-            return Response.status(Response.Status.NOT_FOUND).entity(ConstantFactory.NO_MANAGERS_FOUND+restaurantName).build();
-        }
-        if(!isManager(tokenObj.getUsername(), managers)) {
-            return Response.status(Response.Status.FORBIDDEN).entity(ConstantFactory.INSUFFICIENT_PERMISSIONS).build();
-        }
-
 
         List<List<String>> resultList = new ArrayList<>();
         try {
