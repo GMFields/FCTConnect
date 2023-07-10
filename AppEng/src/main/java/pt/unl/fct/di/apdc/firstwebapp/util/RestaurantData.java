@@ -10,8 +10,20 @@ public class RestaurantData {
     private String location;
     private List<String> restaurantManagers;
     private String takeAwayService;
-
     private String URL;
+    private int rating;
+    private int numberOfRatings;
+
+    public RestaurantData(String name, String location, List<String> restaurantManagers,
+                          String takeAwayService, String URL, int rating, int numberOfRatings) {
+        this.name = name;
+        this.location = location;
+        this.restaurantManagers = restaurantManagers;
+        this.takeAwayService = takeAwayService;
+        this.URL = URL;
+        this.rating = rating;
+        this.numberOfRatings = numberOfRatings;
+    }
 
     public RestaurantData() {
     }
@@ -25,6 +37,22 @@ public class RestaurantData {
         this.URL = URL;
     }
 
+
+    public int getRating() {
+        return rating;
+    }
+
+    public void setRating(int rating) {
+        this.rating = rating;
+    }
+
+    public int getNumberOfRatings() {
+        return numberOfRatings;
+    }
+
+    public void setNumberOfRatings(int numberOfRatings) {
+        this.numberOfRatings = numberOfRatings;
+    }
     public String getName() {
         return name;
     }

@@ -1,12 +1,9 @@
 package pt.unl.fct.di.apdc.firstwebapp.resources;
 
 import pt.unl.fct.di.apdc.firstwebapp.factory.ConstantFactory;
-import pt.unl.fct.di.apdc.firstwebapp.util.DishData;
-import pt.unl.fct.di.apdc.firstwebapp.util.RestaurantData;
-import pt.unl.fct.di.apdc.firstwebapp.util.Authorization;
+import pt.unl.fct.di.apdc.firstwebapp.util.*;
 import pt.unl.fct.di.apdc.firstwebapp.api.RestaurantAPI;
 import pt.unl.fct.di.apdc.firstwebapp.factory.KeyStore;
-import pt.unl.fct.di.apdc.firstwebapp.util.AuthToken;
 
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
@@ -65,6 +62,8 @@ public class RestaurantResource implements RestaurantAPI {
                     .set("restaurant_managers", convertedManagers)
                     .set("restaurant_takeAwayService", "")
                     .set("restaurant_URL", data.getURL())
+                    .set("restaurant_rating", 0)
+                    .set("restaurant_numberOfReviews", 0)
                     .build();
 
             txn.add(restaurant);
@@ -243,6 +242,84 @@ public class RestaurantResource implements RestaurantAPI {
     }
 
 
+    @Override
+    public Response addReview(String tokenObjStr, String restaurantName, ReviewData data) {
+        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
+
+        LOG.info("0");
+
+        Key userKey = KeyStore.userKeyFactory(tokenObj.getUsername());
+        Entity user = datastore.get(userKey);
+        LOG.info("1");
+        LOG.info(g.toJson(user));
+        List<StringValue> reviewsValues = user.getList("user_reviews");
+        if(!reviewsValues.isEmpty()) {
+            for (StringValue v : reviewsValues) {
+                if (v.get().equals(restaurantName)) {
+                    return Response.status(Response.Status.FORBIDDEN).entity("User already reviewed this restaurant").build();
+                }
+            }
+        }
+        LOG.info("2");
+
+        ReviewData r = new ReviewData(data.getRestaurantName(), data.getAuthor(), data.getDescription(), data.getRating());
+        Key reviewKey = KeyStore.reviewKeyFactory(r.getReviewID());
+        Entity review = datastore.get(reviewKey);
+        LOG.info("3");
+
+        if (review != null) {
+            return Response.status(Response.Status.CONFLICT).entity("This review already exists").build();
+        }
+        LOG.info("4");
+        review = Entity.newBuilder(reviewKey)
+                .set("review_restaurant", data.getRestaurantName())
+                .set("review_author", data.getAuthor())
+                .set("review_description", data.getDescription())
+                .set("review_rating", data.getRating())
+                .set("creation_data", data.getCreationData())
+                .build();
+
+        datastore.add(review);
+        LOG.info("5");
+
+        Key restaurantKey = KeyStore.restaurantKeyFactory(restaurantName);
+        Entity restaurant = datastore.get(restaurantKey);
+        LOG.info(g.toJson(restaurant));
+
+        if (restaurant != null) {
+            int numReviews = (int) (restaurant.getLong("restaurant_numberOfReviews"));
+
+            int totalRating = (int) (restaurant.getLong("restaurant_rating"));
+
+            numReviews++;
+            totalRating +=  + data.getRating();
+
+
+            Entity newRestaurant = Entity.newBuilder(restaurantKey)
+                    .set("restaurant_numberOfReviews", numReviews)
+                    .set("restaurant_rating", totalRating)
+                    .build();
+            datastore.put(newRestaurant);
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).entity("Restaurant not found").build();
+        }
+
+        LOG.info("6");
+
+        List<StringValue> updatedReviewsValues = new ArrayList<>(reviewsValues);
+
+        updatedReviewsValues.add(StringValue.of(restaurantName));
+
+        Entity newUser = Entity.newBuilder(user)
+                .set("user_reviews", updatedReviewsValues)
+                .build();
+        datastore.put(newUser);
+
+
+        LOG.info("7");
+
+        return Response.status(Response.Status.OK).build();
+    }
 
     @Override
     public Response removeDish(String tokenObjStr, String restaurantName, String dishID) {
@@ -334,6 +411,8 @@ public class RestaurantResource implements RestaurantAPI {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+
 
 
     @Override

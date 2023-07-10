@@ -55,4 +55,8 @@ public class KeyStore {
     public static Key dishKeyFactory(String keyString) {
         return datastore.newKeyFactory().setKind("Dish").newKey(keyString);
     }
+
+    public static Key reviewKeyFactory(String keyString) {
+        return datastore.newKeyFactory().setKind("Review").newKey(keyString);
+    }
 }
