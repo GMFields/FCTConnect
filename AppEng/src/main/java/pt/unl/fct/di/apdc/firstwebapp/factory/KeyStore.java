@@ -47,4 +47,12 @@ public class KeyStore {
     public static Key CalendarAccessKeyFactory(String keyString) {
         return datastore.newKeyFactory().setKind("CalendarAccess").newKey(keyString);
     }
+
+    public static Key restaurantKeyFactory(String keyString) {
+        return datastore.newKeyFactory().setKind("Restaurant").newKey(keyString);
+    }
+
+    public static Key dishKeyFactory(String keyString) {
+        return datastore.newKeyFactory().setKind("Dish").newKey(keyString);
+    }
 }

@@ -289,7 +289,7 @@ const Page = (props) => {
                     className={clsx(classes.cardImage, "rounded-circle")}
                     style={{ width: "100px", height: "100px" }}
                     fluid
-                    onClick={<UploadAvatar></UploadAvatar>}
+                    
                   />
                 <MDBCol lg="8">
                 <MDBCard className="mb-4">

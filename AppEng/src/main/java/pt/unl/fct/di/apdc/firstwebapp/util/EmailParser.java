@@ -10,8 +10,8 @@ import java.util.Properties;
 import java.util.logging.Logger;
 
 public class EmailParser {
-    private String username = "";
-    private String password = "";
+    String username = "ane.nunes@campus.fct.unl.pt";
+    String password = "bgbpoqgtshyhplfj";
 
     private static final Logger LOG = Logger.getLogger(EmailParser.class.getName());
 
@@ -46,11 +46,13 @@ public class EmailParser {
             for (int i = messages.length - 1; i >= 0; i--) {
                 Message message = messages[i];
                 LOG.info("MESSAGE ->"+message);
+                LOG.info("SUBJECT ->"+message.getSubject());
+                LOG.info("CONTENT -> "+message.getContent());
                 LOG.info("CONTENT TYPE DO  DA MESSAGE"+message.getContentType());
                 String subject = message.getSubject();
                 LOG.info("9");
                 LOG.info("subject dA MESSAGE->"+subject);
-                if (subject != null && subject.contains("Hoje na FCT") && counter < 5) {
+                if (subject != null && subject.contains(" Hoje na FCT") && counter < 5) {
                     // Parse the message content
                     LOG.info("ENTROU NO CICLE");
                     String contentType = message.getContentType();

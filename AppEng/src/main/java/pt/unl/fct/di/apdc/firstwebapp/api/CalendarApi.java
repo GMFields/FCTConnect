@@ -34,7 +34,7 @@ public interface CalendarApi {
     @Path("/getall")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    Response getEvents(@QueryParam("tokenObj") String tokenObjStr);
+    Response getEvents(@QueryParam("tokenObj") String tokenObjStr, @QueryParam("username") String username);
 
     @POST
     @Path("/addaccess")
