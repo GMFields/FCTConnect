@@ -65,7 +65,9 @@ public interface RestaurantAPI {
     @Produces(MediaType.APPLICATION_JSON)
     Response addReview(@QueryParam("tokenObj") String tokenObjStr, @PathParam("restaurantName") String restaurantName, ReviewData data);
 
-
+    @GET
+    @Path("/{restaurantName}/reviews")
+    Response listReviews(@QueryParam("tokenObj") String tokenObjStr, @PathParam("restaurantName") String restaurantName);
 
 
 }

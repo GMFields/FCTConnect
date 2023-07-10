@@ -271,12 +271,14 @@ public class RestaurantResource implements RestaurantAPI {
             return Response.status(Response.Status.CONFLICT).entity("This review already exists").build();
         }
         LOG.info("4");
+
+
         review = Entity.newBuilder(reviewKey)
-                .set("review_restaurant", data.getRestaurantName())
-                .set("review_author", data.getAuthor())
-                .set("review_description", data.getDescription())
-                .set("review_rating", data.getRating())
-                .set("creation_data", data.getCreationData())
+                .set("review_restaurant", r.getRestaurantName())
+                .set("review_author", r.getAuthor())
+                .set("review_description", r.getDescription())
+                .set("review_rating", r.getRating())
+                .set("creation_data", r.getCreationData())
                 .build();
 
         datastore.add(review);
@@ -295,7 +297,7 @@ public class RestaurantResource implements RestaurantAPI {
             totalRating +=  + data.getRating();
 
 
-            Entity newRestaurant = Entity.newBuilder(restaurantKey)
+            Entity newRestaurant = Entity.newBuilder(restaurant)
                     .set("restaurant_numberOfReviews", numReviews)
                     .set("restaurant_rating", totalRating)
                     .build();
@@ -315,10 +317,60 @@ public class RestaurantResource implements RestaurantAPI {
                 .build();
         datastore.put(newUser);
 
-
         LOG.info("7");
 
         return Response.status(Response.Status.OK).build();
+    }
+
+
+
+    @Override
+    public Response listReviews(String tokenObjStr, String restaurantName) {
+        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
+
+        LOG.info(tokenObj.getUsername() + " is trying to get the reviews for restaurant: " + restaurantName);
+
+        Key restaurantKey = KeyStore.restaurantKeyFactory(restaurantName);
+        Entity restaurant = datastore.get(restaurantKey);
+        if (restaurant == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("Reviews not found").build();
+        }
+
+        List<List<String>> resultList = new ArrayList<>();
+        try {
+            Query<Entity> query = Query.newEntityQueryBuilder()
+                    .setKind("Review")
+                    .setFilter(StructuredQuery.PropertyFilter.eq("review_restaurant", restaurantName))
+                    .build();
+
+
+
+            QueryResults<Entity> results = datastore.run(query);
+            while (results.hasNext()) {
+                Entity reviewEntity = results.next();
+                long creationData = reviewEntity.getLong("creation_data");
+                String reviewAuthor = reviewEntity.getString("review_author");
+                String reviewDescription = reviewEntity.getString("review_description");
+                long reviewRating = reviewEntity.getLong("review_rating");
+                String reviewRestaurant = reviewEntity.getString("review_restaurant");
+
+
+                List<String> reviewInfo = new ArrayList<>();
+                reviewInfo.add(String.valueOf(creationData));
+                reviewInfo.add(reviewAuthor);
+                reviewInfo.add(reviewDescription);
+                reviewInfo.add(String.valueOf(reviewRating));
+                reviewInfo.add(reviewRestaurant);
+
+                resultList.add(reviewInfo);
+            }
+
+            LOG.info("Retrieved reviews for restaurant: " + restaurantName);
+            return Response.status(Response.Status.OK).entity(g.toJson(resultList)).build();
+        } catch (Exception e) {
+            LOG.severe(e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @Override
