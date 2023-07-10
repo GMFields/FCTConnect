@@ -17,46 +17,43 @@ public interface ChatApi {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/addpost")
-    Response addPost(Post post /* @QueryParam("tokenObjStr") String tokenObjStr */);
+    Response addPost(Post post, @QueryParam("tokenObjStr") String tokenObjStr);
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/updatepost")
-    Response updatePost(Post post /* @QueryParam("tokenObjStr") String tokenObjStr */);
+    Response updatePost(Post post, @QueryParam("tokenObjStr") String tokenObjStr);
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/addreply")
-    Response addReply(Post reply /* String tokenObjStr */);
+    Response addReply(Post reply,
+            @QueryParam("tokenObjStr") String tokenObjStr);
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/updatereply")
-    Response updateReply(Post reply /* String tokenObjStr */);
+    Response updateReply(Post reply,
+            @QueryParam("tokenObjStr") String tokenObjStr);
 
     @POST
     @Path("/addbookmark")
-    Response bookmarkPost(@QueryParam("postId") String postId, @QueryParam("username") String username/*
-                                                                                                       * , @QueryParam(
-                                                                                                       * "tokenObjString")
-                                                                                                       * String
-                                                                                                       * tokenObjString
-                                                                                                       */);
+    Response bookmarkPost(@QueryParam("postId") String postId, @QueryParam("username") String username,
+            @QueryParam("tokenObjString") String tokenObjString);
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/listbookmarks")
-    Response listUserBookmarks(@QueryParam("username") String username/*
-                                                                       * @QueryParam("tokenObjStr") String tokenObjStr
-                                                                       */ );
+    Response listUserBookmarks(@QueryParam("username") String username,
+            @QueryParam("tokenObjString") String tokenObjStr);
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/listreply")
-    Response listReply(@QueryParam("parentId") String parentId/* String tokenObjStr */);
+    Response listReply(@QueryParam("parentId") String parentId);
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/listpost")
-    Response listPosts(/* String tokenObjStr */);
+    Response listPosts();
 }
