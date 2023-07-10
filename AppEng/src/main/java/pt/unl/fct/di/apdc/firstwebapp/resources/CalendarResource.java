@@ -201,8 +201,6 @@ public class CalendarResource implements CalendarApi {
         Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
 
 
-
-
         if (eventID.equals("")) {
             LOG.warning("Empty id!");
             return Response.status(Response.Status.BAD_REQUEST).build();
@@ -252,9 +250,10 @@ public class CalendarResource implements CalendarApi {
         try {
             Entity token = txn.get(tokenKey);
             Entity user = txn.get(userKey);
-            if(user == null || user.getString(username) == null){
+
+            if (!username.equals(tokenObj.getUsername()) && (user == null ||  user.getString(username) == null))
                 return Response.status(Response.Status.FORBIDDEN).build();
-            }
+
 
             if (token == null) {
                 txn.rollback();
@@ -308,16 +307,12 @@ public class CalendarResource implements CalendarApi {
         Key userKey = KeyStore.userKeyFactory(username);
 
 
-
         Transaction txn = datastore.newTransaction();
-
-
-
 
 
         try {
             Entity user = txn.get(userKey);
-            if(user == null){
+            if (user == null) {
                 txn.rollback();
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
@@ -331,16 +326,21 @@ public class CalendarResource implements CalendarApi {
 
 
             Key accessKey = KeyStore.CalendarAccessKeyFactory(username);
+            Entity accessEntity = txn.get(accessKey);
 
+            Entity newAccessEntity;
+            if (accessEntity != null) {
+               newAccessEntity = Entity.newBuilder(accessEntity)
+                        .set(tokenObj.getUsername(), tokenObj.getUsername())
+                        .build();
 
+            } else {
+                 newAccessEntity = Entity.newBuilder(accessKey)
+                        .set(tokenObj.getUsername(), tokenObj.getUsername())
+                        .build();
 
-            Entity accessEntity = Entity.newBuilder(accessKey)
-                    .set(tokenObj.getUsername(), tokenObj.getUsername())
-                    .build();
-
-
-            txn.add(accessEntity);
-
+            }
+            txn.put(newAccessEntity);
             txn.commit();
 
             LOG.info("add access successfully");
@@ -373,11 +373,10 @@ public class CalendarResource implements CalendarApi {
 
             Entity user = txn.get(userKey);
 
-            if(user == null){
+            if (user == null) {
                 txn.rollback();
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
-
 
 
             Entity token = txn.get(tokenKey);
