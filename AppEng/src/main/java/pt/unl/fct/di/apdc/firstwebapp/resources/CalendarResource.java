@@ -69,14 +69,14 @@ public class CalendarResource implements CalendarApi {
                     .set("username", tokenObj.getUsername())
                     .build();
 
-            EntityWithKey<Entity> entityWithKey = new EntityWithKey<>(eventKey, eventEntity);
+            //EntityWithKey<Entity> entityWithKey = new EntityWithKey<>(eventKey, eventEntity);
             txn.add(eventEntity);
 
             txn.commit();
 
             LOG.info("Event added successfully with ID: " + event1.getEventID());
             return Response.status(Response.Status.OK)
-                    .entity(g.toJson(entityWithKey)).build();
+                    .entity(g.toJson(eventKey.getName())).build();
         } catch (Exception e) {
             txn.rollback();
             LOG.severe("An error occurred while adding event: " + e.getMessage());
@@ -277,6 +277,7 @@ public class CalendarResource implements CalendarApi {
                     properties.put(propertyName, value.get());
                     LOG.info("Event: " + entity.getString("event_title"));
                 }
+                properties.put("id", entity.getKey().getName());
                 entitiesProperties.add(properties);
                 LOG.info("Event: " + entity.getString("event_title"));
             }
