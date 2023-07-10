@@ -126,6 +126,9 @@ class _HomePageState extends State<HomePage> {
                 'Error: ${snapshot.error}'); // Handle any errors that occurred during the request
           } else {
             return Scaffold(
+              appBar: AppBar(
+                title: Text('ForumCT'),
+              ),
               backgroundColor: Theme.of(context).primaryColor,
               body: SafeArea(
                   child: ListView(
@@ -142,7 +145,7 @@ class _HomePageState extends State<HomePage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Text(
-                            "Bem Vindo, $username",
+                            "Welcome, $username",
                             style: TextStyle(
                                 fontSize: 24,
                                 color: Colors.white,
@@ -153,7 +156,7 @@ class _HomePageState extends State<HomePage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: <Widget>[
                               Text(
-                                "Encontra posts que gostes de ler.",
+                                "Find Posts that you wanna read.",
                                 style: TextStyle(
                                   color: Colors.white.withOpacity(0.6),
                                   fontSize: 14.0,

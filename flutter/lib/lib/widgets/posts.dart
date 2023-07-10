@@ -314,79 +314,88 @@ class _PostsState extends State<Posts> {
                             children: <Widget>[
                               SizedBox(
                                 height: 70,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: <Widget>[
-                                    Row(
-                                      children: <Widget>[
-                                        CircleAvatar(
-                                          backgroundImage: question
-                                                  .author.backgroundImage ??
-                                              AssetImage(
-                                                  'assets/images/VADER.png'), // Replace with a placeholder image asset
-                                          radius: 22,
-                                        ),
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(left: 8.0),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: <Widget>[
-                                              SizedBox(
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    0.65,
-                                                child: Text(
-                                                  question.question,
-                                                  style: const TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      letterSpacing: .4),
-                                                ),
-                                              ),
-                                              const SizedBox(height: 2.0),
-                                              Row(
-                                                children: <Widget>[
-                                                  Text(
-                                                    question.author.name,
-                                                    style: TextStyle(
-                                                        color: Colors.grey
-                                                            .withOpacity(0.6)),
-                                                  ),
-                                                  const SizedBox(width: 15),
-                                                  Text(
-                                                    question.created_at,
-                                                    style: TextStyle(
-                                                        color: Colors.grey
-                                                            .withOpacity(0.6)),
-                                                  )
-                                                ],
-                                              )
-                                            ],
+                                child: Expanded(
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      Row(
+                                        children: <Widget>[
+                                          CircleAvatar(
+                                            backgroundImage: question
+                                                    .author.backgroundImage ??
+                                                AssetImage(
+                                                    'assets/images/VADER.png'), // Replace with a placeholder image asset
+                                            radius: 22,
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                    MouseRegion(
-                                      cursor: SystemMouseCursors.click,
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          bookmarkPost(question.id, context);
-                                        },
-                                        child: Icon(
-                                          MdiIcons.bookmark,
-                                          color: Colors.grey.withOpacity(0.6),
-                                          size: 26,
-                                        ),
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 8.0),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: <Widget>[
+                                                SizedBox(
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.65,
+                                                  child: Text(
+                                                    question.question,
+                                                    style: const TextStyle(
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        letterSpacing: .4),
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 2.0),
+                                                Row(
+                                                  children: <Widget>[
+                                                    Text(
+                                                      question.author.name,
+                                                      style: TextStyle(
+                                                          color: Colors.grey
+                                                              .withOpacity(
+                                                                  0.6)),
+                                                    ),
+                                                    const SizedBox(width: 15),
+                                                    Text(
+                                                      question.created_at,
+                                                      style: TextStyle(
+                                                          color: Colors.grey
+                                                              .withOpacity(
+                                                                  0.6)),
+                                                    ),
+                                                    const SizedBox(width: 30),
+                                                    MouseRegion(
+                                                      cursor: SystemMouseCursors
+                                                          .click,
+                                                      child: GestureDetector(
+                                                        onTap: () {
+                                                          bookmarkPost(
+                                                              question.id,
+                                                              context);
+                                                        },
+                                                        child: Icon(
+                                                          MdiIcons.bookmark,
+                                                          color: Colors.grey
+                                                              .withOpacity(0.6),
+                                                          size: 26,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                               Container(
