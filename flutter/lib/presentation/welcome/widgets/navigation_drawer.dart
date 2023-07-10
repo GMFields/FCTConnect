@@ -5,6 +5,7 @@ import 'package:discipulos_flutter/presentation/mapas/waypoint.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../lib/screens/home_screen.dart';
 import '../../anomaly/anomaly.dart';
 import '../../calendar/calendar.dart';
 import '../../perfil/profile_page.dart';
@@ -129,11 +130,11 @@ class CustomNavigationDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.chat_outlined),
-            title: const Text('Chat'),
+            title: const Text('Forum'),
             onTap: () {
               Navigator.pop(context);
               Navigator.of(context)
-                  .push(MaterialPageRoute(builder: ((context) => ChatPage())));
+                  .push(MaterialPageRoute(builder: ((context) => HomePage())));
             },
           ),
           ListTile(

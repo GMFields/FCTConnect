@@ -1,7 +1,7 @@
 import 'dart:convert';
 
+import 'package:discipulos_flutter/lib/models/post_model.dart';
 import 'package:flutter/material.dart';
-import 'package:google_directions_api/google_directions_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/popular_topics.dart';
 import '../widgets/posts.dart';
@@ -15,6 +15,8 @@ class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
 }
+
+var username;
 
 class _HomePageState extends State<HomePage> {
   final TextEditingController _titleController = TextEditingController();
@@ -72,13 +74,16 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> postToForum(String question, String content) async {
-    /*final prefs = await SharedPreferences.getInstance();
+    final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     if (token == null) {
       throw Exception('Token not found in cache');
-    }*/
+    }
 
-    var uuid = Uuid();
+    Map<String, dynamic> tokenData = json.decode(token);
+    String user_username = tokenData['username'] ?? '';
+
+    var uuid = const Uuid();
 
     var data = {
       "question": question,
@@ -86,14 +91,15 @@ class _HomePageState extends State<HomePage> {
       "votes": 0,
       "repliesCount": 0,
       "views": 0,
-      "created_at": TimeOfDay.now().toString(),
-      "author": "jao" /*prefs.getString('email')*/,
+      "created_at": "",
+      "author": user_username,
       "id": uuid.v4().toString()
     };
 
     final response = await http.post(
         Uri.parse(
-            "https://helical-ascent-385614.oa.r.appspot.com/rest/forum/addpost") /*.replace(queryParameters: {'tokenObj': token})*/,
+                "https://helical-ascent-385614.oa.r.appspot.com/rest/forum/addpost")
+            .replace(queryParameters: {'tokenObj': token}),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(data));
 
@@ -105,95 +111,124 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).primaryColor,
-      body: SafeArea(
-          child: ListView(
-        children: <Widget>[
-          Container(
-            height: 160,
-            width: MediaQuery.of(context).size.width,
-            decoration: BoxDecoration(color: Theme.of(context).primaryColor),
-            child: Padding(
-              padding: EdgeInsets.all(12.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
+    return FutureBuilder<void>(
+        future: getPosts(),
+        builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return CircularProgressIndicator(); // Display a loading indicator while waiting for the response
+          } else if (snapshot.hasError) {
+            return Text(
+                'Error: ${snapshot.error}'); // Handle any errors that occurred during the request
+          } else {
+            return Scaffold(
+              backgroundColor: Theme.of(context).primaryColor,
+              body: SafeArea(
+                  child: ListView(
                 children: <Widget>[
-                  const Text(
-                    "Sra, Forum",
-                    style: TextStyle(
-                        fontSize: 24,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600),
-                  ),
-                  SizedBox(height: 8.0),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Text(
-                        "Find Topics you like to read",
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.6),
-                          fontSize: 14.0,
-                        ),
-                      ),
-                      Icon(
-                        MdiIcons.searchWeb,
-                        size: 20,
-                        color: Colors.white,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: ElevatedButton(
-                            onPressed: _openPostModal,
-                            child: const Text('Write a Post')),
-                      ),
-                    ],
-                  )
-                ],
-              ),
-            ),
-          ),
-          Container(
-              decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(35.0),
-                      topRight: Radius.circular(35.0))),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  TopBar(),
-                  const Padding(
-                    padding: EdgeInsets.all(20.0),
-                    child: Text(
-                      "Popular Topics",
-                      style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black),
-                    ),
-                  ),
-                  PopularTopics(),
-                  const Padding(
-                    padding:
-                        EdgeInsets.only(left: 20.0, top: 20.0, bottom: 10.0),
-                    child: Text(
-                      "Trending Posts",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                  Container(
+                    height: 160,
+                    width: MediaQuery.of(context).size.width,
+                    decoration:
+                        BoxDecoration(color: Theme.of(context).primaryColor),
+                    child: Padding(
+                      padding: EdgeInsets.all(12.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            "Bem Vindo, $username",
+                            style: TextStyle(
+                                fontSize: 24,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600),
+                          ),
+                          SizedBox(height: 8.0),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Text(
+                                "Encontra posts que gostes de ler.",
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.6),
+                                  fontSize: 14.0,
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(20.0),
+                                child: ElevatedButton(
+                                    onPressed: _openPostModal,
+                                    child: const Text('Write a Post')),
+                              ),
+                            ],
+                          )
+                        ],
                       ),
                     ),
                   ),
-                  Posts()
+                  Container(
+                      decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(35.0),
+                              topRight: Radius.circular(35.0))),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          TopBar(),
+                          const Padding(
+                            padding: EdgeInsets.all(20.0),
+                            child: Text(
+                              "Popular Topics",
+                              style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black),
+                            ),
+                          ),
+                          PopularTopics(),
+                          const Padding(
+                            padding: EdgeInsets.only(
+                                left: 20.0, top: 20.0, bottom: 10.0),
+                            child: Text(
+                              "Posts",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                          Posts(selectedIndex: 0),
+                          Center(
+                            child: RawMaterialButton(
+                              onPressed: () {
+                                getPosts();
+                              },
+                              elevation: 2.0,
+                              fillColor: Colors.blue,
+                              child: Icon(
+                                Icons.add_circle_outline_outlined,
+                                color: Colors.white,
+                                size: 30.0,
+                              ),
+                              padding: EdgeInsets.all(5.0),
+                              shape: CircleBorder(),
+                            ),
+                          )
+                        ],
+                      ))
                 ],
-              ))
-        ],
-      )),
-    );
+              )),
+            );
+          }
+        });
   }
 }
