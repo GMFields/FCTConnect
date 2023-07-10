@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 class Author {
   String name;
   String imageUrl;

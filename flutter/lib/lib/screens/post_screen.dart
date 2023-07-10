@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:js_interop';
 
 import 'package:discipulos_flutter/lib/widgets/posts.dart';
 import 'package:flutter/material.dart';

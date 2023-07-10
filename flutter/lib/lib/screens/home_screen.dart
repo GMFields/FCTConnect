@@ -1,12 +1,10 @@
 import 'dart:convert';
 
-import 'package:discipulos_flutter/lib/models/post_model.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/popular_topics.dart';
 import '../widgets/posts.dart';
 import '../widgets/top_bar.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import 'package:uuid/uuid.dart';
 import 'package:http/http.dart' as http;

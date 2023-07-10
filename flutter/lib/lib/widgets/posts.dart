@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:discipulos_flutter/lib/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/author_model.dart';
