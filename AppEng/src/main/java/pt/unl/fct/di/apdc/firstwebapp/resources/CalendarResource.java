@@ -388,13 +388,18 @@ public class CalendarResource implements CalendarApi {
             }
 
             Key accessKey = KeyStore.CalendarAccessKeyFactory(username);
+            Entity accessEntity = txn.get(accessKey);
 
-            Entity accessEntity = Entity.newBuilder(accessKey)
-                    .set(tokenObj.getUsername(), tokenObj.getUsername())
+
+            if (accessEntity == null) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+
+            accessEntity = Entity.newBuilder(accessEntity).remove(tokenObj.getUsername())
                     .build();
+            txn.put(accessEntity);
 
 
-            txn.add(accessEntity);
 
 
             txn.commit();
