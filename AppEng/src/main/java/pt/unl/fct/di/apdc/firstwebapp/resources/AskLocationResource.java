@@ -133,7 +133,7 @@ public class AskLocationResource implements AskLocationAPI {
 
             }
             admin.sendNotification("Location Answer",
-                    String.format("%s answer: ", tokenObj.getUsername()), username);
+                    String.format("%s answered: %s", tokenObj.getUsername(), answer.getAnswer()), username);
             txn.put(newAskLocationEntity);
 
             askLocationEntity = Entity.newBuilder(askLocationEntity).remove(username)
@@ -164,16 +164,14 @@ public class AskLocationResource implements AskLocationAPI {
         Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
         Key userKey = KeyStore.CalendarAccessKeyFactory(tokenObj.getUsername());
 
-
         Transaction txn = datastore.newTransaction();
 
         try {
             Entity token = txn.get(tokenKey);
             Entity user = txn.get(userKey);
 
-            if (!username.equals(tokenObj.getUsername()) && (user == null ||  user.getString(username) == null))
+            if (!username.equals(tokenObj.getUsername()) && (user == null || user.getString(username) == null))
                 return Response.status(Response.Status.FORBIDDEN).build();
-
 
             if (token == null) {
                 txn.rollback();
@@ -187,14 +185,11 @@ public class AskLocationResource implements AskLocationAPI {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
 
-
-
             Map<String, Value<?>> pp = askLocationEntity.getProperties();
 
             List<Object> values = pp.values().stream()
                     .map(Value::get)
                     .collect(Collectors.toList());
-
 
             txn.commit();
 
@@ -220,16 +215,14 @@ public class AskLocationResource implements AskLocationAPI {
         Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
         Key userKey = KeyStore.CalendarAccessKeyFactory(tokenObj.getUsername());
 
-
         Transaction txn = datastore.newTransaction();
 
         try {
             Entity token = txn.get(tokenKey);
             Entity user = txn.get(userKey);
 
-            if (!username.equals(tokenObj.getUsername()) && (user == null ||  user.getString(username) == null))
+            if (!username.equals(tokenObj.getUsername()) && (user == null || user.getString(username) == null))
                 return Response.status(Response.Status.FORBIDDEN).build();
-
 
             if (token == null) {
                 txn.rollback();
