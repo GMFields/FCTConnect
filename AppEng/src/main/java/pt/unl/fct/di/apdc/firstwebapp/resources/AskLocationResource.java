@@ -4,6 +4,7 @@ import com.google.cloud.datastore.*;
 import com.google.gson.Gson;
 import pt.unl.fct.di.apdc.firstwebapp.api.AskLocationAPI;
 import pt.unl.fct.di.apdc.firstwebapp.factory.KeyStore;
+import pt.unl.fct.di.apdc.firstwebapp.util.Answer;
 import pt.unl.fct.di.apdc.firstwebapp.util.AuthToken;
 import pt.unl.fct.di.apdc.firstwebapp.util.Event;
 
@@ -84,7 +85,7 @@ public class AskLocationResource implements AskLocationAPI {
     }
 
     @Override
-    public Response anwserLocation(String tokenObjStr, String username, String answer) {
+    public Response anwserLocation(String tokenObjStr, String username, Answer answer) {
         AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Pode ser passado como TokenClass
         LOG.fine("User: " + tokenObj.getUsername() + " is attempting to answer an asked location!");
 
@@ -127,13 +128,13 @@ public class AskLocationResource implements AskLocationAPI {
             if (answerLocationEntity != null) {
                 newAskLocationEntity = Entity.newBuilder(answerLocationEntity)
                         .set(tokenObj.getUsername(), tokenObj.getUsername())
-                        .set("location", answer)
+                        .set("location", answer.getAnswer())
                         .build();
 
             } else {
                 newAskLocationEntity = Entity.newBuilder(answerKey)
                         .set(tokenObj.getUsername(), tokenObj.getUsername())
-                        .set("location", answer)
+                        .set("location", answer.getAnswer())
                         .build();
 
             }
