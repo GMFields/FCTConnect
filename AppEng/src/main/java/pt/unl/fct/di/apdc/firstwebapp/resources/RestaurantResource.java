@@ -33,10 +33,11 @@ public class RestaurantResource implements RestaurantAPI {
         if (r != null) {
             return r;
         }
-
+        /*
         if(!Authorization.isDataValid(data)) {
             return Response.status(Response.Status.BAD_REQUEST).entity(ConstantFactory.INVALID_DATA.getDesc()).build();
         }
+         */
 
         Transaction txn = datastore.newTransaction();
         Key restaurantKey = KeyStore.restaurantKeyFactory(data.getName());
@@ -354,6 +355,7 @@ public class RestaurantResource implements RestaurantAPI {
                 String reviewDescription = reviewEntity.getString("review_description");
                 long reviewRating = reviewEntity.getLong("review_rating");
                 String reviewRestaurant = reviewEntity.getString("review_restaurant");
+                String reviewID = reviewEntity.getKey().getName();
 
 
                 List<String> reviewInfo = new ArrayList<>();
@@ -362,6 +364,7 @@ public class RestaurantResource implements RestaurantAPI {
                 reviewInfo.add(reviewDescription);
                 reviewInfo.add(String.valueOf(reviewRating));
                 reviewInfo.add(reviewRestaurant);
+                reviewInfo.add(reviewID);
 
                 resultList.add(reviewInfo);
             }

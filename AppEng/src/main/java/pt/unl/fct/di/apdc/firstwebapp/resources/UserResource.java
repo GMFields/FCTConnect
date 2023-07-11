@@ -140,11 +140,12 @@ public class UserResource implements UserAPI {
 
 			int userRole = (int) user.getLong("user_role");
 			AuthToken token = new AuthToken(emailEntity.getString("user_username"), userRole);
+			LOG.info("token mamado "+g.toJson(token));
 
 			// Create a new token entity
 			Key tokenkey = KeyStore.tokenKeyFactory(token.getTokenID());
 
-			Entity tokenid = Entity.newBuilder(tokenkey).set("username", token.getUsername())
+			Entity tokenid = Entity.newBuilder(tokenkey).set("use	rname", token.getUsername())
 					.set("user_role", token.getRole())
 					.set("token_creationdata", token.getCreationData())
 					.set("token_expirationdata", token.getExpirationData()).build();
