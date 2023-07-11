@@ -17,35 +17,35 @@ public interface ChatApi {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/addpost")
-    Response addPost(Post post, @QueryParam("tokenObjStr") String tokenObjStr);
+    Response addPost(Post post, @QueryParam("tokenObj") String tokenObjStr);
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/updatepost")
-    Response updatePost(Post post, @QueryParam("tokenObjStr") String tokenObjStr);
+    Response updatePost(Post post, @QueryParam("tokenObj") String tokenObjStr);
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/addreply")
     Response addReply(Post reply,
-            @QueryParam("tokenObjStr") String tokenObjStr);
+            @QueryParam("tokenObj") String tokenObjStr);
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/updatereply")
     Response updateReply(Post reply,
-            @QueryParam("tokenObjStr") String tokenObjStr);
+            @QueryParam("tokenObj") String tokenObjStr);
 
     @POST
     @Path("/addbookmark")
     Response bookmarkPost(@QueryParam("postId") String postId, @QueryParam("username") String username,
-            @QueryParam("tokenObjString") String tokenObjString);
+            @QueryParam("tokenObj") String tokenObjString);
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/listbookmarks")
     Response listUserBookmarks(@QueryParam("username") String username,
-            @QueryParam("tokenObjString") String tokenObjStr);
+            @QueryParam("tokenObj") String tokenObjStr);
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
