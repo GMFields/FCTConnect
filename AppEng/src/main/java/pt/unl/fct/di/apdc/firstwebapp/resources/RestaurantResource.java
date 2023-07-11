@@ -14,6 +14,7 @@ import javax.ws.rs.Path;
 import com.google.cloud.datastore.*;
 import com.google.gson.Gson;
 
+import static java.lang.Integer.parseInt;
 
 
 @Path("/restaurant")
@@ -589,13 +590,15 @@ public class RestaurantResource implements RestaurantAPI {
         List<StringValue> managerValues = restaurantEntity.getList("restaurant_managers");
         String takeAwayService = restaurantEntity.getString("restaurant_takeAwayService");
         String URL = restaurantEntity.getString("restaurant_URL");
+        String rating = String.valueOf(restaurantEntity.getLong("restaurant_rating"));
+        String numberOfReviews = String.valueOf(restaurantEntity.getLong("restaurant_numberOfReviews"));
 
         List<String> restaurantManagers = new ArrayList<>();
         for (StringValue managerValue : managerValues) {
             restaurantManagers.add(managerValue.get());
         }
 
-        RestaurantData restaurantData = new RestaurantData(name, location, restaurantManagers, takeAwayService, URL);
+        RestaurantData restaurantData = new RestaurantData(name, location, restaurantManagers, takeAwayService, URL, parseInt(rating), parseInt(numberOfReviews));
 
         return restaurantData;
     }
