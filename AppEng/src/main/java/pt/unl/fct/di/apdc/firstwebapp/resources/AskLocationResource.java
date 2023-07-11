@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Path("/aasklocation")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -195,15 +196,21 @@ public class AskLocationResource implements AskLocationAPI {
             if (askLocationEntity == null) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
-            askLocationEntity.getProperties();
 
-             List<Map<String, Object>> entitiesProperties = new ArrayList<>();
+
+
+            Map<String, Value<?>> pp = askLocationEntity.getProperties();
+
+            List<Object> values = pp.values().stream()
+                    .map(Value::get)
+                    .collect(Collectors.toList());
+
 
             txn.commit();
 
             LOG.info("Get all events successfully");
             return Response.status(Response.Status.OK)
-                    .entity(g.toJson(entitiesProperties)).build();
+                    .entity(g.toJson(values)).build();
         } catch (Exception e) {
             txn.rollback();
             LOG.severe("An error occurred while getting event: " + e.getMessage());
@@ -217,7 +224,59 @@ public class AskLocationResource implements AskLocationAPI {
 
     @Override
     public Response getAnswer(String tokenObjStr, String username) {
-        return null;
+        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Pode ser passado como TokenClass
+        LOG.fine("User: " + tokenObj.getUsername() + " is attempting to get answered locations!");
+
+        Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
+        Key userKey = KeyStore.CalendarAccessKeyFactory(tokenObj.getUsername());
+
+
+        Transaction txn = datastore.newTransaction();
+
+        try {
+            Entity token = txn.get(tokenKey);
+            Entity user = txn.get(userKey);
+
+            if (!username.equals(tokenObj.getUsername()) && (user == null ||  user.getString(username) == null))
+                return Response.status(Response.Status.FORBIDDEN).build();
+
+
+            if (token == null) {
+                txn.rollback();
+                return Response.status(Response.Status.FORBIDDEN).build();
+            }
+
+            Key locationKey = KeyStore.askLocationKeyFactory(username);
+            Entity askLocationEntity = txn.get(locationKey);
+
+            if (askLocationEntity == null) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+
+
+
+
+            Map<String, Value<?>> pp = askLocationEntity.getProperties();
+
+            List<Object> values = pp.values().stream()
+                    .map(Value::get)
+                    .collect(Collectors.toList());
+
+
+            txn.commit();
+
+            LOG.info("Get all answered locations successfully");
+            return Response.status(Response.Status.OK)
+                    .entity(g.toJson(values)).build();
+        } catch (Exception e) {
+            txn.rollback();
+            LOG.severe("An error occurred while getting answerd locations: " + e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            if (txn.isActive()) {
+                txn.rollback();
+            }
+        }
     }
 
     @Override
