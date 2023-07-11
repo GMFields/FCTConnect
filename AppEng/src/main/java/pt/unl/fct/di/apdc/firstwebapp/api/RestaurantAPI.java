@@ -2,7 +2,9 @@ package pt.unl.fct.di.apdc.firstwebapp.api;
 
 import pt.unl.fct.di.apdc.firstwebapp.util.DishData;
 import pt.unl.fct.di.apdc.firstwebapp.util.RestaurantData;
+import pt.unl.fct.di.apdc.firstwebapp.util.ReviewData;
 
+import javax.print.attribute.standard.Media;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -57,7 +59,15 @@ public interface RestaurantAPI {
     Response getDesserts(@QueryParam("tokenObj") String tokenObjStr, @PathParam("restaurantName") String restaurantName);
 
 
+    @POST
+    @Path("/{restaurantName}/review")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    Response addReview(@QueryParam("tokenObj") String tokenObjStr, @PathParam("restaurantName") String restaurantName, ReviewData data);
 
+    @GET
+    @Path("/{restaurantName}/reviews")
+    Response listReviews(@QueryParam("tokenObj") String tokenObjStr, @PathParam("restaurantName") String restaurantName);
 
 
 }

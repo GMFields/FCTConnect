@@ -19,6 +19,7 @@ pt\unl\fct\di\apdc\firstwebapp\util\EntityWithKey.class
 pt\unl\fct\di\apdc\firstwebapp\api\AnomalyAPI.class
 pt\unl\fct\di\apdc\firstwebapp\resources\CalendarResource.class
 pt\unl\fct\di\apdc\firstwebapp\util\MapData.class
+pt\unl\fct\di\apdc\firstwebapp\util\ReviewData.class
 pt\unl\fct\di\apdc\firstwebapp\factory\UserRoleFactory.class
 pt\unl\fct\di\apdc\firstwebapp\resources\ChatResource.class
 pt\unl\fct\di\apdc\firstwebapp\api\UserAPI.class

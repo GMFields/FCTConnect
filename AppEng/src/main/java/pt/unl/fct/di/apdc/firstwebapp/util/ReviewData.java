@@ -10,6 +10,8 @@ public class ReviewData {
     private int rating;
     private long creationData;
 
+    public ReviewData() {}
+
     public ReviewData(String restaurantName, String author, String description, int rating) {
         this.reviewID = UUID.randomUUID().toString();
         this.restaurantName = restaurantName;

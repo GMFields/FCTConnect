@@ -14,6 +14,7 @@ import pt.unl.fct.di.apdc.firstwebapp.util.*;
 //import com.google.gson.Gson;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Path;
@@ -72,7 +73,9 @@ public class UserResource implements UserAPI {
 					.set("user_email", data.getEmail()).set("user_role", data.getRole())
 					.set("user_state", ConstantFactory.INATIVO_STATE.getDesc())
 					.set("user_creation_time", Timestamp.now())
-					.set("user_department", data.getDepartment()).build();
+					.set("user_department", data.getDepartment())
+					.set("user_reviews", new ArrayList<>())
+					.build();
 
 			txn.add(user);
 			try {
@@ -84,7 +87,7 @@ public class UserResource implements UserAPI {
 
 			LOG.info("User registered: " + data.getUsername());
 			txn.commit();
-			return Response.status(Status.CREATED).entity(data).build(); // TODO @GMFields verificar se é preciso enviar
+			return Response.status(Status.CREATED).entity(g.toJson(user)).build(); // TODO @GMFields verificar se é preciso enviar
 																			// "data" - método não tem tag @produces
 		} catch (Exception e) {
 			txn.rollback();
@@ -269,6 +272,7 @@ public class UserResource implements UserAPI {
 						.set("user_address", data.getAddress())
 						.set("user_nif", data.getNif())
 						.set("user_department", data.getDepartment())
+						.set("user_reviews", user.getList("user_reviews"))
 						.build();
 				txn.update(user);
 				txn.commit();

@@ -10,8 +10,8 @@ import java.util.Properties;
 import java.util.logging.Logger;
 
 public class EmailParser {
-    String username = "ane.nunes@campus.fct.unl.pt";
-    String password = "bgbpoqgtshyhplfj";
+    String username = "maildosdiscipulos";
+    String password = "irbuscarpassdoamd";
 
     private static final Logger LOG = Logger.getLogger(EmailParser.class.getName());
 
