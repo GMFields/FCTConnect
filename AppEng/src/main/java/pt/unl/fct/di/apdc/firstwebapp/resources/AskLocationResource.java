@@ -140,7 +140,7 @@ public class AskLocationResource implements AskLocationAPI {
 
             txn.put(newAskLocationEntity);
 
-            askLocationEntity = Entity.newBuilder(askLocationEntity).remove(tokenObj.getUsername())
+            askLocationEntity = Entity.newBuilder(askLocationEntity).remove(username)
                     .build();
             txn.put(askLocationEntity);
 
