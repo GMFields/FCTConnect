@@ -51,4 +51,7 @@ public interface AdminAPI {
     @Consumes(MediaType.APPLICATION_JSON)
     Response activateUsers(List<String> userEmails, @QueryParam("tokenObj") String tokenObjStr);
 
+    @POST
+    @Path("/notification")
+    Response sendNotification(@QueryParam("title") String title, @QueryParam("body") String body);
 }
