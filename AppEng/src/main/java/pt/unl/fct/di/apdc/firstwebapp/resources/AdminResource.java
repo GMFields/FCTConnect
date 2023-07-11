@@ -213,32 +213,35 @@ public class AdminResource implements AdminAPI {
 		}
 	}
 
-	public void sendNotification() { // TBD o que por como argumento
+	@Override
+	public Response sendNotification(String title, String body) { // TBD o que por como argumento
 		// need client side code to work
 		// flutter client side here:
 		// https://pusher.com/docs/beams/getting-started/flutter/configure-fcm-and-apns/?ref=flutter
 		// web client side here:
 		// https://pusher.com/docs/beams/getting-started/web/sdk-integration/?ref=web
-		List<String> interests = Arrays.asList("donuts", "pizza");
+		List<String> interests = Arrays.asList("debug-hello");
 
 		Map<String, Map> publishRequest = new HashMap();
 
-		Map<String, Map> alert = new ApnFormat("secretKey", "instanceId").getApnNotification();
+		Map<String, Map> alert = new ApnFormat(title, body).getApnNotification();
 		Map<String, Map> aps = new HashMap<String, Map>();
 		aps.put("aps", alert);
 		publishRequest.put("apns", aps);
 
-		Map<String, Map> fcm = new FcmFormat("title", "body").getFcmNotification();
+		Map<String, Map> fcm = new FcmFormat(title, body).getFcmNotification();
 		publishRequest.put("fcm", fcm);
 
-		Map<String, Map> web = new WebFormat("title", "body").getWebNotification();
+		Map<String, Map> web = new WebFormat(title, body).getWebNotification();
 		publishRequest.put("web", web);
 
 		try {
 			pushNot.publishToInterests(interests, publishRequest);
 		} catch (IOException | InterruptedException | URISyntaxException e) {
 			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getCause()).build();
 		}
+		return Response.ok().build();
 	}
 
 	private Response verifyAdmin(String tokenObjStr) {

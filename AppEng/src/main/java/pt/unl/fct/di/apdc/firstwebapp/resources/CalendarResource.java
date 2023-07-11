@@ -69,14 +69,14 @@ public class CalendarResource implements CalendarApi {
                     .set("username", tokenObj.getUsername())
                     .build();
 
-            EntityWithKey<Entity> entityWithKey = new EntityWithKey<>(eventKey, eventEntity);
+            //EntityWithKey<Entity> entityWithKey = new EntityWithKey<>(eventKey, eventEntity);
             txn.add(eventEntity);
 
             txn.commit();
 
             LOG.info("Event added successfully with ID: " + event1.getEventID());
             return Response.status(Response.Status.OK)
-                    .entity(g.toJson(entityWithKey)).build();
+                    .entity(g.toJson(eventKey.getName())).build();
         } catch (Exception e) {
             txn.rollback();
             LOG.severe("An error occurred while adding event: " + e.getMessage());
@@ -277,6 +277,7 @@ public class CalendarResource implements CalendarApi {
                     properties.put(propertyName, value.get());
                     LOG.info("Event: " + entity.getString("event_title"));
                 }
+                properties.put("id", entity.getKey().getName());
                 entitiesProperties.add(properties);
                 LOG.info("Event: " + entity.getString("event_title"));
             }
@@ -387,13 +388,18 @@ public class CalendarResource implements CalendarApi {
             }
 
             Key accessKey = KeyStore.CalendarAccessKeyFactory(username);
+            Entity accessEntity = txn.get(accessKey);
 
-            Entity accessEntity = Entity.newBuilder(accessKey)
-                    .set(tokenObj.getUsername(), tokenObj.getUsername())
+
+            if (accessEntity == null) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+
+            accessEntity = Entity.newBuilder(accessEntity).remove(tokenObj.getUsername())
                     .build();
+            txn.put(accessEntity);
 
 
-            txn.add(accessEntity);
 
 
             txn.commit();

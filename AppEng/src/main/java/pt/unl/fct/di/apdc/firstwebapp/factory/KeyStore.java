@@ -59,4 +59,12 @@ public class KeyStore {
     public static Key reviewKeyFactory(String keyString) {
         return datastore.newKeyFactory().setKind("Review").newKey(keyString);
     }
+
+    public static Key askLocationKeyFactory(String keyString) {
+        return datastore.newKeyFactory().setKind("AskLocation").newKey(keyString);
+    }
+
+    public static Key answerLocationKeyFactory(String keyString) {
+        return datastore.newKeyFactory().setKind("AnswerLocation").newKey(keyString);
+    }
 }
