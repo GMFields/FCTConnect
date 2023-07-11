@@ -321,7 +321,7 @@ public class UserResource implements UserAPI {
 
 			txn.delete(tokenKey);
 			txn.commit();
-			return Response.ok().build();
+			return Response.status(Response.Status.OK).build();
 		} catch (Exception e) {
 			txn.rollback();
 			LOG.severe(e.getMessage());
