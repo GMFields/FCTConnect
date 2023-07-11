@@ -16,19 +16,19 @@ public interface AskLocationAPI {
     @Path("/answer")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    Response anwserLocation(@QueryParam("tokenObj") String tokenObjStr, @QueryParam("username") String username);
+    Response anwserLocation(@QueryParam("tokenObj") String tokenObjStr, @QueryParam("username") String username, String answer);
 
     @GET
     @Path("/getAsk")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    Response getAsk(@QueryParam("tokenObj") String tokenObjStr);
+    Response getAsk(@QueryParam("tokenObj") String tokenObjStr, @QueryParam("username") String username);
 
     @GET
     @Path("/getAnswer")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    Response getAnswer(@QueryParam("tokenObj") String tokenObjStr);
+    Response getAnswer(@QueryParam("tokenObj") String tokenObjStr, @QueryParam("username") String username);
 
 
     @DELETE
