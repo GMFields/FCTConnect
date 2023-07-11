@@ -33,11 +33,11 @@ public class RestaurantResource implements RestaurantAPI {
         if (r != null) {
             return r;
         }
-        /*
+
         if(!Authorization.isDataValid(data)) {
             return Response.status(Response.Status.BAD_REQUEST).entity(ConstantFactory.INVALID_DATA.getDesc()).build();
         }
-         */
+
 
         Transaction txn = datastore.newTransaction();
         Key restaurantKey = KeyStore.restaurantKeyFactory(data.getName());
