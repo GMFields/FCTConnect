@@ -4,10 +4,8 @@ import Container from "@material-ui/core/Container";
 import { makeStyles } from "@material-ui/core/styles";
 import Card from "@material-ui/core/Card";
 import CardActionArea from "@material-ui/core/CardActionArea";
-import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
 import CardMedia from "@material-ui/core/CardMedia";
-import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
 import AppBar from "@material-ui/core/AppBar";
@@ -16,14 +14,11 @@ import Drawer from "@material-ui/core/Drawer";
 import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/Menu";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
-import NotificationsIcon from "@material-ui/icons/Notifications";
 import MapIcon from "@material-ui/icons/Map";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
-import CalendarMonthIcon from '@material-ui/icons/CalendarToday';
-import ChatIcon from '@material-ui/icons/Chat';
 import HomeIcon from '@material-ui/icons/Home';
+import ReportProblem from '@material-ui/icons/ReportProblem';
 
-import { parseDate } from "./util";
 import Cookies from "js-cookie";
 
 const drawerWidth = 200;
@@ -94,12 +89,11 @@ const Home = (props) => {
 
   const handleLogout = () => {
 
-    fetch("https://helical-ascent-385614.oa.r.appspot.com/rest/users/logout", {
+    fetch(`https://helical-ascent-385614.oa.r.appspot.com/rest/users/logout?tokenObj=${token}`, {
       method: "DELETE",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json; charset=utf-8",
       },
-      body: token,
     })
       .then(response => {
         if (response.ok) {
@@ -192,30 +186,18 @@ const Home = (props) => {
           Perfil
           </Typography>
         </IconButton>
-        <IconButton className={classes.smallButton}  onClick={() => props.onFormSwitch('notificacions')}>
-          <NotificationsIcon  className={clsx(classes.drawerIcon, classes.drawerText)} />
-          <Typography variant="body1" className={classes.drawerText}>
-          Notificações
-          </Typography>
-        </IconButton>
         <IconButton className={classes.smallButton} onClick={() => props.onFormSwitch('map')}> 
           <MapIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
           <Typography variant="body1" className={classes.drawerText}>
           Mapa
           </Typography>
         </IconButton>
-        <IconButton className={classes.smallButton}  onClick={() => props.onFormSwitch('calendar')}>
-          <CalendarMonthIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
+        <IconButton className={classes.smallButton}  onClick={() => props.onFormSwitch('anomaly')}>
+          <ReportProblem className={clsx(classes.drawerIcon, classes.drawerText)} />
           <Typography variant="body1" className={classes.drawerText}>
-          Calendário
+          Anomalias
           </Typography>
-        </IconButton>
-        <IconButton className={classes.smallButton}  onClick={() => props.onFormSwitch('chat')}>
-          <ChatIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
-          <Typography variant="body1" className={classes.drawerText}>
-          Chat
-          </Typography>
-        </IconButton>
+          </IconButton>
         </div>
       </Drawer>
       <main className={classes.content}>

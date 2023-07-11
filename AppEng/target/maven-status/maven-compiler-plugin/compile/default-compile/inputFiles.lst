@@ -1,36 +1,39 @@
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\api\SearchAPI.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\resources\AnomalyResource.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\AnomalyData.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\filters\AdditionalResponseHeadersFilter.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\EmailParser.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\notifications\WebFormat.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\EntityWithKey.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\api\EmailAPI.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\resources\MapResource.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\api\AdminAPI.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\Authorization.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\notifications\Notification.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\factory\ConstantFactory.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\EmailUtils.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\resources\StaticMediaResource.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\AuthToken.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\MapData.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\ProfileData.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\api\CalendarApi.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\notifications\FcmFormat.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\resources\Parser.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\factory\UserRoleFactory.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\Event.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\api\MapAPI.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\factory\KeyStore.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\api\UserAPI.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\api\ChatApi.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\notifications\ApnFormat.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\resources\SearchResource.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\resources\UserResource.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\resources\AdminResource.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\api\AnomalyAPI.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\resources\CalendarResource.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\resources\ChatResource.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\Post.java
-C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\api\StaticMediaAPI.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\resources\StaticMediaResource.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\AnomalyData.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\api\EmailAPI.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\notifications\WebFormat.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\MapData.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\AuthToken.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\api\AdminAPI.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\factory\ConstantFactory.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\resources\ChatResource.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\EntityWithKey.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\api\StaticMediaAPI.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\resources\MapResource.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\api\UserAPI.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\resources\CalendarResource.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\api\CalendarApi.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\api\MapAPI.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\notifications\FcmFormat.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\factory\KeyStore.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\ProfileData.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\factory\UserRoleFactory.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\RestaurantData.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\Post.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\notifications\Notification.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\resources\AnomalyResource.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\Event.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\resources\Parser.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\Authorization.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\resources\UserResource.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\api\AnomalyAPI.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\resources\AdminResource.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\api\ChatApi.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\api\SearchAPI.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\resources\SearchResource.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\EmailParser.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\EmailSender.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\api\RestaurantAPI.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\resources\RestaurantResource.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\filters\AdditionalResponseHeadersFilter.java
+C:\Users\Asus\Documents\Faculdade\3ºano\2º Semestre\v5\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\notifications\ApnFormat.java

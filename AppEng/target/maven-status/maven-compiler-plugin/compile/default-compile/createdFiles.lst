@@ -2,7 +2,6 @@ pt\unl\fct\di\apdc\firstwebapp\util\EmailParser.class
 pt\unl\fct\di\apdc\firstwebapp\util\EntityWithKey.class
 pt\unl\fct\di\apdc\firstwebapp\api\AnomalyAPI.class
 pt\unl\fct\di\apdc\firstwebapp\resources\CalendarResource.class
-pt\unl\fct\di\apdc\firstwebapp\util\EmailUtils.class
 pt\unl\fct\di\apdc\firstwebapp\util\MapData.class
 pt\unl\fct\di\apdc\firstwebapp\factory\UserRoleFactory.class
 pt\unl\fct\di\apdc\firstwebapp\resources\ChatResource.class

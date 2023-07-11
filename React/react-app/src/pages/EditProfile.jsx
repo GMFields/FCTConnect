@@ -8,14 +8,14 @@ import Drawer from "@material-ui/core/Drawer";
 import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/Menu";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
-import NotificationsIcon from "@material-ui/icons/Notifications";
+
 import MapIcon from "@material-ui/icons/Map";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
-import CalendarMonthIcon from '@material-ui/icons/CalendarToday';
-import ChatIcon from '@material-ui/icons/Chat';
+
 import HomeIcon from "@material-ui/icons/Home";
 import {MDBBtn} from 'mdb-react-ui-kit';
-import Avatar from "react-avatar-edit";
+
+import ReportProblem from '@material-ui/icons/ReportProblem';
 
 import clsx from "clsx";
 const drawerWidth = 200;
@@ -129,14 +129,13 @@ const EditProfile = (props) => {
     setDrawerOpen(open);
     setDrawerMini(!open);
   };
-
   const handleLogout = () => {
-    fetch("https://helical-ascent-385614.oa.r.appspot.com/rest/users/logout", {
+
+    fetch(`https://helical-ascent-385614.oa.r.appspot.com/rest/users/logout?tokenObj=${token}`, {
       method: "DELETE",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json; charset=utf-8",
       },
-      body: token,
     })
       .then(response => {
         if (response.ok) {
@@ -265,28 +264,16 @@ const EditProfile = (props) => {
             Perfil
           </Typography>
         </IconButton>
-        <IconButton className={classes.smallButton}  onClick={() => props.onFormSwitch('notificacions')} >
-          <NotificationsIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
-          <Typography variant="body1" className={classes.drawerText}>
-            Notificações
-          </Typography>
-        </IconButton>
         <IconButton className={classes.smallButton} onClick={() => props.onFormSwitch('map')}>
           <MapIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
           <Typography variant="body1" className={classes.drawerText}>
             Mapa
           </Typography>
         </IconButton>
-        <IconButton className={classes.smallButton}  onClick={() => props.onFormSwitch('calendar')} >
-          <CalendarMonthIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
+        <IconButton className={classes.smallButton}  onClick={() => props.onFormSwitch('anomalyBO')}>
+          <ReportProblem className={clsx(classes.drawerIcon, classes.drawerText)} />
           <Typography variant="body1" className={classes.drawerText}>
-            Calendário
-          </Typography>
-        </IconButton>
-        <IconButton className={classes.smallButton}  onClick={() => props.onFormSwitch('chat')}>
-          <ChatIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
-          <Typography variant="body1" className={classes.drawerText}>
-            Chat
+          Anomalias
           </Typography>
         </IconButton>
       </div>

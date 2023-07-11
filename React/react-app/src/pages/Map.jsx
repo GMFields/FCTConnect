@@ -9,18 +9,27 @@ import Drawer from "@material-ui/core/Drawer";
 import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/Menu";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
-import NotificationsIcon from "@material-ui/icons/Notifications";
 import MapIcon from "@material-ui/icons/Map";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
-import CalendarMonthIcon from '@material-ui/icons/CalendarToday';
-import ChatIcon from '@material-ui/icons/Chat';
+import ReportProblem from '@material-ui/icons/ReportProblem';
 import HomeIcon from "@material-ui/icons/Home";
+import DeleteIcon from "@material-ui/icons/Delete";
 import clsx from "clsx";
 
 
 const drawerWidth = 200;
 
 const useStyles = makeStyles((theme) => ({
+  mapContainer: {
+    display: "grid",
+    gridTemplateColumns: "3fr 1fr",
+    gridGap: "1rem",
+  },
+  markerList: {
+    listStyleType: "none",
+    padding: 0,
+    margin: 0,
+  },
   map:{
     height:"100vh",
 
@@ -70,6 +79,15 @@ const Map = (props) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerMini, setDrawerMini] = useState(false);
 
+  const [showMarkerDialog, setShowMarkerDialog] = useState(false);
+  const [markerName, setMarkerName] = useState("");
+  const [markers, setMarkers] = useState([]);
+  const [markerPosition, setMarkerPosition] = useState(null);
+  const [showMarkers, setShowMarkers] = useState(false);
+  const [username, setUsername] = useState('');
+
+
+
   const toggleDrawer = (open) => (event) => {
     if (event.type === "keydown" && (event.key === "Tab" || event.key === "Shift")) {
       return;
@@ -81,12 +99,11 @@ const Map = (props) => {
 
   const handleLogout = () => {
 
-    fetch("https://helical-ascent-385614.oa.r.appspot.com/rest/users/logout", {
+    fetch(`https://helical-ascent-385614.oa.r.appspot.com/rest/users/logout?tokenObj=${token}`, {
       method: "DELETE",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json; charset=utf-8",
       },
-      body: token,
     })
       .then(response => {
         if (response.ok) {
@@ -107,25 +124,21 @@ const Map = (props) => {
     lat:38.66156674841695,
     lng: -9.20545026264386
   }
-  const [markerName, setMarkerName] = useState("");
 
-  const [markers, setMarkers] = useState([]);
-  const [showMarkers, setShowMarkers] = useState(false);
-
-  const handleShowMarkers = () => {
+  useEffect(() => {
     const token = Cookies.get('token');
-    let username = '';
-    
+
     try {
-      const tokenData = JSON.parse(atob(token.split('.')[1]));
-      username = tokenData.username || '';
+      const tokenData = JSON.parse(token);
+      const decodedUsername = tokenData.username || '';
+      setUsername(decodedUsername);
     } catch (error) {
       console.error('Erro ao decodificar o token:', error);
     }
-    
-    console.log(username);
-    // Use o nome de usuário conforme necessário
-    
+  }, []);
+
+ 
+  const handleShowMarkers = () => {
 
     fetch(`https://helical-ascent-385614.oa.r.appspot.com/rest/waypoint/list/${username}?tokenObj=${token}`, {
       method: "GET",
@@ -148,19 +161,34 @@ const Map = (props) => {
         console.error("Erro ao obter lista de waypoints:", error);
       });
   };
+
+  const handleDelete = (wayPointID) => {
+    fetch(`https://helical-ascent-385614.oa.r.appspot.com/rest/waypoint/delete/${wayPointID}?tokenObj=${token}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+      },
+    })
+      .then((response) => {
+        if (response.ok) {
+          console.log("Marcador apagado com sucesso.");
+          handleShowMarkers();
+        } else {
+          throw new Error("Erro na exclusão do marcador.");
+        }
+      })
+      .catch((error) => {
+        console.error("Erro ao apagar o marcador:", error);
+      });
+  };
   
-
-  const handleMapClick = (event) => {
-    
-    const markerPosition = {
-      lat:parseFloat(event.latLng.lat()),
-      lng:parseFloat(event.latLng.lng()) 
-    }
-
+  
+  const handleSaveMarker = (e) => {
+    e.preventDefault();
     const newMarker = {
       "latitude": markerPosition.lat,
       "longitude": markerPosition.lng,
-      "name" : markerName
+      "name" : markerName || 'sem nome'
     }
 
     fetch(`https://helical-ascent-385614.oa.r.appspot.com/rest/waypoint/add?tokenObj=${token}`, {
@@ -175,12 +203,26 @@ const Map = (props) => {
         // Lógica para lidar com a resposta do backend
         console.log("Marcador adicionado com sucesso:", data);
         setMarkers((prevMarkers) => [...prevMarkers, newMarker]);
+        setShowMarkerDialog(false);
       })
       .catch((error) => {
         // Lógica para lidar com erros na solicitação
         console.error("Erro ao adicionar marcador:", error);
       });
   };
+
+  
+    const handleMapClick = (event) => {
+      setShowMarkerDialog(true);
+    
+      const clickedPosition = {
+        lat: parseFloat(event.latLng.lat()),
+        lng: parseFloat(event.latLng.lng())
+      };
+    
+      setMarkerPosition(clickedPosition);
+    };
+    
 
     return(
         <div>
@@ -227,63 +269,71 @@ const Map = (props) => {
           Perfil
           </Typography>
         </IconButton>
-        <IconButton className={classes.smallButton}   onClick={() => props.onFormSwitch('notificacions')}>
-          <NotificationsIcon  className={clsx(classes.drawerIcon, classes.drawerText)} />
-          <Typography variant="body1" className={classes.drawerText}>
-          Notificações
-          </Typography>
-        </IconButton>
+       
         <IconButton className={classes.smallButton} onClick={() => props.onFormSwitch('map')}> 
           <MapIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
           <Typography variant="body1" className={classes.drawerText}>
           Mapa
           </Typography>
         </IconButton>
-        <IconButton className={classes.smallButton}  onClick={() => props.onFormSwitch('calendar')}>
-          <CalendarMonthIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
+        <IconButton className={classes.smallButton}  onClick={() => props.onFormSwitch('anomalyBO')}>
+          <ReportProblem className={clsx(classes.drawerIcon, classes.drawerText)} />
           <Typography variant="body1" className={classes.drawerText}>
-          Calendário
+          Anomalias
           </Typography>
         </IconButton>
-        <IconButton className={classes.smallButton}>
-          <ChatIcon className={clsx(classes.drawerIcon, classes.drawerText)} onClick={() => props.onFormSwitch('chat')} />
-          <Typography variant="body1" className={classes.drawerText}>
-          Chat
-          </Typography>
-        </IconButton>
+      
         </div>
       </Drawer>
-        <div className={classes.map}>
-          { isLoaded ? (
-            <GoogleMap 
-            mapContainerStyle={{width: "100%", height: "100%"}}
-            center={position}
-            zoom={15}
-            onClick={handleMapClick}
-            >
-              {markers.map((marker, index) => (
-            <Marker key={index} position={{ lat: marker.latitude, lng: marker.longitude }} label={(index + 1).toString()} />
+      <button onClick={handleShowMarkers}>Mostrar Marcadores</button>
+<div className={classes.mapContainer}>
+  <div className={classes.map}>
+    {isLoaded && (
+      <GoogleMap
+        mapContainerStyle={{ width: "100%", height: "100%" }}
+        center={position}
+        zoom={15}
+        onClick={handleMapClick}
+      >
+        {showMarkers &&
+          markers.map((marker, index) => (
+            <Marker
+              key={marker.wayPointID}
+              position={{ lat: marker.latitude, lng: marker.longitude }}
+              label={index.toString()}
+            />
           ))}
-          <input
-            type="text"
-            name="markerName"
-            value={markerName}
-            onChange={(e) => setMarkerName(e.target.value)}
-          />
-          <button onClick={handleShowMarkers}>Mostrar todos os marcadores</button>
-         { /*<MDBContainer className={classes.content1}>
-          <button onClick={handleMapClick}> Adicionar novo marcador</button>
-          <input type="text" name="name" value={newMarker.name} required></input>
-          </MDBContainer>*/}
-            </GoogleMap>
-          ):(<></>)
-          }
+        {markerPosition && <Marker position={markerPosition} />}
+      </GoogleMap>
+    )}
+  </div>
+  {showMarkers && (
+    <ul className={classes.markerList}>
+      {markers.map((marker, index) => (
+        <li key={marker.wayPointID}>
+          <strong>Índice:</strong> {index}, <strong>Nome:</strong> {marker.name},{" "}
+          <DeleteIcon onClick={() => handleDelete(marker.wayPointID)} />
+        </li>
+      ))}
+      <button onClick={() => setShowMarkers(false)}>Ocultar marcadores</button>
+    </ul>
+  )}
+</div>
+{showMarkerDialog && (
+  <div className="marker-dialog">
+    <h3>Novo Marcador</h3>
+    <input
+      type="text"
+      value={markerName}
+      onChange={(e) => setMarkerName(e.target.value)}
+      placeholder="Nome do marcador"
+    />
+    <button onClick={handleSaveMarker}>Guardar</button>
+    <button onClick={() => setShowMarkerDialog(false)}>Cancelar</button>
+  </div>
+)}
+ </div>
+)}
 
-        </div>
-
-        </div>
-
-    )
-}
 
 export default Map;

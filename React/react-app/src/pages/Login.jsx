@@ -24,6 +24,9 @@ const Login = (props) => {
         const token = JSON.stringify(responseData)
         Cookies.set('token', token);
         Cookies.set('password', password);
+        const role = responseData.role;
+        console.log(role);
+        
         console.log(password);
         console.log(token); 
         console.log("fez login");
@@ -35,7 +38,8 @@ const Login = (props) => {
         if (data === "Account is not active, contact an admin!") {
           alert(data);
         } else {
-          return "Account is not active, contact an admin!";
+          alert("Invalid email or password");
+          return "Invalid email or password";
         }
       } else {
         return "Server error";
@@ -70,6 +74,7 @@ const Login = (props) => {
           />
           <span className="forgot-password">Forgot Password?</span>
           <button type="submit">Log In</button>
+          <span className="forgot-password" onClick={() => props.onFormSwitch('loginBO')}>Entrar como administrador</span>
         </form>
         <p>Don't have an Account?</p>
         <button onClick={() => props.onFormSwitch('register')}>Sign Up</button>

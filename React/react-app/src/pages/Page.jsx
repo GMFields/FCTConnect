@@ -19,15 +19,13 @@ import Drawer from "@material-ui/core/Drawer";
 import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/Menu";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
-import NotificationsIcon from "@material-ui/icons/Notifications";
+
 import MapIcon from "@material-ui/icons/Map";
 import HomeIcon from "@material-ui/icons/Home";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
-import CalendarMonthIcon from '@material-ui/icons/CalendarToday';
-import ChatIcon from '@material-ui/icons/Chat';
+import ReportProblem from '@material-ui/icons/ReportProblem';
 
 import clsx from "clsx";
-import { UploadAvatar } from './UploadAvatar';
 const drawerWidth = 200;
 
 const useStyles = makeStyles((theme) => ({
@@ -119,10 +117,10 @@ const useStyles = makeStyles((theme) => ({
     cursor: "pointer",
     marginTop: "1rem",
   },
-  infoBox: {
+  /*infoBox: {
     fontSize: "0.9rem",
     marginBottom: "0.5rem",
-  },
+  },*/
 }));
 
 const Page = (props) => {
@@ -131,6 +129,7 @@ const Page = (props) => {
 
   const [formData, setFormData] = useState({});
   const [profileData, setProfileData] = useState({});
+  const [username,setUsername] = useState('');
   const classes = useStyles();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -145,13 +144,26 @@ const Page = (props) => {
     setDrawerMini(!open);
   };
 
+  useEffect(() => {
+    const token = Cookies.get('token');
+
+    try {
+      const tokenData = JSON.parse(token);
+      const decodedUsername = tokenData.username || '';
+      setUsername(decodedUsername);
+    } catch (error) {
+      console.error('Erro ao decodificar o token:', error);
+    }
+  }, []);
+
+
   const handleLogout = () => {
-    fetch("https://helical-ascent-385614.oa.r.appspot.com/rest/users/logout", {
+
+    fetch(`https://helical-ascent-385614.oa.r.appspot.com/rest/users/logout?tokenObj=${token}`, {
       method: "DELETE",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json; charset=utf-8",
       },
-      body: token,
     })
       .then(response => {
         if (response.ok) {
@@ -168,7 +180,6 @@ const Page = (props) => {
         console.error("Logout failed:", error);
       });
   };
-
   useEffect(() => {
     // Fetch user profile data
     fetch(`https://helical-ascent-385614.oa.r.appspot.com/rest/users/profile?tokenObj=${token}`, {
@@ -251,30 +262,18 @@ const Page = (props) => {
               Perfil
             </Typography>
           </IconButton>
-          <IconButton className={classes.smallButton}  onClick={() => props.onFormSwitch('notificacions')}>
-            <NotificationsIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
-            <Typography variant="body1" className={classes.drawerText}>
-              Notificações
-            </Typography>
-          </IconButton>
           <IconButton className={classes.smallButton} onClick={() => props.onFormSwitch('map')}>
             <MapIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
             <Typography variant="body1" className={classes.drawerText}>
               Mapa
             </Typography>
           </IconButton>
-          <IconButton className={classes.smallButton}  onClick={() => props.onFormSwitch('calendar')}>
-            <CalendarMonthIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
-            <Typography variant="body1" className={classes.drawerText}>
-              Calendário
-            </Typography>
-          </IconButton>
-          <IconButton className={classes.smallButton}  onClick={() => props.onFormSwitch('chat')}>
-            <ChatIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
-            <Typography variant="body1" className={classes.drawerText}>
-              Chat
-            </Typography>
-          </IconButton>
+          <IconButton className={classes.smallButton}  onClick={() => props.onFormSwitch('anomalyBO')}>
+          <ReportProblem className={clsx(classes.drawerIcon, classes.drawerText)} />
+          <Typography variant="body1" className={classes.drawerText}>
+          Anomalias
+          </Typography>
+        </IconButton>
         </div>
       </Drawer>
       <div className={classes.containerWrapper}>
@@ -313,7 +312,7 @@ const Page = (props) => {
                   {renderInfoBox("Telefone", profileData.landline)}
                   {renderInfoBox("Telemóvel", profileData.phoneNumber)}
                   {renderInfoBox("Endereço", profileData.address)}
-                  {renderInfoBox("Password", password)}
+                  {renderInfoBox("Password", password)}{/*<EditIcon onClick= {() => props.onFormSwitch('changePassword')}></EditIcon>*/}
                   {renderInfoBox("Função", profileData.role)}
                   {renderInfoBox("Departamento", profileData.department)}
                   {renderInfoBox("Estado", profileData.state)}

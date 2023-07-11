@@ -119,7 +119,15 @@
           <element id="library" level="project" name="Maven: org.jetbrains.kotlin:kotlin-stdlib:1.2.10" />
           <element id="library" level="project" name="Maven: org.jetbrains:annotations:13.0" />
           <element id="library" level="project" name="Maven: org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.2.10" />
-          <element id="library" level="project" name="Maven: com.auth0:java-jwt:3.7.0" />
+          <element id="library" level="project" name="Maven: com.auth0:java-jwt:4.4.0" />
+          <element id="library" level="project" name="Maven: com.mailjet:mailjet-client:5.2.3" />
+          <element id="library" level="project" name="Maven: com.squareup.okhttp3:okhttp:4.10.0" />
+          <element id="library" level="project" name="Maven: com.squareup.okio:okio-jvm:3.0.0" />
+          <element id="library" level="project" name="Maven: org.jetbrains.kotlin:kotlin-stdlib-common:1.5.31" />
+          <element id="library" level="project" name="Maven: org.json:json:20230227" />
+          <element id="library" level="project" name="Maven: javax.mail:javax.mail-api:1.6.1" />
+          <element id="library" level="project" name="Maven: javax.activation:activation:1.1" />
+          <element id="library" level="project" name="Maven: com.sun.mail:javax.mail:1.6.1" />
         </element>
       </element>
       <element id="directory" name="META-INF">
