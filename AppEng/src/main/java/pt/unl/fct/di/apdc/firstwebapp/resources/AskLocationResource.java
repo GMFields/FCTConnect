@@ -250,18 +250,12 @@ public class AskLocationResource implements AskLocationAPI {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
 
-
-            Set<String> pp = askLocationEntity.getNames();
-
             Map<String, Object> properties = new HashMap<>();
             for (String propertyName : askLocationEntity.getNames()) {
                 Value<?> value = askLocationEntity.getValue(propertyName);
                 properties.put(propertyName, value.get());
-                LOG.info("Event: " + askLocationEntity.getString("event_title"));
+
             }
-
-
-
 
             txn.commit();
 
