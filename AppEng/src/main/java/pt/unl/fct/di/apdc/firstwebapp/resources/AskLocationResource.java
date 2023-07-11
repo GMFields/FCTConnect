@@ -12,10 +12,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -246,7 +243,7 @@ public class AskLocationResource implements AskLocationAPI {
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
 
-            Key locationKey = KeyStore.askLocationKeyFactory(username);
+            Key locationKey = KeyStore.answerLocationKeyFactory(username);
             Entity askLocationEntity = txn.get(locationKey);
 
             if (askLocationEntity == null) {
@@ -254,20 +251,23 @@ public class AskLocationResource implements AskLocationAPI {
             }
 
 
+            Set<String> pp = askLocationEntity.getNames();
+
+            Map<String, Object> properties = new HashMap<>();
+            for (String propertyName : askLocationEntity.getNames()) {
+                Value<?> value = askLocationEntity.getValue(propertyName);
+                properties.put(propertyName, value.get());
+                LOG.info("Event: " + askLocationEntity.getString("event_title"));
+            }
 
 
-            Map<String, Value<?>> pp = askLocationEntity.getProperties();
-
-            List<Object> values = pp.values().stream()
-                    .map(Value::get)
-                    .collect(Collectors.toList());
 
 
             txn.commit();
 
             LOG.info("Get all answered locations successfully");
             return Response.status(Response.Status.OK)
-                    .entity(g.toJson(values)).build();
+                    .entity(g.toJson(properties)).build();
         } catch (Exception e) {
             txn.rollback();
             LOG.severe("An error occurred while getting answerd locations: " + e.getMessage());
