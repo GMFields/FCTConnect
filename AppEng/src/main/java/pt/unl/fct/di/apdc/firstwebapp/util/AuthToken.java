@@ -6,8 +6,9 @@ public class AuthToken {
 
 	private static final long EXPIRATION_TIME = 1000 * 60 * 15; // 15m
 
-	private String username, tokenID;
+	private String username;
 	private int role;
+	private String tokenID;
 	private long creationData, expirationData;
 
 	public AuthToken() {

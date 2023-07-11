@@ -1,5 +1,6 @@
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\api\SearchAPI.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\resources\AnomalyResource.java
+C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\resources\AskLocationResource.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\AnomalyData.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\filters\AdditionalResponseHeadersFilter.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\EmailParser.java
@@ -24,6 +25,7 @@ C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\ap
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\Event.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\api\MapAPI.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\util\EmailSender.java
+C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\api\AskLocationAPI.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\factory\KeyStore.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\api\UserAPI.java
 C:\Users\Afonso\IdeaProjects\DiscipulosAMD\AppEng\src\main\java\pt\unl\fct\di\apdc\firstwebapp\api\ChatApi.java
