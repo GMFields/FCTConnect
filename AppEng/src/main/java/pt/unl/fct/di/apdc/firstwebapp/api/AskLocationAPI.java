@@ -16,7 +16,7 @@ public interface AskLocationAPI {
     @Path("/answer")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    Response anwserLocation(@QueryParam("tokenObj") String tokenObjStr, @QueryParam("username") String username);
+    Response anwserLocation(@QueryParam("tokenObj") String tokenObjStr, @QueryParam("username") String username, String answer);
 
     @GET
     @Path("/getAsk")

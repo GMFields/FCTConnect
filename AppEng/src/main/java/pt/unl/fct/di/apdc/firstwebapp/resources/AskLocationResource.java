@@ -84,7 +84,7 @@ public class AskLocationResource implements AskLocationAPI {
     }
 
     @Override
-    public Response anwserLocation(String tokenObjStr, String username) {
+    public Response anwserLocation(String tokenObjStr, String username, String answer) {
         AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Pode ser passado como TokenClass
         LOG.fine("User: " + tokenObj.getUsername() + " is attempting to answer an asked location!");
 
@@ -127,11 +127,13 @@ public class AskLocationResource implements AskLocationAPI {
             if (answerLocationEntity != null) {
                 newAskLocationEntity = Entity.newBuilder(answerLocationEntity)
                         .set(tokenObj.getUsername(), tokenObj.getUsername())
+                        .set("location", answer)
                         .build();
 
             } else {
                 newAskLocationEntity = Entity.newBuilder(answerKey)
                         .set(tokenObj.getUsername(), tokenObj.getUsername())
+                        .set("location", answer)
                         .build();
 
             }
