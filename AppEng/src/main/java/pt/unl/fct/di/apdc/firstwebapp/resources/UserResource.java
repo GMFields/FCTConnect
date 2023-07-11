@@ -68,6 +68,10 @@ public class UserResource implements UserAPI {
 				return Response.status(Status.CONFLICT).entity(ConstantFactory.USER_EXISTS.getDesc()).build();
 			}
 
+			if(data.getRole() == 4) {
+				return Response.status(Status.FORBIDDEN).entity(ConstantFactory.INSUFFICIENT_PERMISSIONS.getDesc()).build();
+			}
+
 			user = Entity.newBuilder(userKey) // TODO @GMFields faltam itens a serem adicionados na base de dados - a
 												// ser discutido!
 					.set("user_name", data.getName()).set("user_pwd", DigestUtils.sha512Hex(data.getPassword()))
@@ -79,12 +83,14 @@ public class UserResource implements UserAPI {
 					.build();
 
 			txn.add(user);
+			/*
 			try {
 				EmailSender emailSender = EmailSender.getInstance();
 				emailSender.sendEmail("emailDosDiscipulos", data.getEmail(), "Sending with SendGrid is Fun", "and easy to do anywhere, even with Java");
 			} catch (IOException ex) {
 				// Handle exception
 			}
+			 */
 
 			LOG.info("User registered: " + data.getUsername());
 			txn.commit();
@@ -140,17 +146,11 @@ public class UserResource implements UserAPI {
 			}
 
 			int userRole = (int) user.getLong("user_role");
-
-			if(userRole == 4) {
-				return Response.status(Status.FORBIDDEN).entity(ConstantFactory.INSUFFICIENT_PERMISSIONS.getDesc()).build();
-			}
-
 			AuthToken token = new AuthToken(emailEntity.getString("user_username"), userRole);
 
-			// Create a new token entity
 			Key tokenkey = KeyStore.tokenKeyFactory(token.getTokenID());
 
-			Entity tokenid = Entity.newBuilder(tokenkey).set("use	rname", token.getUsername())
+			Entity tokenid = Entity.newBuilder(tokenkey).set("username", token.getUsername())
 					.set("user_role", token.getRole())
 					.set("token_creationdata", token.getCreationData())
 					.set("token_expirationdata", token.getExpirationData()).build();
