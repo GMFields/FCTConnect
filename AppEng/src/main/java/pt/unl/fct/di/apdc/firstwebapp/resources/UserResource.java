@@ -184,6 +184,8 @@ public class UserResource implements UserAPI {
 				return Response.status(Status.NOT_FOUND).build();
 			}
 
+
+
 			txn.delete(tokenKey);
 			txn.commit();
 			return Response.ok().build();

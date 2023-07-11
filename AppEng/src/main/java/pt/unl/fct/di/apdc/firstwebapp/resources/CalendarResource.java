@@ -55,6 +55,12 @@ public class CalendarResource implements CalendarApi {
                 txn.rollback();
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
+
+            if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
+                txn.rollback();
+                return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
+            }
+
             Event event1 = new Event(event.getTitle(), event.getDescription(), event.getDate(), event.getDuration());
 
             Key eventKey = KeyStore.calendarKeyFactory(event1.getEventID());
@@ -110,6 +116,11 @@ public class CalendarResource implements CalendarApi {
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
 
+            if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
+                txn.rollback();
+                return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
+            }
+
             Key eventKey = KeyStore.calendarKeyFactory(eventID);
 
             LOG.info("id: " + eventID);
@@ -160,6 +171,11 @@ public class CalendarResource implements CalendarApi {
             if (token == null) {
                 txn.rollback();
                 return Response.status(Response.Status.FORBIDDEN).build();
+            }
+
+            if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
+                txn.rollback();
+                return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
             }
 
             Key eventKey = KeyStore.calendarKeyFactory(event.getEventID());
@@ -216,6 +232,11 @@ public class CalendarResource implements CalendarApi {
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
 
+            if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
+                txn.rollback();
+                return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
+            }
+
             Key eventKey = KeyStore.calendarKeyFactory(eventID);
 
             Entity event = txn.get(eventKey);
@@ -258,6 +279,11 @@ public class CalendarResource implements CalendarApi {
             if (token == null) {
                 txn.rollback();
                 return Response.status(Response.Status.FORBIDDEN).build();
+            }
+
+            if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
+                txn.rollback();
+                return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
             }
 
             Query<Entity> query = Query.newEntityQueryBuilder()
@@ -325,6 +351,11 @@ public class CalendarResource implements CalendarApi {
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
 
+            if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
+                txn.rollback();
+                return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
+            }
+
 
             Key accessKey = KeyStore.CalendarAccessKeyFactory(username);
             Entity accessEntity = txn.get(accessKey);
@@ -380,11 +411,18 @@ public class CalendarResource implements CalendarApi {
             }
 
 
+
+
             Entity token = txn.get(tokenKey);
 
             if (token == null) {
                 txn.rollback();
                 return Response.status(Response.Status.FORBIDDEN).build();
+            }
+
+            if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
+                txn.rollback();
+                return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
             }
 
             Key accessKey = KeyStore.CalendarAccessKeyFactory(username);
