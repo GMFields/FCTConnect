@@ -111,7 +111,7 @@ public class AskLocationResource implements AskLocationAPI {
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
 
-            Key locationKey = KeyStore.askLocationKeyFactory(username);
+            Key locationKey = KeyStore.askLocationKeyFactory(tokenObj.getUsername());
             Entity askLocationEntity = txn.get(locationKey);
 
 
