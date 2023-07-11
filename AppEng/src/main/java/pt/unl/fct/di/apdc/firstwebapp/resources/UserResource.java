@@ -294,8 +294,8 @@ public class UserResource implements UserAPI {
 
 
 	@Override
-	public Response deleteAccount(AuthToken tokenObj) {
-		LOG.fine("Attempting to delete user: " + tokenObj.getUsername());
+	public Response deleteAccount(String tokenObjStr) {
+		AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
 
 		Key userKey = KeyStore.userKeyFactory(tokenObj.getUsername());
 		Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
@@ -317,6 +317,7 @@ public class UserResource implements UserAPI {
 
 			txn.delete(userKey);
 			LOG.info("User deleted: " + tokenObj.getUsername());
+
 
 			txn.delete(tokenKey);
 			txn.commit();
