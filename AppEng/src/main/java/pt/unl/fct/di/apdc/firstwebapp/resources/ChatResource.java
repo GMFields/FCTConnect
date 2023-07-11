@@ -36,6 +36,8 @@ public class ChatResource implements ChatApi {
     @Override
     public Response addPost(Post post, String tokenObjStr) {
         AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Pode ser passado como TokenClass
+
+        LOG.warning(tokenObj.toString());
         LOG.fine("User: " + tokenObj.getUsername() + " is attempting to post to forum!");
 
         Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
@@ -386,7 +388,7 @@ public class ChatResource implements ChatApi {
 
         QueryResults<Entity> results = datastore.run(query);
         if (!results.hasNext()) {
-            return Response.status(Response.Status.NOT_FOUND).entity("There are no anomalies!").build();
+            return Response.status(Response.Status.NOT_FOUND).entity("There are no replies!").build();
         }
 
         List<Post> resultList = new ArrayList<>();

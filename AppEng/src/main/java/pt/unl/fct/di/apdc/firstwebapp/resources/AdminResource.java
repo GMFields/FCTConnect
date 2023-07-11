@@ -214,13 +214,13 @@ public class AdminResource implements AdminAPI {
 	}
 
 	@Override
-	public Response sendNotification(String title, String body) { // TBD o que por como argumento
+	public Response sendNotification(String title, String body, String interest) { // TBD o que por como argumento
 		// need client side code to work
 		// flutter client side here:
 		// https://pusher.com/docs/beams/getting-started/flutter/configure-fcm-and-apns/?ref=flutter
 		// web client side here:
 		// https://pusher.com/docs/beams/getting-started/web/sdk-integration/?ref=web
-		List<String> interests = Arrays.asList("debug-hello");
+		List<String> interests = Arrays.asList(interest);
 
 		Map<String, Map> publishRequest = new HashMap();
 

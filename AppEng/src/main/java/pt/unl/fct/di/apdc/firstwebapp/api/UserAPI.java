@@ -87,7 +87,7 @@ public interface UserAPI {
     /**
      * Deletes the user's account
      * 
-     * @param tokenObj Token object to authenticate the user
+     * @param tokenObjStr Token object to authenticate the user
      * @return 200: if the user was successfully deleted;
      *         403: if the token given doesn't match any existing token;
      *         404: if the user given doesn't match any existing user;
@@ -96,6 +96,6 @@ public interface UserAPI {
     @DELETE
     @Path("/delete")
     @Consumes(MediaType.APPLICATION_JSON)
-    Response deleteAccount(AuthToken tokenObj);
+    Response deleteAccount(@QueryParam("tokenObj") String tokenObjStr);
 
 }

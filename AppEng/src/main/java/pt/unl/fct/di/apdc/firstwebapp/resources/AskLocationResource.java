@@ -23,6 +23,7 @@ public class AskLocationResource implements AskLocationAPI {
     private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     private static final Logger LOG = Logger.getLogger(AskLocationResource.class.getName());
     private final Gson g = new Gson();
+    private final AdminResource admin = new AdminResource();
 
     public Response askLocation(String tokenObjStr, String username) {
         AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Pode ser passado como TokenClass
@@ -31,9 +32,7 @@ public class AskLocationResource implements AskLocationAPI {
         Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
         Key userKey = KeyStore.userKeyFactory(username);
 
-
         Transaction txn = datastore.newTransaction();
-
 
         try {
             Entity user = txn.get(userKey);
@@ -49,12 +48,15 @@ public class AskLocationResource implements AskLocationAPI {
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
 
+<<<<<<< HEAD
             if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
                 txn.rollback();
                 return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
             }
 
 
+=======
+>>>>>>> 3eeefadfa11fe6a965bfd8b6c513b71b9e71adde
             Key locationKey = KeyStore.askLocationKeyFactory(username);
             Entity locationEntity = txn.get(locationKey);
 
@@ -70,6 +72,8 @@ public class AskLocationResource implements AskLocationAPI {
                         .build();
 
             }
+            admin.sendNotification("Location Request",
+                    String.format("A location request was sent by %s", tokenObj.getUsername()), username);
             txn.put(newLocationEntity);
             txn.commit();
 
@@ -97,9 +101,7 @@ public class AskLocationResource implements AskLocationAPI {
 
         Transaction txn = datastore.newTransaction();
 
-
         try {
-
 
             Entity user = txn.get(userKey);
 
@@ -107,7 +109,6 @@ public class AskLocationResource implements AskLocationAPI {
                 txn.rollback();
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
-
 
             Entity token = txn.get(tokenKey);
 
@@ -123,7 +124,6 @@ public class AskLocationResource implements AskLocationAPI {
 
             Key locationKey = KeyStore.askLocationKeyFactory(tokenObj.getUsername());
             Entity askLocationEntity = txn.get(locationKey);
-
 
             if (askLocationEntity == null) {
                 return Response.status(Response.Status.NOT_FOUND).build();
@@ -146,16 +146,13 @@ public class AskLocationResource implements AskLocationAPI {
                         .build();
 
             }
-
-
+            admin.sendNotification("Location Answer",
+                    String.format("%s answered: %s", tokenObj.getUsername(), answer.getAnswer()), username);
             txn.put(newAskLocationEntity);
 
             askLocationEntity = Entity.newBuilder(askLocationEntity).remove(username)
                     .build();
             txn.put(askLocationEntity);
-
-
-
 
             txn.commit();
 
@@ -181,16 +178,14 @@ public class AskLocationResource implements AskLocationAPI {
         Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
         Key userKey = KeyStore.CalendarAccessKeyFactory(tokenObj.getUsername());
 
-
         Transaction txn = datastore.newTransaction();
 
         try {
             Entity token = txn.get(tokenKey);
             Entity user = txn.get(userKey);
 
-            if (!username.equals(tokenObj.getUsername()) && (user == null ||  user.getString(username) == null))
+            if (!username.equals(tokenObj.getUsername()) && (user == null || user.getString(username) == null))
                 return Response.status(Response.Status.FORBIDDEN).build();
-
 
             if (token == null) {
                 txn.rollback();
@@ -209,14 +204,11 @@ public class AskLocationResource implements AskLocationAPI {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
 
-
-
             Map<String, Value<?>> pp = askLocationEntity.getProperties();
 
             List<Object> values = pp.values().stream()
                     .map(Value::get)
                     .collect(Collectors.toList());
-
 
             txn.commit();
 
@@ -242,16 +234,14 @@ public class AskLocationResource implements AskLocationAPI {
         Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
         Key userKey = KeyStore.CalendarAccessKeyFactory(tokenObj.getUsername());
 
-
         Transaction txn = datastore.newTransaction();
 
         try {
             Entity token = txn.get(tokenKey);
             Entity user = txn.get(userKey);
 
-            if (!username.equals(tokenObj.getUsername()) && (user == null ||  user.getString(username) == null))
+            if (!username.equals(tokenObj.getUsername()) && (user == null || user.getString(username) == null))
                 return Response.status(Response.Status.FORBIDDEN).build();
-
 
             if (token == null) {
                 txn.rollback();
@@ -303,9 +293,7 @@ public class AskLocationResource implements AskLocationAPI {
 
         Transaction txn = datastore.newTransaction();
 
-
         try {
-
 
             Entity user = txn.get(userKey);
 
@@ -313,7 +301,6 @@ public class AskLocationResource implements AskLocationAPI {
                 txn.rollback();
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
-
 
             Entity token = txn.get(tokenKey);
 
@@ -330,7 +317,6 @@ public class AskLocationResource implements AskLocationAPI {
             Key locationKey = KeyStore.askLocationKeyFactory(username);
             Entity askLocationEntity = txn.get(locationKey);
 
-
             if (askLocationEntity == null) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
@@ -338,9 +324,6 @@ public class AskLocationResource implements AskLocationAPI {
             askLocationEntity = Entity.newBuilder(askLocationEntity).remove(tokenObj.getUsername())
                     .build();
             txn.put(askLocationEntity);
-
-
-
 
             txn.commit();
 

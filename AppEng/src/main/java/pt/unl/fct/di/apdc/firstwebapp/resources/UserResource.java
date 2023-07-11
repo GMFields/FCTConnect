@@ -4,6 +4,7 @@ import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.*;
 
 import com.google.gson.Gson;
+import io.grpc.netty.shaded.io.netty.util.Constant;
 import pt.unl.fct.di.apdc.firstwebapp.api.UserAPI;
 import pt.unl.fct.di.apdc.firstwebapp.factory.ConstantFactory;
 import pt.unl.fct.di.apdc.firstwebapp.factory.KeyStore;
@@ -139,8 +140,12 @@ public class UserResource implements UserAPI {
 			}
 
 			int userRole = (int) user.getLong("user_role");
+
+			if(userRole == 4) {
+				return Response.status(Status.FORBIDDEN).entity(ConstantFactory.INSUFFICIENT_PERMISSIONS.getDesc()).build();
+			}
+
 			AuthToken token = new AuthToken(emailEntity.getString("user_username"), userRole);
-			LOG.info("token mamado "+g.toJson(token));
 
 			// Create a new token entity
 			Key tokenkey = KeyStore.tokenKeyFactory(token.getTokenID());
@@ -291,8 +296,8 @@ public class UserResource implements UserAPI {
 
 
 	@Override
-	public Response deleteAccount(AuthToken tokenObj) {
-		LOG.fine("Attempting to delete user: " + tokenObj.getUsername());
+	public Response deleteAccount(String tokenObjStr) {
+		AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
 
 		Key userKey = KeyStore.userKeyFactory(tokenObj.getUsername());
 		Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
@@ -315,9 +320,10 @@ public class UserResource implements UserAPI {
 			txn.delete(userKey);
 			LOG.info("User deleted: " + tokenObj.getUsername());
 
+
 			txn.delete(tokenKey);
 			txn.commit();
-			return Response.ok().build();
+			return Response.status(Response.Status.OK).build();
 		} catch (Exception e) {
 			txn.rollback();
 			LOG.severe(e.getMessage());

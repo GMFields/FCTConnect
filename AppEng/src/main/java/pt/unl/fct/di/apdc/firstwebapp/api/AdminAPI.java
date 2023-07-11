@@ -53,5 +53,6 @@ public interface AdminAPI {
 
     @POST
     @Path("/notification")
-    Response sendNotification(@QueryParam("title") String title, @QueryParam("body") String body);
+    Response sendNotification(@QueryParam("title") String title, @QueryParam("body") String body,
+            @QueryParam("interest") String interest);
 }
