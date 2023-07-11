@@ -11,6 +11,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 @Path("/aasklocation")
@@ -159,12 +163,57 @@ public class AskLocationResource implements AskLocationAPI {
     }
 
     @Override
-    public Response getAsk(String tokenObjStr) {
-        return null;
+    public Response getAsk(String tokenObjStr, String username) {
+        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Pode ser passado como TokenClass
+        LOG.fine("User: " + tokenObj.getUsername() + " is attempting to get asked locations!");
+
+        Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
+        Key userKey = KeyStore.CalendarAccessKeyFactory(tokenObj.getUsername());
+
+
+        Transaction txn = datastore.newTransaction();
+
+        try {
+            Entity token = txn.get(tokenKey);
+            Entity user = txn.get(userKey);
+
+            if (!username.equals(tokenObj.getUsername()) && (user == null ||  user.getString(username) == null))
+                return Response.status(Response.Status.FORBIDDEN).build();
+
+
+            if (token == null) {
+                txn.rollback();
+                return Response.status(Response.Status.FORBIDDEN).build();
+            }
+
+            Key locationKey = KeyStore.askLocationKeyFactory(username);
+            Entity askLocationEntity = txn.get(locationKey);
+
+            if (askLocationEntity == null) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+            askLocationEntity.getProperties();
+
+             List<Map<String, Object>> entitiesProperties = new ArrayList<>();
+
+            txn.commit();
+
+            LOG.info("Get all events successfully");
+            return Response.status(Response.Status.OK)
+                    .entity(g.toJson(entitiesProperties)).build();
+        } catch (Exception e) {
+            txn.rollback();
+            LOG.severe("An error occurred while getting event: " + e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            if (txn.isActive()) {
+                txn.rollback();
+            }
+        }
     }
 
     @Override
-    public Response getAnswer(String tokenObjStr) {
+    public Response getAnswer(String tokenObjStr, String username) {
         return null;
     }
 
