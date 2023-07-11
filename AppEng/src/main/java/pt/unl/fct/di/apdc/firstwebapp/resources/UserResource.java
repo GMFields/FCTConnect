@@ -4,6 +4,7 @@ import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.*;
 
 import com.google.gson.Gson;
+import io.grpc.netty.shaded.io.netty.util.Constant;
 import pt.unl.fct.di.apdc.firstwebapp.api.UserAPI;
 import pt.unl.fct.di.apdc.firstwebapp.factory.ConstantFactory;
 import pt.unl.fct.di.apdc.firstwebapp.factory.KeyStore;
@@ -139,8 +140,12 @@ public class UserResource implements UserAPI {
 			}
 
 			int userRole = (int) user.getLong("user_role");
+
+			if(userRole == 4) {
+				return Response.status(Status.FORBIDDEN).entity(ConstantFactory.INSUFFICIENT_PERMISSIONS.getDesc()).build();
+			}
+
 			AuthToken token = new AuthToken(emailEntity.getString("user_username"), userRole);
-			LOG.info("token mamado "+g.toJson(token));
 
 			// Create a new token entity
 			Key tokenkey = KeyStore.tokenKeyFactory(token.getTokenID());
