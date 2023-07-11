@@ -1,4 +1,4 @@
-import 'package:discipulos_flutter/lib/models/post_model.dart';
+import '../models/post_model.dart';
 import 'package:flutter/material.dart';
 
 class TopBar extends StatefulWidget {

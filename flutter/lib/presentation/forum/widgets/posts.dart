@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:discipulos_flutter/lib/screens/home_screen.dart';
+import '../screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -86,7 +86,7 @@ Future<void> likePost(Question question) async {
   if (response.statusCode == 200) {
     print("liked successfully");
   } else {
-    throw Exception('Failed to fetch anomalies');
+    throw Exception('Failed to fetch posts');
   }
 }
 
@@ -176,29 +176,17 @@ getUsername() async {
 
 late ImageProvider backgroundImage;
 Future<void> loadImage(Question question) async {
-  final prefs = await SharedPreferences.getInstance();
-  final token = prefs.getString('token');
-  if (token == null) {
-    throw Exception('Token not found in cache');
+  if (question.author.backgroundImage != null) {
+    return;
   }
 
-  Map<String, dynamic> tokenData = json.decode(token);
-  String user_username = tokenData['username'] ?? '';
-
-  //if (question.replies[i].author.backgroundImage != null) {
-  //      continue;
-  //    }
-  /*
-
   final response = await http.get(Uri.parse(
-      "https://helical-ascent-385614.oa.r.appspot.com/gcs/${user_username}_pfp.png")); // Replace with the actual endpoint URL
+      "https://helical-ascent-385614.oa.r.appspot.com/gcs/${question.author.name}_pfp")); // Replace with the actual endpoint URL
   if (response.statusCode == 200) {
     question.author.backgroundImage = MemoryImage(response.bodyBytes);
   } else {
-    question.replies[i].author.backgroundImage =
-            AssetImage('assets/images/VADER.png');
-    throw Exception('Failed to fetch anomalies');
-  }*/
+    question.author.backgroundImage = AssetImage('assets/images/VADER.png');
+  }
 }
 
 class _PostsState extends State<Posts> {

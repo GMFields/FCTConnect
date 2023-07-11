@@ -1,18 +1,47 @@
 import 'dart:convert';
-
-import 'package:discipulos_flutter/presentation/chat/chatPage.dart';
+import 'dart:typed_data';
+import 'package:discipulos_flutter/presentation/askLocation/askLocation.dart';
+import 'package:discipulos_flutter/presentation/forum/screens/home_screen.dart';
+import 'package:discipulos_flutter/presentation/login/login_page.dart';
 import 'package:discipulos_flutter/presentation/mapas/waypoint.dart';
+import 'package:discipulos_flutter/presentation/restaurants/restaurants.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../../lib/screens/home_screen.dart';
 import '../../anomaly/anomaly.dart';
 import '../../calendar/calendar.dart';
 import '../../perfil/profile_page.dart';
 import '../welcome.dart';
+import '../../search/search.dart';
 
-class CustomNavigationDrawer extends StatelessWidget {
+class CustomNavigationDrawer extends StatefulWidget {
   const CustomNavigationDrawer({Key? key}) : super(key: key);
+
+  @override
+  _CustomNavigationDrawerState createState() => _CustomNavigationDrawerState();
+}
+
+class _CustomNavigationDrawerState extends State<CustomNavigationDrawer> {
+  Uint8List? _imageBytes;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadImageFromCache();
+  }
+
+  Future<void> _loadImageFromCache() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? imageBytesStringList = prefs.getStringList('imageBytes');
+    if (imageBytesStringList != null) {
+      setState(() {
+        _imageBytes = Uint8List.fromList(
+          imageBytesStringList.map((str) => int.parse(str)).toList(),
+        );
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -48,36 +77,48 @@ class CustomNavigationDrawer extends StatelessWidget {
           Map<String, dynamic> tokenData = json.decode(token);
 
           String name = tokenData['username'] ?? '';
-          String email = '';
 
           return FutureBuilder<String?>(
             future: getEmailFromCache(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
+                return const CircularProgressIndicator();
               } else if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
               }
+              String email = snapshot.data ?? '';
 
-              String email =
-                  snapshot.data ?? ''; // Use empty string if email is null
+              ImageProvider<Object> imagem;
+              if (_imageBytes != null) {
+                imagem = MemoryImage(_imageBytes!);
+              } else {
+                imagem = const AssetImage('assets/images/VADER.png');
+              }
 
               return Container(
-                color: Color.fromARGB(255, 237, 237, 237),
+                color: const Color.fromARGB(255, 237, 237, 237),
                 padding: EdgeInsets.only(
                   top: 16 + MediaQuery.of(context).padding.top,
                   bottom: 16,
                 ),
                 child: Column(
                   children: [
-                    CircleAvatar(
-                      radius: 52,
-                      backgroundImage: AssetImage('assets/images/VADER.png'),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).pushReplacement(MaterialPageRoute(
+                            builder: ((context) => const Profile(
+                                  email: '',
+                                ))));
+                      },
+                      child: CircleAvatar(
+                        radius: 52,
+                        backgroundImage: imagem,
+                      ),
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     Text(
                       name,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.w600,
                         color: Color.fromARGB(255, 0, 0, 0),
@@ -85,7 +126,7 @@ class CustomNavigationDrawer extends StatelessWidget {
                     ),
                     Text(
                       email,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Color.fromARGB(255, 0, 0, 0),
                         fontSize: 16,
                       ),
@@ -98,7 +139,7 @@ class CustomNavigationDrawer extends StatelessWidget {
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else {
-          return CircularProgressIndicator();
+          return const CircularProgressIndicator();
         }
       },
     );
@@ -129,7 +170,7 @@ class CustomNavigationDrawer extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.chat_outlined),
+            leading: const Icon(Icons.forum_rounded),
             title: const Text('Forum'),
             onTap: () {
               Navigator.pop(context);
@@ -139,11 +180,38 @@ class CustomNavigationDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.calendar_month_outlined),
-            title: const Text('Calendar'),
+            title: const Text('Calendário'),
             onTap: () {
               Navigator.pop(context);
               Navigator.of(context).push(
                   MaterialPageRoute(builder: ((context) => CalendarApp())));
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.restaurant_outlined),
+            title: const Text('Restauração'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: ((context) => RestaurantListPage())));
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.search),
+            title: const Text('Procurar'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.of(context)
+                  .push(MaterialPageRoute(builder: ((context) => SearchApp())));
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.location_on),
+            title: const Text('Pedir localização'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: ((context) => AskLocationApp())));
             },
           ),
           const Divider(color: Colors.black54),
@@ -152,14 +220,9 @@ class CustomNavigationDrawer extends StatelessWidget {
             title: const Text('Anomalias'),
             onTap: () {
               Navigator.pop(context);
-              Navigator.of(context).push(
-                  MaterialPageRoute(builder: ((context) => AnomalyListPage())));
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: ((context) => const AnomalyListPage())));
             },
-          ),
-          ListTile(
-            leading: const Icon(Icons.account_tree_outlined),
-            title: const Text('Settings'),
-            onTap: () {},
           ),
           ListTile(
             leading: const Icon(Icons.map_outlined),

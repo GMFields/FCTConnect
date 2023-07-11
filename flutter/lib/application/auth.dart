@@ -4,7 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class Authentication {
   static bool isPasswordCompliant(String password, [int minLength = 6]) {
-    //Null-safety ensures that password is never null
     if (password.isEmpty) {
       return false;
     }
@@ -24,7 +23,6 @@ class Authentication {
   }
 
   static bool isEmailCompliant(String email, [int minLength = 5]) {
-    //Null-safety ensures that password is never null
     if (email.isEmpty) {
       return false;
     }
@@ -37,14 +35,10 @@ class Authentication {
   }
 
   static Future<String> loginUser(String email, String password) async {
-    // Call the fetchAuthenticateGAE function to authenticate the user
     String res = await fetchAuthenticateGAE(email, password);
-
-    // Return the authentication status
     return res;
   }
 
-  // tem que retornar um token
   static Future<String> fetchAuthenticateGAE(
       String email, String password) async {
     final url = Uri.parse(
@@ -59,6 +53,7 @@ class Authentication {
 
     if (response.statusCode == 200) {
       final token = response.body;
+      print(response.body);
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('token', token);
       return "success";

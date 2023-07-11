@@ -258,7 +258,7 @@ Widget _buildRegisterBtn() {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(30.0),
             ),
-            backgroundColor: Color(0xFFEDEDED),
+            backgroundColor: const Color(0xFFEDEDED),
           ),
           child: const Text(
             'REGISTER',
@@ -362,6 +362,7 @@ Future<void> registerButtonPressed(BuildContext context, String name, String use
       return;
     }
     else {
+      
     String res = await Authentication.registerUser(name, username, email, password, role, department);
     switch(res) {
       case "success":
@@ -524,7 +525,7 @@ Widget build(BuildContext context) {
     body: Stack(
       children: [
         Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             image: DecorationImage(
               image: AssetImage('assets/images/FCT.png'), 
               fit: BoxFit.cover,
@@ -542,8 +543,8 @@ Widget build(BuildContext context) {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(top: 50),
+              const Padding(
+                padding: EdgeInsets.only(top: 50),
                 child: Text(
                   "Register",
                   style: TextStyle(

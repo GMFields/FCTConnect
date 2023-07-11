@@ -22,4 +22,15 @@ class Waypoint {
       wayPointID: json['wayPointID'] as String,
     );
   }
+
+  Map<String, dynamic> toJson() {
+      return {
+        'latitude': latitude,
+        'longitude': longitude,
+        'creationData': creationData,
+        'name': name,
+        'wayPointID': wayPointID,
+      };
+    }
+
 }

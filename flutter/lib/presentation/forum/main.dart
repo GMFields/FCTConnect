@@ -1,7 +1,6 @@
-import 'package:discipulos_flutter/presentation/askLocation/askLocation.dart';
+import 'package:discipulos_flutter/application/auth.dart';
 import 'package:flutter/material.dart';
-
-import '../../application/auth.dart';
+import './screens/home_screen.dart';
 
 void main() => runApp(MyApp());
 
@@ -25,7 +24,7 @@ class MyApp extends StatelessWidget {
               theme: ThemeData(
                   primaryColor: const Color.fromARGB(255, 43, 89, 196),
                   fontFamily: 'Montserratcd'),
-              home: AskLocationApp(),
+              home: HomePage(),
             );
           }
         });

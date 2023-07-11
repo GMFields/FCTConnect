@@ -87,7 +87,7 @@ class _PopularTopics extends State {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          "${contents.isEmpty ? "" : contents[index].question}",
+                          "${contents[index].question.length <= 50 ? contents[index].question : contents[index].question.substring(0, 50)}..",
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 18,
@@ -96,7 +96,13 @@ class _PopularTopics extends State {
                         const SizedBox(height: 10),
                         const SizedBox(height: 10),
                         Text(
-                          "${contents.isEmpty ? "" : ratio(contents[index].votes, contents[index].repliesCount, contents[index].views)}",
+                          contents.isEmpty
+                              ? ""
+                              : ratio(
+                                      contents[index].votes,
+                                      contents[index].repliesCount,
+                                      contents[index].views)
+                                  .toStringAsFixed(2),
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 14,

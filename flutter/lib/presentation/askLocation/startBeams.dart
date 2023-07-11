@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pusher_beams/pusher_beams.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class Beams {
   Beams() {
@@ -8,12 +10,19 @@ class Beams {
 
   void initialize() async {
     WidgetsFlutterBinding.ensureInitialized();
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null) {
+      throw Exception('Token not found in cache');
+    }
+
+    Map<String, dynamic> tokenData = json.decode(token);
+    var username = tokenData['username'] ?? '';
 
     await PusherBeams.instance.start(
         'a5dd11d2-e829-4a6b-bb1b-4bbd9b4862a4'); // Supply your own instanceId
 
     PusherBeams.instance.addDeviceInterest("debug-hello");
-    //PusherBeams.instance.removeDeviceInterest("debug-hello");
-    print(PusherBeams.instance.getDeviceInterests());
+    PusherBeams.instance.addDeviceInterest(username);
   }
 }

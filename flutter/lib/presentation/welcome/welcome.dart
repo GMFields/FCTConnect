@@ -1,11 +1,15 @@
-import 'dart:convert';
-
-import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:discipulos_flutter/presentation/askLocation/startBeams.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:discipulos_flutter/application/api.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:xml2json/xml2json.dart';
-import 'package:http/http.dart' as http;
-
 import 'widgets/navigation_drawer.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'dart:typed_data';
+import 'dart:convert';
 
 class Welcome extends StatefulWidget {
   const Welcome({Key? key}) : super(key: key);
@@ -19,6 +23,10 @@ class _WelcomeState extends State<Welcome> {
   final Xml2Json xml2json = Xml2Json();
   List<dynamic> topStories = [];
   bool isLoading = true;
+  bool _isLoadingImage = false;
+  Uint8List? _imageBytes;
+  late CloudApi api;
+  Map<String, dynamic>? token;
 
   @override
   void didChangeDependencies() {
@@ -29,6 +37,20 @@ class _WelcomeState extends State<Welcome> {
   @override
   void initState() {
     super.initState();
+    initializeApi();
+  }
+
+  Future<void> initializeApi() async {
+    final json = await rootBundle.loadString('assets/credentials.json');
+    setState(() {
+      api = CloudApi(json);
+    });
+    getTokenFromCache().then((value) {
+      setState(() {
+        token = value;
+      });
+      _loadImageFromCache();
+    });
   }
 
   Future<void> NewsTopStories() async {
@@ -43,7 +65,7 @@ class _WelcomeState extends State<Welcome> {
         var data = json.decode(jsondata);
         setState(() {
           topStories = data['rss']['channel']['item'];
-          isLoading = false; // Update the loading state
+          isLoading = false;
         });
       } else {
         print('Failed to convert XML to JSON');
@@ -62,8 +84,60 @@ class _WelcomeState extends State<Welcome> {
     }
   }
 
+  Future<void> _loadImageFromCache() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? imageBytesStringList = prefs.getStringList('imageBytes');
+    if (imageBytesStringList != null) {
+      setState(() {
+        _imageBytes = Uint8List.fromList(
+          imageBytesStringList.map((str) => int.parse(str)).toList(),
+        );
+      });
+    } else {
+      await getFromBucket();
+    }
+  }
+
+  Future<void> getFromBucket() async {
+    setState(() {
+      _isLoadingImage = true;
+    });
+
+    String username = token?['username'];
+    String filename = '$username\_pfp';
+    Uint8List? bytes = await api.getFile(filename);
+
+    setState(() {
+      _imageBytes = bytes;
+      _isLoadingImage = false;
+    });
+
+    if (_imageBytes != null) {
+      await _storeImageInCache(_imageBytes!);
+      print('File retrieval successful!');
+    } else {
+      print('File retrieval failed!');
+    }
+  }
+
+  Future<void> _storeImageInCache(Uint8List imageBytes) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(
+        'imageBytes', imageBytes.map((byte) => byte.toString()).toList());
+  }
+
+  Future<Map<String, dynamic>?> getTokenFromCache() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? tokenString = prefs.getString('token');
+    if (tokenString != null) {
+      return jsonDecode(tokenString);
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
+    Beams();
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(70.0),
@@ -83,7 +157,7 @@ class _WelcomeState extends State<Welcome> {
               iconTheme: const IconThemeData(color: Colors.black),
               leading: IconButton(
                 icon: const Icon(
-                  Icons.menu_open_outlined, // Replace with your desired icon
+                  Icons.menu_open_outlined,
                 ),
                 onPressed: () {
                   Scaffold.of(context).openDrawer();
@@ -111,7 +185,7 @@ class _WelcomeState extends State<Welcome> {
       backgroundColor: const Color(0xFFEDEDED),
       body: isLoading
           ? const Center(
-              child: CircularProgressIndicator(), // Circular progress indicator
+              child: CircularProgressIndicator(),
             )
           : SingleChildScrollView(
               child: Column(
@@ -148,8 +222,8 @@ class _WelcomeState extends State<Welcome> {
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            leading: Image.network(
-                              topStories[index]['description']['\$t']
+                            leading: CachedNetworkImage(
+                              imageUrl: topStories[index]['description']['\$t']
                                   .split('<img')[1]
                                   .split('src="')[1]
                                   .split('"')[0],
@@ -169,4 +243,3 @@ class _WelcomeState extends State<Welcome> {
     );
   }
 }
-

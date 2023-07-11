@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:discipulos_flutter/lib/widgets/posts.dart';
+import '../widgets/posts.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/author_model.dart';
@@ -103,7 +103,7 @@ class _PostScreenState extends State<PostScreen> {
 
       updatePost(data);
     } else {
-      throw Exception('Failed to fetch reply');
+      throw Exception('Failed to post reply');
     }
   }
 
@@ -148,8 +148,8 @@ class _PostScreenState extends State<PostScreen> {
         );
       }).toList();
       print(widget.question.replies);
-    } else {
-      throw Exception('Failed to fetch anomalies');
+    } else if (response.statusCode == 404) {
+      print("no replies");
     }
   }
 
@@ -252,29 +252,19 @@ class _PostScreenState extends State<PostScreen> {
   loadImages(Question question) async {
     loadImage(question);
     for (int i = 0; i < question.replies.length; i++) {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token');
-      if (token == null) {
-        throw Exception('Token not found in cache');
-      }
-
-      Map<String, dynamic> tokenData = json.decode(token);
-      String user_username = tokenData['username'] ?? '';
-
       if (question.replies[i].author.backgroundImage != null) {
         continue;
       }
 
-      /*final response = await http.get(Uri.parse(
-          "https://helical-ascent-385614.oa.r.appspot.com/gcs/${user_username}_pfp.png")); // Replace with the actual endpoint URL
+      final response = await http.get(Uri.parse(
+          "https://helical-ascent-385614.oa.r.appspot.com/gcs/${question.replies[i].author.name}_pfp")); // Replace with the actual endpoint URL
       if (response.statusCode == 200) {
         question.replies[i].author.backgroundImage =
             MemoryImage(response.bodyBytes);
       } else {
         question.replies[i].author.backgroundImage =
             AssetImage('assets/images/VADER.png');
-        throw Exception('Failed to fetch anomalies');
-      }*/
+      }
     }
   }
 
