@@ -48,15 +48,13 @@ public class AskLocationResource implements AskLocationAPI {
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
 
-<<<<<<< HEAD
+
             if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
                 txn.rollback();
                 return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
             }
 
 
-=======
->>>>>>> 3eeefadfa11fe6a965bfd8b6c513b71b9e71adde
             Key locationKey = KeyStore.askLocationKeyFactory(username);
             Entity locationEntity = txn.get(locationKey);
 
