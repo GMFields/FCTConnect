@@ -12,6 +12,7 @@ import javax.ws.rs.core.Response.Status;
 
 import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.*;
+import com.google.cloud.datastore.StructuredQuery.OrderBy;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 import com.google.gson.Gson;
 
@@ -31,7 +32,6 @@ public class ChatResource implements ChatApi {
     private final Gson g = new Gson();
 
     Cursor pageCursor;
-    Cursor previousCursor;
 
     @Override
     public Response addPost(Post post, String tokenObjStr) {
@@ -403,7 +403,7 @@ public class ChatResource implements ChatApi {
     }
 
     @Override
-    public Response listPosts(/* String tokenObjStr */) {
+    public Response listPosts(String cursorObjStr/* String tokenObjStr */) {
         // AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
 
         // Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
@@ -414,25 +414,33 @@ public class ChatResource implements ChatApi {
          * return Response.status(Response.Status.FORBIDDEN).build();
          * }
          */
+        Cursor cursorObj = null;
+        LOG.warning(cursorObjStr);
+        if (!cursorObjStr.equals("")) {
+            String[] byteArrayValues = cursorObjStr.replace("[", "").replace("]", "").replaceAll("\\s+", "").split(",");
+            byte[] byteArray = new byte[byteArrayValues.length];
 
-        EntityQuery.Builder query = Query.newEntityQueryBuilder()
+            for (int i = 0; i < byteArrayValues.length; i++) {
+                byteArray[i] = (byte) Integer.parseInt(byteArrayValues[i]);
+            }
+
+            cursorObj = Cursor.copyFrom(byteArray);
+        }
+
+        EntityQuery.Builder query = Query.newEntityQueryBuilder().setOrderBy(OrderBy.asc("created_at"))
                 .setKind("Post")
                 .setLimit(2);
 
-        if (pageCursor != null) {
+        if (cursorObj != null) {
+            LOG.warning(cursorObj.toString());
+            query.setStartCursor(cursorObj);
+        } else {
             query.setStartCursor(pageCursor);
         }
 
         QueryResults<Entity> results = datastore.run(query.build());
         if (!results.hasNext()) {
-            if (pageCursor != null) {
-                pageCursor = previousCursor;
-                Response r = listPosts();
-                pageCursor = null;
-                return r;
-            } else {
-                return Response.status(Response.Status.NOT_FOUND).entity("There are no posts.").build();
-            }
+            return Response.status(Response.Status.NOT_FOUND).entity("There are no posts.").build();
         }
 
         List<Post> resultList = new ArrayList<>();
@@ -446,9 +454,8 @@ public class ChatResource implements ChatApi {
             resultList.add(p);
         }
 
-        previousCursor = pageCursor;
-        pageCursor = results.getCursorAfter();
+        Cursor nextPage = results.getCursorAfter();
 
-        return Response.ok(g.toJson(resultList)).build();
+        return Response.ok(g.toJson(resultList) + g.toJson(nextPage)).build();
     }
 }

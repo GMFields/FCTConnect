@@ -55,5 +55,5 @@ public interface ChatApi {
         @GET
         @Produces(MediaType.APPLICATION_JSON)
         @Path("/listpost")
-        Response listPosts();
+        Response listPosts(@QueryParam("cursorObj") String cursorObjStr);
 }
