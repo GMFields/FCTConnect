@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(const MyApp());
@@ -57,25 +60,40 @@ class _MyAppState extends State<MyApp> {
 
     try {
       await pusher.init(
-        apiKey: _apiKey.text,
-        cluster: _cluster.text,
-        onConnectionStateChange: onConnectionStateChange,
-        onError: onError,
-        onSubscriptionSucceeded: onSubscriptionSucceeded,
-        onEvent: onEvent,
-        onSubscriptionError: onSubscriptionError,
-        onDecryptionFailure: onDecryptionFailure,
-        onMemberAdded: onMemberAdded,
-        onMemberRemoved: onMemberRemoved,
-        onSubscriptionCount: onSubscriptionCount,
-        // authEndpoint: "<Your Authendpoint Url>",
-        // onAuthorizer: onAuthorizer
-      );
-      await pusher.subscribe(channelName: _channelName.text);
+          apiKey: _apiKey.text,
+          cluster: _cluster.text,
+          onConnectionStateChange: onConnectionStateChange,
+          onError: onError,
+          onSubscriptionSucceeded: onSubscriptionSucceeded,
+          onEvent: onEvent,
+          onSubscriptionError: onSubscriptionError,
+          onDecryptionFailure: onDecryptionFailure,
+          onMemberAdded: onMemberAdded,
+          onMemberRemoved: onMemberRemoved,
+          onSubscriptionCount: onSubscriptionCount,
+          onAuthorizer: onAuthorizer);
       await pusher.connect();
+      await pusher.subscribe(channelName: _channelName.text);
     } catch (e) {
       log("ERROR: $e");
     }
+  }
+
+  Future<dynamic> onAuthorizer(
+      String channelName, String socketId, dynamic options) async {
+    final url = Uri.parse(
+        'http://localhost:8080/rest/chat/auth?socket_id=152770.26808&channel=private-channel');
+
+    final response = await http.post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+      },
+    );
+
+    log(response.body);
+
+    return response.body;
   }
 
   void onConnectionStateChange(dynamic currentState, dynamic previousState) {
@@ -116,13 +134,13 @@ class _MyAppState extends State<MyApp> {
     log("onSubscriptionCount: $channelName subscriptionCount: $subscriptionCount");
   }
 
-  dynamic onAuthorizer(String channelName, String socketId, dynamic options) {
+  /*dynamic onAuthorizer(String channelName, String socketId, dynamic options) {
     return {
       "auth": "foo:bar",
       "channel_data": '{"user_id": 1}',
       "shared_secret": "foobar"
     };
-  }
+  }*/
 
   void onTriggerEventPressed() async {
     var eventFormValidated = _eventFormKey.currentState!.validate();
@@ -260,4 +278,4 @@ class _MyAppState extends State<MyApp> {
       ),
     );
   }
-} 
+}

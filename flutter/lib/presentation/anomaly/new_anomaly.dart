@@ -27,6 +27,7 @@ class _AddAnomalyPageState extends State<AddAnomalyPage> {
     final description = _descriptionController.text;
 
     if (description.isEmpty) {
+      // ignore: use_build_context_synchronously
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -55,6 +56,7 @@ class _AddAnomalyPageState extends State<AddAnomalyPage> {
     );
 
     if (response.statusCode == 200) {
+      // ignore: use_build_context_synchronously
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -72,6 +74,7 @@ class _AddAnomalyPageState extends State<AddAnomalyPage> {
         ),
       );
     } else {
+      // ignore: use_build_context_synchronously
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -129,7 +132,7 @@ class _AddAnomalyPageState extends State<AddAnomalyPage> {
             ElevatedButton(
               onPressed: _saveAnomaly,
               style: ElevatedButton.styleFrom(
-                primary: const Color.fromARGB(255, 255, 196, 0),
+                backgroundColor: const Color.fromARGB(255, 255, 196, 0),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30.0),
                 ),

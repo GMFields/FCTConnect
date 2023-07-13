@@ -74,14 +74,21 @@ class _HomePageState extends State<HomePage> {
   Future<void> postToForum(String question, String content) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
+    print("1");
+    print(token);
     if (token == null) {
       throw Exception('Token not found in cache');
     }
 
+    print("2");
+    print(token);
     Map<String, dynamic> tokenData = json.decode(token);
     String user_username = tokenData['username'] ?? '';
-
+    print("3");
+    print(token);
     var uuid = const Uuid();
+    print("4");
+    print(token);
 
     var data = {
       "question": question,
@@ -94,23 +101,28 @@ class _HomePageState extends State<HomePage> {
       "id": uuid.v4().toString()
     };
 
+    print("5");
+    print(token);
+
     final response = await http.post(
-        Uri.parse(
-                "https://helical-ascent-385614.oa.r.appspot.com/rest/forum/addpost")
-            .replace(queryParameters: {'tokenObj': token}),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(data));
+      Uri.parse(
+              "https://helical-ascent-385614.oa.r.appspot.com/rest/forum/addpost")
+          .replace(queryParameters: {'tokenObj': token}),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(data),
+    );
 
     if (response.statusCode == 200) {
       print("a");
     } else {
-      throw Exception('Failed to fetch anomalies');
+      throw Exception('Failed to add a post');
     }
   }
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
   }
 
@@ -127,7 +139,16 @@ class _HomePageState extends State<HomePage> {
           } else {
             return Scaffold(
               appBar: AppBar(
-                title: Text('ForumCT'),
+                title: const Text(
+                  "Perfil",
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 0, 0, 0),
+                    fontSize: 20,
+                    fontFamily: 'RobotoSlab',
+                  ),
+                ),
+                backgroundColor: const Color.fromARGB(255, 237, 237, 237),
+                iconTheme: const IconThemeData(color: Colors.black),
               ),
               backgroundColor: Theme.of(context).primaryColor,
               body: SafeArea(

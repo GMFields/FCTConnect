@@ -25,6 +25,7 @@ pt\unl\fct\di\apdc\firstwebapp\factory\UserRoleFactory.class
 pt\unl\fct\di\apdc\firstwebapp\resources\AskLocationResource.class
 pt\unl\fct\di\apdc\firstwebapp\resources\ChatResource.class
 pt\unl\fct\di\apdc\firstwebapp\api\UserAPI.class
+pt\unl\fct\di\apdc\firstwebapp\util\Answer.class
 pt\unl\fct\di\apdc\firstwebapp\resources\SearchResource.class
 pt\unl\fct\di\apdc\firstwebapp\api\AdminAPI.class
 pt\unl\fct\di\apdc\firstwebapp\resources\AdminResource.class

@@ -48,6 +48,13 @@ public class AskLocationResource implements AskLocationAPI {
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
 
+
+            if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
+                txn.rollback();
+                return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
+            }
+
+
             Key locationKey = KeyStore.askLocationKeyFactory(username);
             Entity locationEntity = txn.get(locationKey);
 
@@ -106,6 +113,11 @@ public class AskLocationResource implements AskLocationAPI {
             if (token == null) {
                 txn.rollback();
                 return Response.status(Response.Status.FORBIDDEN).build();
+            }
+
+            if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
+                txn.rollback();
+                return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
             }
 
             Key locationKey = KeyStore.askLocationKeyFactory(tokenObj.getUsername());
@@ -178,6 +190,11 @@ public class AskLocationResource implements AskLocationAPI {
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
 
+            if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
+                txn.rollback();
+                return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
+            }
+
             Key locationKey = KeyStore.askLocationKeyFactory(username);
             Entity askLocationEntity = txn.get(locationKey);
 
@@ -227,6 +244,11 @@ public class AskLocationResource implements AskLocationAPI {
             if (token == null) {
                 txn.rollback();
                 return Response.status(Response.Status.FORBIDDEN).build();
+            }
+
+            if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
+                txn.rollback();
+                return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
             }
 
             Key locationKey = KeyStore.answerLocationKeyFactory(username);
@@ -283,6 +305,11 @@ public class AskLocationResource implements AskLocationAPI {
             if (token == null) {
                 txn.rollback();
                 return Response.status(Response.Status.FORBIDDEN).build();
+            }
+
+            if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
+                txn.rollback();
+                return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
             }
 
             Key locationKey = KeyStore.askLocationKeyFactory(username);

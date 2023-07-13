@@ -37,21 +37,24 @@ class _WelcomePageState extends State<WelcomePage> {
     setState(() {
       _locationPermissionGranted = status.isGranted;
     });
+   
+
 
     if (_locationPermissionGranted) {
+      // ignore: use_build_context_synchronously
       final imageSource = await showDialog<ImageSource>(
         context: context,
         builder: (BuildContext context) =>
             AlertDialog(
-              title: Text("Select Image Source"),
+              title: const Text("Select Image Source"),
               actions: [
                 ElevatedButton(
                   onPressed: () => Navigator.pop(context, ImageSource.camera),
-                  child: Text("Camera"),
+                  child: const Text("Camera"),
                 ),
                 ElevatedButton(
                   onPressed: () => Navigator.pop(context, ImageSource.gallery),
-                  child: Text("Gallery"),
+                  child: const Text("Gallery"),
                 ),
               ],
             ),
@@ -88,7 +91,7 @@ class _WelcomePageState extends State<WelcomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Welcome'),
+        title: const Text('Welcome'),
       ),
       body: Center(
         child: _imageBytes != null
@@ -102,7 +105,7 @@ class _WelcomePageState extends State<WelcomePage> {
               alignment: Alignment.bottomCenter,
               child: ElevatedButton(
                 onPressed: _saveImage,
-                child: Text('Save to cloud'),
+                child: const Text('Save to cloud'),
               ),
             ),
           ],
@@ -115,11 +118,11 @@ class _WelcomePageState extends State<WelcomePage> {
               child: Container(
                 width: 100,
                 height: 100,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   color: Colors.blue,
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.add_a_photo,
                   color: Colors.white,
                   size: 50,
@@ -129,10 +132,10 @@ class _WelcomePageState extends State<WelcomePage> {
             const SizedBox(height: 20),
             Text(
               'Welcome, ${widget.username}!',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
-            CircleAvatar(
+            const CircleAvatar(
               radius: 50,
               child: Text('No Image'),
             ),

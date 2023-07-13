@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:discipulos_flutter/application/auth.dart';
+import 'package:discipulos_flutter/presentation/login/password.dart';
 import 'package:discipulos_flutter/presentation/register/register_page.dart';
 import 'package:flutter/material.dart';
 import 'package:discipulos_flutter/constants/constants.dart';
@@ -32,15 +33,15 @@ class _LoginState extends State<Login> {
   }
 
   Future<void> checkUserLoggedIn() async {
-  String? token = await getTokenFromCache();
-  if (token != null) {
-    // User is logged in, navigate to the home screen
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const Welcome()),
-    );
+    String? token = await getTokenFromCache();
+    if (token != null) {
+      // User is logged in, navigate to the home screen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const Welcome()),
+      );
+    }
   }
-}
 
   Future<void> saveEmailToCache(String email) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -150,7 +151,10 @@ class _LoginState extends State<Login> {
       child: Padding(
         padding: const EdgeInsets.only(right: 30.0),
         child: TextButton(
-          onPressed: () => print("FAZER UMA PAGINA PARA RECUPERAR PASSWORD"),
+          onPressed: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => ForgotPasswordPage()));
+          },
           child: Text(
             'Forgot Password?',
             style: kLabelStyle,
@@ -249,11 +253,10 @@ class _LoginState extends State<Login> {
       await saveEmailToCache(email);
       await savePasswordToCache(password);
       Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const Welcome()),
-    );
-  }
- else if (res == "User not found") {
+        context,
+        MaterialPageRoute(builder: (context) => const Welcome()),
+      );
+    } else if (res == "User not found") {
       showDialog(
         context: context,
         builder: (context) {

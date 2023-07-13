@@ -1,22 +1,30 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:discipulos_flutter/presentation/common/noInternet.dart';
+import 'package:discipulos_flutter/presentation/mapas/mapLogic.dart';
+import 'package:discipulos_flutter/presentation/welcome/widgets/navigation_drawer.dart';
 import 'package:discipulos_flutter/presentation/mapas/waypoint_api.dart';
 import 'package:discipulos_flutter/presentation/mapas/waypointdata.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_directions_api/google_directions_api.dart' as dir;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:geocoding/geocoding.dart' as geo;
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:location/location.dart' as loc;
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 class MapScreen extends StatefulWidget {
   const MapScreen({Key? key}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _MapScreenState createState() => _MapScreenState();
 }
 
 class _MapScreenState extends State<MapScreen> {
+  // ignore: unused_field
   GoogleMapController? _mapController;
   List<Marker> _markers = [];
   bool _isLoading = true;
@@ -26,13 +34,17 @@ class _MapScreenState extends State<MapScreen> {
   List<Widget> _routeInfoWidgets = [];
   dir.Leg? leg;
   loc.Location location = loc.Location();
+  MapLogic mapLogic = MapLogic();
 
   @override
   void initState() {
     super.initState();
     _loadWaypoints();
     getCurrentLocation();
-  }
+      }
+
+
+  
 
   void getCurrentLocation() async {
     bool serviceEnabled;
@@ -63,26 +75,6 @@ class _MapScreenState extends State<MapScreen> {
     });
 
     currentLocation = await location.getLocation();
-
-/*
-
-    if (currentLocation != null) {
-      setState(() {
-        _userLocationMarker = Marker(
-          markerId: MarkerId('userLocation'),
-          position: LatLng(
-            currentLocation!.latitude!,
-            currentLocation!.longitude!,
-          ),
-          infoWindow: InfoWindow(title: 'Você está aqui'),
-        );
-        _markers.add(_userLocationMarker!);
-      });
-    } else {
-      // Erro ao obter a localização
-    }
-    */
-    
   }
 
   void updateMarkerPosition() {
@@ -105,7 +97,7 @@ class _MapScreenState extends State<MapScreen> {
 void updateRoute() {
   if (_polylines.isNotEmpty && currentLocation != null) {
     setState(() {
-      List<LatLng> updatedPoints = updatePolylineCoordinates(_polylines.first.points);
+      List<LatLng> updatedPoints = mapLogic.updatePolylineCoordinates(_polylines.first.points);
       Polyline polyline = Polyline(
         polylineId: _polylines.first.polylineId,
         points: updatedPoints,
@@ -140,57 +132,7 @@ void updateRoute() {
       }
     });
   }
-}
-
-  List<LatLng> updatePolylineCoordinates(List<LatLng> coordinates) {
-    List<LatLng> updatedCoordinates = List.from(coordinates);
-    updatedCoordinates.removeRange(0, getClosestCoordinateIndex(coordinates));
-    return updatedCoordinates;
-  }
-
-  int getClosestCoordinateIndex(List<LatLng> coordinates) {
-    double smallestDistance = double.maxFinite;
-    int closestIndex = 0;
-    LatLng currentLatLng = LatLng(
-      currentLocation!.latitude!,
-      currentLocation!.longitude!,
-    );
-
-    for (int i = 0; i < coordinates.length; i++) {
-      double distance = calculateDistance(currentLatLng, coordinates[i]);
-      if (distance < smallestDistance) {
-        smallestDistance = distance;
-        closestIndex = i;
-      }
-    }
-    return closestIndex;
-  }
-
-  double calculateDistance(LatLng point1, LatLng point2) {
-    const int earthRadius = 6371000; 
-
-    double lat1 = point1.latitude;
-    double lon1 = point1.longitude;
-    double lat2 = point2.latitude;
-    double lon2 = point2.longitude;
-
-    double dLat = _toRadians(lat2 - lat1);
-    double dLon = _toRadians(lon2 - lon1);
-
-    double a = math.sin(dLat / 2) * math.sin(dLat / 2) +
-        math.cos(_toRadians(lat1)) *
-            math.cos(_toRadians(lat2)) *
-            math.sin(dLon / 2) *
-            math.sin(dLon / 2);
-    double c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
-    double distance = earthRadius * c;
-
-    return distance;
-  }
-
-  double _toRadians(double degrees) {
-    return degrees * (math.pi / 180);
-  }
+}  
 
   void removeUserLocationMarker() {
     setState(() {
@@ -222,8 +164,8 @@ void updateRoute() {
 
     final directionsService = dir.DirectionsService();
     final request = dir.DirectionsRequest(
-      origin: '${startLat},${startLng}',
-      destination: '${endLat},${endLng}',
+      origin: '$startLat,$startLng',
+      destination: '$endLat,$endLng',
       travelMode: dir.TravelMode.walking,
     );
 
@@ -279,25 +221,32 @@ void updateRoute() {
     });
   }
 
-  Future<String> getAddress(double latitude, double longitude) async {
-    List<geo.Placemark> placemarks = await geo.placemarkFromCoordinates(latitude, longitude);
-
-    if (placemarks.isNotEmpty) {
-      return placemarks[0].locality.toString();
-    } else {
-      return 'No address found';
-    }
-  }
+  List<Waypoint> parseWaypointsFromCache(String cachedMarkers) {
+  List<dynamic> decodedJson = jsonDecode(cachedMarkers);
+  return decodedJson.map((json) => Waypoint.fromJson(json)).toList();
+}
 
   Future<void> _loadWaypoints() async {
     try {
-      final waypoints = await MapService.getWaypoints();
+    final sharedPreferences = await SharedPreferences.getInstance();
+    final cachedMarkers = sharedPreferences.getString('markers') ?? '';
+
+
+      List<Waypoint> waypoints;
+      if (cachedMarkers.isNotEmpty) {
+        waypoints = parseWaypointsFromCache(cachedMarkers);
+      } else {
+       waypoints = await MapService.getWaypoints();
+       String markersFromJson = jsonEncode(waypoints);
+       sharedPreferences.setString('markers', markersFromJson);
+      }
+
       List<Marker> tempMarkers = [];
 
       for (Waypoint waypoint in waypoints) {
         double latitude = waypoint.latitude;
         double longitude = waypoint.longitude;
-        String address = await getAddress(latitude, longitude);
+       String address = await mapLogic.getAddress(latitude, longitude);
 
         tempMarkers.add(
           Marker(
@@ -309,6 +258,7 @@ void updateRoute() {
             ),
             icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueViolet),
             onTap: () {
+            print(waypoint.wayPointID);
               showDialog(
                 context: context,
                 builder: (context) {
@@ -329,6 +279,12 @@ void updateRoute() {
                         },
                         child: const Text('Fechar'),
                       ),
+                        ElevatedButton(
+                        onPressed: () {
+                          mapLogic.deleteMarker(context, waypoint.wayPointID);
+                        },
+                        child: const Text('Apagar'),
+                      ),
                     ],
                   );
                 },
@@ -347,27 +303,28 @@ void updateRoute() {
   }
 
   static const initialPos = CameraPosition(
-    target: LatLng(38.659784, -9.202765),
+    target: LatLng(38.661000, -9.204438),
     zoom: 18,
   );
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "Mapa",
-          style: TextStyle(
-            color: Color.fromARGB(255, 0, 0, 0),
-            fontSize: 20,
-            fontFamily: 'RobotoSlab',
-          ),
+Widget build(BuildContext context) {
+  return Scaffold(
+    drawer: const CustomNavigationDrawer(),
+    appBar: AppBar(
+      title: const Text(
+        "Mapa",
+        style: TextStyle(
+          color: Color.fromARGB(255, 0, 0, 0),
+          fontSize: 20,
+          fontFamily: 'RobotoSlab',
         ),
-        backgroundColor: const Color.fromARGB(255, 237, 237, 237),
-        iconTheme: const IconThemeData(color: Colors.black),
       ),
-      body: Stack(
-        children: [
+      backgroundColor: const Color.fromARGB(255, 237, 237, 237),
+      iconTheme: const IconThemeData(color: Colors.black),
+    ),
+    body: Stack(
+      children: [
           GoogleMap(
             polylines: Set<Polyline>.from(_polylines),
             initialCameraPosition: initialPos,
@@ -377,23 +334,52 @@ void updateRoute() {
             myLocationButtonEnabled: false,
             compassEnabled: false,
             zoomControlsEnabled: false,
+            onTap: (latLng) {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text("Adicionar waypoint"),
+                    content: const Text("Deseja adicionar um waypoint neste local?"),
+                    actions: [
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          print(latLng);
+                        },
+                        child: const Text('Não'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          mapLogic.addMarker(context, latLng);
+                        },
+                        child: const Text('Sim'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
           ),
-          if (_isLoading)
-            const Center(
-              child: CircularProgressIndicator(),
-            ),
-          ..._routeInfoWidgets,
-         // if (_userLocationMarker != null)
-            Positioned(
-              top: 16,
-              right: 16,
-              child: FloatingActionButton(
-                onPressed: removeMarkerAndRoute,
-                child: const Icon(Icons.close),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
+        if (_isLoading)
+          const Center(
+            child: CircularProgressIndicator(),
+          ),
+         NoInternetWidget(),
+        ..._routeInfoWidgets,
+        Positioned(
+          top: 16,
+          right: 16,
+          child: FloatingActionButton(
+            onPressed: removeMarkerAndRoute,
+            child: const Icon(Icons.close),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+  
 }

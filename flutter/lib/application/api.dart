@@ -57,7 +57,8 @@ class CloudApi {
               }
           ));
     }
-  }
+  } 
+
 
   Future<Uint8List?> getFile(String name) async {
     if (_client == null) {
@@ -79,4 +80,23 @@ class CloudApi {
       return null;
     }
   }
+  
+/*
+  Future<List<int>> getFile(String name) async {
+  if (_client == null) {
+    _client = await auth.clientViaServiceAccount(_credentials, Storage.SCOPES);
+  }
+
+  var storage = Storage(_client!, 'Image Upload Google Storage');
+  var bucket = storage.bucket('helical-ascent-385614.appspot.com');
+
+  final object = bucket.absoluteObjectName(name);
+  final Stream<List<int>> stream = await bucket.read(object);
+  final List<int> fileBytes = await stream.reduce((a, b) => [...a, ...b]);
+  
+  return fileBytes;
+}
+*/
+
+
 }

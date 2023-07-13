@@ -15,6 +15,8 @@ class Anomaly {
 }
 
 class AnomalyListPage extends StatefulWidget {
+  const AnomalyListPage({super.key});
+
   @override
   _AnomalyListPageState createState() => _AnomalyListPageState();
 }
@@ -68,7 +70,7 @@ Widget build(BuildContext context) {
         ),
       ),
       backgroundColor: const Color.fromARGB(255, 237, 237, 237),
-      iconTheme: IconThemeData(color: Colors.black),
+      iconTheme: const IconThemeData(color: Colors.black),
     ),
     body: Column(
       children: [
@@ -79,7 +81,6 @@ Widget build(BuildContext context) {
             itemBuilder: (context, index) {
               final anomaly = anomalies[index];
               final solvedText = anomaly.isSolved ? 'Sim' : 'Não';
-              final solvedColor = anomaly.isSolved ? Colors.green : Colors.red;
               final textStyle = TextStyle(
                 fontSize: 16.0,
                 fontWeight: FontWeight.bold,
@@ -119,9 +120,9 @@ Widget build(BuildContext context) {
                         ),
                       ),
                       const SizedBox(height: 8.0),
-                      Row( // Use Row instead of Column
+                      Row( 
                         children: [
-                          Text(
+                          const Text(
                             'Resolvido? ',
                             style: TextStyle(
                               fontSize: 16.0,
@@ -171,7 +172,7 @@ Widget build(BuildContext context) {
 class AnomalyDetailPage extends StatelessWidget {
   final Anomaly anomaly;
 
-  AnomalyDetailPage({required this.anomaly});
+  AnomalyDetailPage({super.key, required this.anomaly});
 
   @override
   Widget build(BuildContext context) {
@@ -188,7 +189,7 @@ class AnomalyDetailPage extends StatelessWidget {
           ),
         ),
         backgroundColor: const Color.fromARGB(255, 237, 237, 237),
-        iconTheme: IconThemeData(color: Colors.black),
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -205,11 +206,11 @@ class AnomalyDetailPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-            Divider(),
+            const Divider(),
             const SizedBox(height: 10),
-            Text(
+            const Text(
               'Descrição:',
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
               ),
@@ -222,13 +223,13 @@ class AnomalyDetailPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-            Divider(),
+            const Divider(),
             const SizedBox(height: 10),
             Row(
               children: [
-                Text(
+                const Text(
                   'Resolvido? ',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
                   ),

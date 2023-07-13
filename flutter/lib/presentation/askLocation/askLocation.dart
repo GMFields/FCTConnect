@@ -1,12 +1,8 @@
 import 'dart:convert';
 
-import 'package:discipulos_flutter/presentation/askLocation/User.dart';
+import 'package:discipulos_flutter/presentation/askLocation/Answered.dart';
 import 'package:flutter/material.dart';
-
-import '../../constants/constants.dart';
-import '../anomaly/anomaly.dart';
-import '../anomaly/new_anomaly.dart';
-import '../welcome/widgets/navigation_drawer.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 class AskLocationApp extends StatefulWidget {
@@ -16,153 +12,235 @@ class AskLocationApp extends StatefulWidget {
   }
 }
 
-late List<dynamic> users;
+Future<List<String>> getAskedLocations() async {
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('token');
+  if (token == null) {
+    throw Exception('Token not found in cache');
+  }
+  print("token: " + token);
+  final tokenObj = jsonDecode(token);
+  final username = tokenObj['username'];
 
-Future<void> getUsers() async {
-  /*final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
-    if (token == null) {
-      throw Exception('Token not found in cache');
-    }
-    */
-  final response = await http.get(Uri.parse(
-      "https://helical-ascent-385614.oa.r.appspot.com/rest/anomaly/list") /*.replace(queryParameters: {'tokenObj': token})*/);
+  final url = Uri.parse(
+    'http://helical-ascent-385614.oa.r.appspot.com/rest/aasklocation/getAsk/',
+  ).replace(
+    queryParameters: {
+      'tokenObj': token,
+      'username': username,
+    },
+  );
+  print("url: " + url.toString());
+
+  final response = await http.get(url);
 
   if (response.statusCode == 200) {
-    final List<dynamic> anomalyList = jsonDecode(response.body);
-    users = anomalyList.map((json) {
-      return User(
-        user_name: json['user_name'],
-        user_email: json['user_email'],
-        user_state: json['user_state'],
-      );
-    }).toList();
+    List<dynamic> responseBody = jsonDecode(response.body);
+    List<String> stringList = List<String>.from(responseBody);
+    return stringList;
   } else {
-    throw Exception('Failed to fetch anomalies');
+    throw Exception('Failed to fetch asked locations');
   }
 }
 
 class _AskLocationAppState extends State<AskLocationApp> {
+  Map<String, String> locationRequests = {};
+
+  @override
+  void initState() {
+    super.initState();
+    fetchLocationRequests();
+  }
+
+  Future<void> fetchLocationRequests() async {
+    try {
+      List<String> fetchedLocationRequests = await getAskedLocations();
+      setState(() {
+        locationRequests = Map.fromIterable(
+          fetchedLocationRequests,
+          key: (request) => request,
+          value: (_) => '',
+        );
+      });
+    } catch (error) {
+      // Handle the error appropriately, e.g., show an error message
+      print('Error fetching location requests: $error');
+    }
+  }
+
+  void showPopup(String username, String locationRequest) {
+    TextEditingController textFieldController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Pedido de localização'),
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(height: 16),
+              TextField(
+                controller: textFieldController,
+                onChanged: (value) {
+                  setState(() {
+                    locationRequests[locationRequest] = value;
+                  });
+                },
+                decoration: InputDecoration(
+                  labelText: 'Onde estás?',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                sendLocation(username, locationRequests[locationRequest]!);
+                locationRequests.remove(username);
+                setState(() {});
+
+                // Remove the request from locationRequests
+                //print("existe? " + locationRequests[locationRequest]!);
+                //locationRequests.remove(locationRequest);
+
+                //print("existe? " + locationRequests[locationRequest]!);
+                // Close the dialog
+                Navigator.of(context).pop();
+              },
+              child: Text('Enviar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<void>(
-        future: getUsers(),
-        builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator(); // Display a loading indicator while waiting for the response
-          } else if (snapshot.hasError) {
-            return Text(
-                'Error: ${snapshot.error}'); // Handle any errors that occurred during the request
-          } else {
-            return Scaffold(
-              drawer: const CustomNavigationDrawer(),
-              appBar: AppBar(
-                title: const Text(
-                  'Notify',
-                  style: TextStyle(
-                    color: Color.fromARGB(255, 0, 0, 0),
-                    fontSize: 20,
-                    fontFamily: 'RobotoSlab',
-                  ),
-                ),
-                backgroundColor: const Color.fromARGB(255, 237, 237, 237),
-                iconTheme: const IconThemeData(color: Colors.black),
-              ),
-              body: Column(
-                children: [
-                  Expanded(
-                    child: ListView.separated(
-                      itemCount: users.length,
-                      separatorBuilder: (context, index) => const Divider(),
-                      itemBuilder: (context, index) {
-                        final anomaly = users[index];
-                        final solvedText = anomaly.isSolved ? 'Sim' : 'Não';
-                        final textStyle = TextStyle(
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.bold,
-                          color: anomaly.isSolved ? Colors.green : Colors.red,
-                        );
-
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    AnomalyDetailPage(anomaly: anomaly),
-                              ),
-                            );
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.all(16.0),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(8.0),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
-                                  blurRadius: 3.0,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Autor: ${anomaly.creator}',
-                                  style: const TextStyle(
-                                    fontSize: 18.0,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 8.0),
-                                Row(
-                                  children: [
-                                    const Text(
-                                      'Resolvido? ',
-                                      style: TextStyle(
-                                        fontSize: 16.0,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Text(
-                                      solvedText,
-                                      style: textStyle,
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
+    TextEditingController textFieldController = TextEditingController();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Pedidos de localização'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Pedir localização'),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(height: 16),
+                        TextField(
+                          controller: textFieldController,
+                          decoration: InputDecoration(
+                            labelText: 'username',
+                            border: OutlineInputBorder(),
                           ),
-                        );
-                      },
-                    ),
-                  ),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => AddAnomalyPage()),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(255, 255, 196, 0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30.0),
                         ),
-                      ),
-                      child: Text('Adicionar anomalia', style: kLabelStyle),
+                      ],
                     ),
-                  ),
-                ],
-              ),
-            );
-          }
-        });
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          // Perform an action when the "Add" button is pressed
+                          // For example, add a new location request
+                          String username = textFieldController.text;
+                          askLocation(username);
+                          // Close the dialog
+                          Navigator.of(context).pop();
+                        },
+                        child: Text('Pedir'),
+                      ),
+                    ],
+                  );
+                },
+              );
+
+              // Perform an action when the button is pressed
+              // For example, show a dialog or navigate to another screen
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.swap_calls),
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: ((context) => AnsweredLocationApp())));
+              // Perform an action when the button is pressed
+              // For example, refresh the location requests
+              // ...
+            },
+          )
+        ],
+      ),
+      body: ListView(
+        children: locationRequests.keys.map((locationRequest) {
+          return ListTile(
+            title: Text(locationRequest),
+            onTap: () {
+              showPopup(locationRequest, locationRequests[locationRequest]!);
+            },
+          );
+        }).toList(),
+      ),
+    );
   }
+
+  Future<void> sendLocation(String username, String location) async {
+    print("olaaaaaa");
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null) {
+      throw Exception('Token not found in cache');
+    }
+
+    final url = Uri.parse(
+      'http://helical-ascent-385614.oa.r.appspot.com/rest/aasklocation/answer/',
+    ).replace(
+      queryParameters: {
+        'tokenObj': token,
+        'username': username,
+      },
+    );
+
+    final headers = {
+      'Content-Type': 'application/json',
+    };
+
+    final bodyEvent = jsonEncode({
+      'answer': location,
+    });
+
+    final response = await http.post(url, headers: headers, body: bodyEvent);
+  }
+
+  Future<void> askLocation(String username) async {
+    print("olaaaaaa");
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null) {
+      throw Exception('Token not found in cache');
+    }
+
+    final url = Uri.parse(
+      'http://helical-ascent-385614.oa.r.appspot.com/rest/aasklocation/ask/',
+    ).replace(
+      queryParameters: {
+        'tokenObj': token,
+        'username': username,
+      },
+    );
+
+    final response = await http.post(url);
+  }
+}
+
+void main() {
+  runApp(AskLocationApp());
 }

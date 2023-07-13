@@ -1,13 +1,19 @@
-import 'dart:convert';
+// ignore_for_file: use_build_context_synchronously
 
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:discipulos_flutter/application/api.dart';
 import 'package:discipulos_flutter/presentation/login/login_page.dart';
 import 'package:discipulos_flutter/presentation/perfil/update_profile.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../constants/constants.dart';
 import '../welcome/widgets/navigation_drawer.dart';
 import 'widgets/profile_menu.dart';
+import 'package:http/http.dart' as http;
 
 class Profile extends StatefulWidget {
   final String email;
@@ -18,23 +24,41 @@ class Profile extends StatefulWidget {
   _Profile createState() => _Profile();
 }
 
-class _Profile extends State<Profile> {  
+class _Profile extends State<Profile> {
   Map<String, dynamic>? token;
   String? email;
+  Uint8List? _imageBytes;
+  TextEditingController _confirmarApagarConta = TextEditingController();
+  bool _vaiApagarConta = false;
+  bool _isLoadingImage = false;
+  late CloudApi api;
 
   @override
   void initState() {
     super.initState();
     loadCacheData();
+    _initializeApi();
   }
 
- Future<void> loadCacheData() async {
+  @override
+  void dispose() {
+    _confirmarApagarConta.dispose();
+    super.dispose();
+  }
+
+  Future<void> loadCacheData() async {
     token = await getTokenFromCache();
     email = await getEmailFromCache();
     setState(() {});
   }
 
-   Future<Map<String, dynamic>?> getTokenFromCache() async {
+  Future<void> _initializeApi() async {
+    final json = await rootBundle.loadString('assets/credentials.json');
+    api = CloudApi(json);
+    _loadImageFromCache();
+  }
+
+  Future<Map<String, dynamic>?> getTokenFromCache() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? tokenString = prefs.getString('token');
     if (tokenString != null) {
@@ -42,7 +66,8 @@ class _Profile extends State<Profile> {
     }
     return null;
   }
- Future<String?> getEmailFromCache() async {
+
+  Future<String?> getEmailFromCache() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('email');
   }
@@ -59,16 +84,127 @@ class _Profile extends State<Profile> {
     }
   }
 
+  Future<void> _loadImageFromCache() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? imageBytesStringList = prefs.getStringList('imageBytes');
+    if (imageBytesStringList != null) {
+      setState(() {
+        _imageBytes = Uint8List.fromList(
+          imageBytesStringList.map((str) => int.parse(str)).toList(),
+        );
+      });
+    } else {
+      await getFromBucket();
+    }
+  }
+
+  Future<void> getFromBucket() async {
+    setState(() {
+      _isLoadingImage = true;
+    });
+
+    String username = token?['username'];
+    String filename = '$username\_pfp';
+    Uint8List? bytes = await api.getFile(filename);
+
+    setState(() {
+      _imageBytes = bytes;
+      _isLoadingImage = false;
+    });
+  }
+
+  Future<void> _showDeleteAccountConfirmation(BuildContext context) async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Apagar conta'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Tem a certeza que quer apagar a conta?',
+                style: TextStyle(color: Colors.red),
+              ),
+              const SizedBox(height: 20),
+              TextField(
+                controller: _confirmarApagarConta,
+                decoration: const InputDecoration(
+                  labelText: "Tomei conhecimento que quero apagar a conta",
+                  hintStyle: TextStyle(color: Colors.red),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final confirmationText = _confirmarApagarConta.text.trim();
+                if (confirmationText ==
+                    'Tomei conhecimento que quero apagar a conta') {
+                  deleteAccount();
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Texto de confirmação incorreto.')),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              child: const Text('Apagar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> deleteAccount() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null) {
+      throw Exception('Token not found in cache');
+    }
+    print("token: " + token);
+    final tokenObj = jsonDecode(token);
+
+    final url = Uri.parse(
+      'http://helical-ascent-385614.oa.r.appspot.com/rest/users/delete/',
+    ).replace(
+      queryParameters: {'tokenObj': token},
+    );
+    print("url: " + url.toString());
+
+    final response = await http.delete(url);
+    if(response.statusCode == 200) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Login()),
+      );
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Login()),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-     if (token == null) {
-    return CircularProgressIndicator();
-    }    
+    if (token == null) {
+      return CircularProgressIndicator();
+    }
     return Scaffold(
       drawer: const CustomNavigationDrawer(),
       appBar: AppBar(
         title: const Text(
-          "Perfil", 
+          "Perfil",
           style: TextStyle(
             color: Color.fromARGB(255, 0, 0, 0),
             fontSize: 20,
@@ -76,8 +212,7 @@ class _Profile extends State<Profile> {
           ),
         ),
         backgroundColor: const Color.fromARGB(255, 237, 237, 237),
-        iconTheme: const IconThemeData(color: Colors.black), // Set the navigation drawer icon color to black
-
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: SingleChildScrollView(
         child: Container(
@@ -87,28 +222,38 @@ class _Profile extends State<Profile> {
               Stack(
                 children: [
                   SizedBox(
-                    width: 120, 
+                    width: 120,
                     height: 120,
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(100), 
-                      child: const Image(image: AssetImage('assets/images/VADER.png')),
+                      borderRadius: BorderRadius.circular(100),
+                      child: _imageBytes != null
+                          ? Image.memory(
+                              _imageBytes!,
+                              fit: BoxFit.cover,
+                            )
+                          : const Image(
+                              image: AssetImage('assets/images/VADER.png'),
+                              fit: BoxFit.cover,
+                            ),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 10),
               Text(token?['username'], style: kLabelStyle),
-              Text(convertRoleToString(token?['role'] as int? ?? 0), style: kLabelStyle),
+              Text(convertRoleToString(token?['role'] as int? ?? 0),
+                  style: kLabelStyle),
               Text(email ?? "Error! No Mail", style: kLabelStyle),
               const SizedBox(height: 20),
               SizedBox(
                 width: 200,
                 child: ElevatedButton(
                   onPressed: () {
-                     Navigator.push(
+                    Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const UpdateProfile()),
-                      );
+                      MaterialPageRoute(
+                          builder: (context) => const UpdateProfile()),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color.fromARGB(255, 255, 196, 0),
@@ -122,15 +267,48 @@ class _Profile extends State<Profile> {
               const SizedBox(height: 30),
               const Divider(),
               const SizedBox(height: 10),
-              ProfileMenuWidget(title: "Definições", icon: Icons.settings, onPress: () {}, textColor: Colors.black),
-              ProfileMenuWidget(title: "Mudar password", icon: Icons.password_rounded, onPress: () {}, textColor: Colors.black),
-              ProfileMenuWidget(title: "Logout", icon: Icons.logout, onPress: () {}, textColor: Colors.black),
-              ProfileMenuWidget(title: "Apagar conta", icon: Icons.delete, onPress: () {}, textColor: Colors.red),
+              ProfileMenuWidget(
+                  title: "Logout",
+                  icon: Icons.logout,
+                  onPress: () {
+                    logOut();
+                    SharedPreferences.getInstance().then((prefs) {
+                      prefs.clear().then((value) {
+                       Navigator.pushReplacementNamed(context, '/login');
+                      });
+                      //Fazer logout no servidor
+                    });
+                  },
+                  textColor: Colors.black),
+              ProfileMenuWidget(
+                  title: "Apagar conta",
+                  icon: Icons.delete,
+                  onPress: () {
+                    _showDeleteAccountConfirmation(context);
+                  },
+                  textColor: Colors.red),
             ],
           ),
         ),
       ),
     );
   }
-}
 
+  Future<void> logOut() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null) {
+      throw Exception('Token not found in cache');
+    }
+    print("token: " + token);
+    final tokenObj = jsonDecode(token);
+
+    final url = Uri.parse(
+      'http://helical-ascent-385614.oa.r.appspot.com/rest/users/logout/',
+    ).replace(
+      queryParameters: {'tokenObj': token},
+    );
+    print("url: " + url.toString());
+
+  }
+}
