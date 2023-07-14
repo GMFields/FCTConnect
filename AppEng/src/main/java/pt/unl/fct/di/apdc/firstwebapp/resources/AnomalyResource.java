@@ -49,6 +49,11 @@ public class AnomalyResource implements AnomalyAPI {
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
 
+            if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
+                txn.rollback();
+                return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
+            }
+
             AnomalyData anomaly = new AnomalyData(anomalyDescription, tokenObj.getUsername());
 
             Key anomalyKey = KeyStore.anomalyKeyFactory(anomaly.getAnomalyID());
@@ -81,14 +86,24 @@ public class AnomalyResource implements AnomalyAPI {
 
     @Override
     public Response listApprovedAnomalies(String tokenObjStr) {
-        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
+        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Pode ser passado como TokenClass
 
         Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
-        Entity token = datastore.get(tokenKey);
+
+        Transaction txn = datastore.newTransaction();
+        Entity token = txn.get(tokenKey);
 
         if (token == null) {
+            txn.rollback();
             return Response.status(Response.Status.FORBIDDEN).build();
         }
+
+        if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
+            txn.rollback();
+            return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
+        }
+
+
 
         Query<Entity> query = Query.newEntityQueryBuilder()
                 .setKind("Anomaly")
@@ -111,16 +126,20 @@ public class AnomalyResource implements AnomalyAPI {
             anomalyData.add(entity.getString("anomaly_ID"));
             resultList.add(anomalyData);
         }
+        txn.commit();
         return Response.ok(g.toJson(resultList)).build();
     }
 
     @Override
     public Response approveAnomaly(String tokenObjStr, String anomalyID) {
+
         Response r = verifyAdmin(tokenObjStr);
 
         if (r != null) {
             return r;
         }
+
+
 
         Key anomalyKey = KeyStore.anomalyKeyFactory(anomalyID);
         Transaction txn = datastore.newTransaction();
@@ -153,11 +172,14 @@ public class AnomalyResource implements AnomalyAPI {
 
     @Override
     public Response solveAnomaly(String tokenObjStr, String anomalyID) {
+
         Response r = verifyAdmin(tokenObjStr);
 
         if (r != null) {
             return r;
         }
+
+
 
         Key anomalyKey = KeyStore.anomalyKeyFactory(anomalyID);
         Transaction txn = datastore.newTransaction();
@@ -190,11 +212,14 @@ public class AnomalyResource implements AnomalyAPI {
 
     @Override
     public Response listAllAnomalies(String tokenObjStr) {
+
         Response r = verifyAdmin(tokenObjStr);
 
         if (r != null) {
             return r;
         }
+
+
 
         Query<Entity> query = Query.newEntityQueryBuilder()
                 .setKind("Anomaly")
@@ -222,6 +247,9 @@ public class AnomalyResource implements AnomalyAPI {
 
     @Override
     public Response deleteAnomaly(String tokenObjStr, String anomalyID) {
+
+
+
         Response r = verifyAdmin(tokenObjStr);
 
         if (r != null) {
@@ -258,8 +286,19 @@ public class AnomalyResource implements AnomalyAPI {
         AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Pode ser passado como AuthToken
 
         Key adminKey = KeyStore.userKeyFactory(tokenObj.getUsername());
-
         Entity user = datastore.get(adminKey);
+
+        Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
+        Entity token = datastore.get(tokenKey);
+
+
+        if (token == null) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+
+        if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
+            return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
+        }
         if (user == null) {
             return Response.status(Response.Status.NOT_FOUND).entity(USER_DOESNT_EXIST).build();
         }

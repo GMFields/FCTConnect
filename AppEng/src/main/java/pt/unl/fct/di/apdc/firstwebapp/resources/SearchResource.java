@@ -39,6 +39,10 @@ public class SearchResource implements SearchAPI {
                 txn.rollback();
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
+            if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
+                txn.rollback();
+                return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
+            }
 
             if (user == null) {
                 txn.rollback();
