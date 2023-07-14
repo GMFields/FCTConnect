@@ -36,6 +36,10 @@ public class ChatResource implements ChatApi {
     @Override
     public Response addPost(Post post, String tokenObjStr) {
         AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Pode ser passado como TokenClass
+        Response resp = verifyToken(tokenObjStr);
+        if (resp != null) {
+            return resp;
+        }
 
         LOG.warning(tokenObj.toString());
         LOG.fine("User: " + tokenObj.getUsername() + " is attempting to post to forum!");
@@ -98,12 +102,12 @@ public class ChatResource implements ChatApi {
         Transaction txn = datastore.newTransaction();
 
         try {
-            Entity token = txn.get(tokenKey);
-
-            if (token == null) {
-                txn.rollback();
-                return Response.status(Response.Status.FORBIDDEN).build();
+            Response resp = verifyToken(tokenObjStr);
+            if (resp != null) {
+                return resp;
             }
+
+
 
             Query<Entity> query = Query.newEntityQueryBuilder()
                     .setKind("Post")
@@ -160,11 +164,9 @@ public class ChatResource implements ChatApi {
         Transaction txn = datastore.newTransaction();
 
         try {
-            Entity token = txn.get(tokenKey);
-
-            if (token == null) {
-                txn.rollback();
-                return Response.status(Response.Status.FORBIDDEN).build();
+            Response resp = verifyToken(tokenObjStr);
+            if (resp != null) {
+                return resp;
             }
 
             Key replyKey = KeyStore.replyKeyFactory(UUID.randomUUID().toString(), reply.getId());
@@ -208,11 +210,9 @@ public class ChatResource implements ChatApi {
         Transaction txn = datastore.newTransaction();
 
         try {
-            Entity token = txn.get(tokenKey);
-
-            if (token == null) {
-                txn.rollback();
-                return Response.status(Response.Status.FORBIDDEN).build();
+            Response resp = verifyToken(tokenObjStr);
+            if (resp != null) {
+                return resp;
             }
 
             Query<Entity> query = Query.newEntityQueryBuilder()
@@ -263,11 +263,9 @@ public class ChatResource implements ChatApi {
         Transaction txn = datastore.newTransaction();
 
         try {
-            Entity token = txn.get(tokenKey);
-
-            if (token == null) {
-                txn.rollback();
-                return Response.status(Response.Status.FORBIDDEN).build();
+            Response resp = verifyToken(tokenObjStr);
+            if (resp != null) {
+                return resp;
             }
 
             Query<Entity> query = Query.newEntityQueryBuilder()
@@ -337,11 +335,9 @@ public class ChatResource implements ChatApi {
     public Response listUserBookmarks(String username, String tokenObjStr) {
         AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
 
-        Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
-        Entity token = datastore.get(tokenKey);
-
-        if (token == null) {
-            return Response.status(Response.Status.FORBIDDEN).build();
+        Response resp = verifyToken(tokenObjStr);
+        if (resp != null) {
+            return resp;
         }
 
         Query<Entity> query = Query.newEntityQueryBuilder()
@@ -457,5 +453,25 @@ public class ChatResource implements ChatApi {
         Cursor nextPage = results.getCursorAfter();
 
         return Response.ok(g.toJson(resultList) + g.toJson(nextPage)).build();
+    }
+
+    private Response verifyToken(String tokenObjStr){
+        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Pode ser passado como AuthToken
+
+
+
+        Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
+        Entity token = datastore.get(tokenKey);
+
+        if (token == null) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+
+        if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
+            return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
+        }
+
+        return null;
+
     }
 }

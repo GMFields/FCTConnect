@@ -41,12 +41,11 @@ public class MapResource implements MapAPI {
         String name = data.getName();
 
         try {
-            Entity token = txn.get(tokenKey);
 
 
-            if (token == null) {
-                txn.rollback();
-                return Response.status(Response.Status.FORBIDDEN).entity("Invalid token!").build();
+            Response resp = verifyToken(tokenObjStr);
+            if (resp != null) {
+                return resp;
             }
 
             if (latitude == null || longitude == null) {
@@ -97,11 +96,9 @@ public class MapResource implements MapAPI {
         Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
 
         try {
-            Entity token = txn.get(tokenKey);
-
-            if (token == null) {
-                txn.rollback();
-                return Response.status(Response.Status.FORBIDDEN).entity("Invalid token!").build();
+            Response resp = verifyToken(tokenObjStr);
+            if (resp != null) {
+                return resp;
             }
 
             Key waypointKey = KeyStore.mapKeyFactory(wayPointID);
@@ -145,11 +142,9 @@ public class MapResource implements MapAPI {
         Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
 
         try {
-            Entity token = txn.get(tokenKey);
-
-            if (token == null) {
-                txn.rollback();
-                return Response.status(Response.Status.FORBIDDEN).entity("Invalid token!").build();
+            Response resp = verifyToken(tokenObjStr);
+            if (resp != null) {
+                return resp;
             }
 
             Key userKey = KeyStore.userKeyFactory(user_username);
@@ -194,5 +189,23 @@ public class MapResource implements MapAPI {
             }
         }
     }
+    private Response verifyToken(String tokenObjStr){
+        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Pode ser passado como AuthToken
 
+
+
+        Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
+        Entity token = datastore.get(tokenKey);
+
+        if (token == null) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+
+        if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
+            return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
+        }
+
+        return null;
+
+    }
 }

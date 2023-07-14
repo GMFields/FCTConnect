@@ -148,6 +148,11 @@ public class RestaurantResource implements RestaurantAPI {
         AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
         LOG.info(tokenObj.getUsername() + " is trying to list all the restaurants");
 
+
+        Response resp = verifyToken(tokenObjStr);
+        if (resp != null) {
+            return resp;
+        }
         Query<Entity> query = Query.newEntityQueryBuilder()
                 .setKind("Restaurant")
                 .build();
@@ -185,6 +190,10 @@ public class RestaurantResource implements RestaurantAPI {
         LOG.info("2");
 
         try {
+            Response resp = verifyToken(tokenObjStr);
+            if (resp != null) {
+                return resp;
+            }
             Entity restaurant = txn.get(restaurantKey);
             if (restaurant == null) {
                 txn.rollback();
@@ -249,7 +258,10 @@ public class RestaurantResource implements RestaurantAPI {
         AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
 
         LOG.info("0");
-
+        Response resp = verifyToken(tokenObjStr);
+        if (resp != null) {
+            return resp;
+        }
         Key userKey = KeyStore.userKeyFactory(tokenObj.getUsername());
         Entity user = datastore.get(userKey);
         LOG.info("1");
@@ -334,6 +346,10 @@ public class RestaurantResource implements RestaurantAPI {
 
         Key restaurantKey = KeyStore.restaurantKeyFactory(restaurantName);
         Entity restaurant = datastore.get(restaurantKey);
+        Response resp = verifyToken(tokenObjStr);
+        if (resp != null) {
+            return resp;
+        }
         if (restaurant == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("Reviews not found").build();
         }
@@ -389,6 +405,10 @@ public class RestaurantResource implements RestaurantAPI {
         Key dishKey = KeyStore.dishKeyFactory(dishID);
 
         try {
+            Response resp = verifyToken(tokenObjStr);
+            if (resp != null) {
+                return resp;
+            }
             Entity restaurant = txn.get(restaurantKey);
             if (restaurant == null) {
                 txn.rollback();
@@ -441,7 +461,10 @@ public class RestaurantResource implements RestaurantAPI {
         AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
 
         LOG.info(tokenObj.getUsername() + " is trying to get desserts for restaurant: " + restaurantName);
-
+        Response resp = verifyToken(tokenObjStr);
+        if (resp != null) {
+            return resp;
+        }
         Key restaurantKey = KeyStore.restaurantKeyFactory(restaurantName);
         Entity restaurant = datastore.get(restaurantKey);
         if (restaurant == null) {
@@ -476,7 +499,10 @@ public class RestaurantResource implements RestaurantAPI {
         AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
 
         LOG.info(tokenObj.getUsername() + " is trying to get daily dishes for restaurant: " + restaurantName);
-
+        Response resp = verifyToken(tokenObjStr);
+        if (resp != null) {
+            return resp;
+        }
         Key restaurantKey = KeyStore.restaurantKeyFactory(restaurantName);
         Entity restaurant = datastore.get(restaurantKey);
         if (restaurant == null) {
@@ -508,6 +534,11 @@ public class RestaurantResource implements RestaurantAPI {
         AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
 
         LOG.info(tokenObj.getUsername() + " is trying to get menus for restaurant: " + restaurantName);
+
+        Response resp = verifyToken(tokenObjStr);
+        if (resp != null) {
+            return resp;
+        }
 
         Key restaurantKey = KeyStore.restaurantKeyFactory(restaurantName);
         Entity restaurant = datastore.get(restaurantKey);
@@ -541,6 +572,11 @@ public class RestaurantResource implements RestaurantAPI {
 
         LOG.info(tokenObj.getUsername() + " is trying to get soups for restaurant: " + restaurantName);
 
+
+        Response resp = verifyToken(tokenObjStr);
+        if (resp != null) {
+            return resp;
+        }
         Key restaurantKey = KeyStore.restaurantKeyFactory(restaurantName);
         Entity restaurant = datastore.get(restaurantKey);
         if (restaurant == null) {
@@ -650,6 +686,26 @@ public class RestaurantResource implements RestaurantAPI {
 
             resultList.add(dishInfo);
         }
+    }
+
+    private Response verifyToken(String tokenObjStr){
+        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Pode ser passado como AuthToken
+
+
+
+        Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
+        Entity token = datastore.get(tokenKey);
+
+        if (token == null) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+
+        if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
+            return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
+        }
+
+        return null;
+
     }
 
 

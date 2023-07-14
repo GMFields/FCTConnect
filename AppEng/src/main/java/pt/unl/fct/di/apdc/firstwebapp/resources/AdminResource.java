@@ -246,6 +246,17 @@ public class AdminResource implements AdminAPI {
 
 	private Response verifyAdmin(String tokenObjStr) {
 		AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
+		Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
+		Entity token = datastore.get(tokenKey);
+
+
+		if (token == null) {
+			return Response.status(Response.Status.FORBIDDEN).build();
+		}
+
+		if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
+			return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
+		}
 
 		Key adminKey = KeyStore.userKeyFactory(tokenObj.getUsername());
 
