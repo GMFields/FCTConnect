@@ -41,17 +41,9 @@ public class AskLocationResource implements AskLocationAPI {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
 
-            Entity token = txn.get(tokenKey);
-
-            if (token == null) {
-                txn.rollback();
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
-
-
-            if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
-                txn.rollback();
-                return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
+            Response resp = verifyToken(tokenObjStr);
+            if (resp != null) {
+                return resp;
             }
 
 
@@ -108,16 +100,9 @@ public class AskLocationResource implements AskLocationAPI {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
 
-            Entity token = txn.get(tokenKey);
-
-            if (token == null) {
-                txn.rollback();
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
-
-            if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
-                txn.rollback();
-                return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
+            Response resp = verifyToken(tokenObjStr);
+            if (resp != null) {
+                return resp;
             }
 
             Key locationKey = KeyStore.askLocationKeyFactory(tokenObj.getUsername());
@@ -179,20 +164,14 @@ public class AskLocationResource implements AskLocationAPI {
         Transaction txn = datastore.newTransaction();
 
         try {
-            Entity token = txn.get(tokenKey);
             Entity user = txn.get(userKey);
 
             if (!username.equals(tokenObj.getUsername()) && (user == null || user.getString(username) == null))
                 return Response.status(Response.Status.FORBIDDEN).build();
 
-            if (token == null) {
-                txn.rollback();
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
-
-            if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
-                txn.rollback();
-                return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
+            Response resp = verifyToken(tokenObjStr);
+            if (resp != null) {
+                return resp;
             }
 
             Key locationKey = KeyStore.askLocationKeyFactory(username);
@@ -235,20 +214,14 @@ public class AskLocationResource implements AskLocationAPI {
         Transaction txn = datastore.newTransaction();
 
         try {
-            Entity token = txn.get(tokenKey);
             Entity user = txn.get(userKey);
 
             if (!username.equals(tokenObj.getUsername()) && (user == null || user.getString(username) == null))
                 return Response.status(Response.Status.FORBIDDEN).build();
 
-            if (token == null) {
-                txn.rollback();
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
-
-            if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
-                txn.rollback();
-                return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
+            Response resp = verifyToken(tokenObjStr);
+            if (resp != null) {
+                return resp;
             }
 
             Key locationKey = KeyStore.answerLocationKeyFactory(username);
@@ -300,16 +273,9 @@ public class AskLocationResource implements AskLocationAPI {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
 
-            Entity token = txn.get(tokenKey);
-
-            if (token == null) {
-                txn.rollback();
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
-
-            if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
-                txn.rollback();
-                return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
+            Response resp = verifyToken(tokenObjStr);
+            if (resp != null) {
+                return resp;
             }
 
             Key locationKey = KeyStore.askLocationKeyFactory(username);
@@ -337,5 +303,24 @@ public class AskLocationResource implements AskLocationAPI {
                 txn.rollback();
             }
         }
+    }
+    private Response verifyToken(String tokenObjStr){
+        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Pode ser passado como AuthToken
+
+
+
+        Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
+        Entity token = datastore.get(tokenKey);
+
+        if (token == null) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+
+        if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
+            return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
+        }
+
+        return null;
+
     }
 }

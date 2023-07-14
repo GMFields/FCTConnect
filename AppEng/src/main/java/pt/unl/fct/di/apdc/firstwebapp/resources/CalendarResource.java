@@ -49,16 +49,9 @@ public class CalendarResource implements CalendarApi {
         Transaction txn = datastore.newTransaction();
 
         try {
-            Entity token = txn.get(tokenKey);
-
-            if (token == null) {
-                txn.rollback();
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
-
-            if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
-                txn.rollback();
-                return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
+            Response resp = verifyToken(tokenObjStr);
+            if (resp != null) {
+                return resp;
             }
 
             Event event1 = new Event(event.getTitle(), event.getDescription(), event.getDate(), event.getDuration());
@@ -109,16 +102,9 @@ public class CalendarResource implements CalendarApi {
         Transaction txn = datastore.newTransaction();
 
         try {
-            Entity token = txn.get(tokenKey);
-
-            if (token == null) {
-                txn.rollback();
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
-
-            if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
-                txn.rollback();
-                return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
+            Response resp = verifyToken(tokenObjStr);
+            if (resp != null) {
+                return resp;
             }
 
             Key eventKey = KeyStore.calendarKeyFactory(eventID);
@@ -166,16 +152,9 @@ public class CalendarResource implements CalendarApi {
         Transaction txn = datastore.newTransaction();
 
         try {
-            Entity token = txn.get(tokenKey);
-
-            if (token == null) {
-                txn.rollback();
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
-
-            if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
-                txn.rollback();
-                return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
+            Response resp = verifyToken(tokenObjStr);
+            if (resp != null) {
+                return resp;
             }
 
             Key eventKey = KeyStore.calendarKeyFactory(event.getEventID());
@@ -225,16 +204,9 @@ public class CalendarResource implements CalendarApi {
         Transaction txn = datastore.newTransaction();
 
         try {
-            Entity token = txn.get(tokenKey);
-
-            if (token == null) {
-                txn.rollback();
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
-
-            if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
-                txn.rollback();
-                return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
+            Response resp = verifyToken(tokenObjStr);
+            if (resp != null) {
+                return resp;
             }
 
             Key eventKey = KeyStore.calendarKeyFactory(eventID);
@@ -269,21 +241,16 @@ public class CalendarResource implements CalendarApi {
         Transaction txn = datastore.newTransaction();
 
         try {
-            Entity token = txn.get(tokenKey);
+
             Entity user = txn.get(userKey);
 
             if (!username.equals(tokenObj.getUsername()) && (user == null ||  user.getString(username) == null))
                 return Response.status(Response.Status.FORBIDDEN).build();
 
 
-            if (token == null) {
-                txn.rollback();
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
-
-            if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
-                txn.rollback();
-                return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
+            Response resp = verifyToken(tokenObjStr);
+            if (resp != null) {
+                return resp;
             }
 
             Query<Entity> query = Query.newEntityQueryBuilder()
@@ -344,16 +311,9 @@ public class CalendarResource implements CalendarApi {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
 
-            Entity token = txn.get(tokenKey);
-
-            if (token == null) {
-                txn.rollback();
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
-
-            if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
-                txn.rollback();
-                return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
+            Response resp = verifyToken(tokenObjStr);
+            if (resp != null) {
+                return resp;
             }
 
 
@@ -413,16 +373,9 @@ public class CalendarResource implements CalendarApi {
 
 
 
-            Entity token = txn.get(tokenKey);
-
-            if (token == null) {
-                txn.rollback();
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
-
-            if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
-                txn.rollback();
-                return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
+            Response resp = verifyToken(tokenObjStr);
+            if (resp != null) {
+                return resp;
             }
 
             Key accessKey = KeyStore.CalendarAccessKeyFactory(username);
@@ -454,7 +407,26 @@ public class CalendarResource implements CalendarApi {
                 txn.rollback();
             }
         }
+
     }
 
+    private Response verifyToken(String tokenObjStr){
+        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Pode ser passado como AuthToken
 
+
+
+        Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
+        Entity token = datastore.get(tokenKey);
+
+        if (token == null) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+
+        if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
+            return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
+        }
+
+        return null;
+
+    }
 }
