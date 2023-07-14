@@ -98,4 +98,8 @@ public interface UserAPI {
     @Consumes(MediaType.APPLICATION_JSON)
     Response deleteAccount(@QueryParam("tokenObj") String tokenObjStr);
 
+    @GET
+    @Path("/activate")
+    Response activateAccount(@QueryParam("activationToken") String activationToken);
+
 }

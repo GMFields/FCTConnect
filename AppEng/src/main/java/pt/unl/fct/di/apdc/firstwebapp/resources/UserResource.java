@@ -16,8 +16,10 @@ import pt.unl.fct.di.apdc.firstwebapp.util.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.UUID;
 import java.util.logging.Logger;
 
+import javax.validation.constraints.Email;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.*;
@@ -33,6 +35,8 @@ public class UserResource implements UserAPI {
 
 	private static final Logger LOG = Logger.getLogger(UserResource.class.getName());
 
+	private EmailSender sender = EmailSender.getInstance();
+
 	public UserResource() {
 	}
 
@@ -44,9 +48,7 @@ public class UserResource implements UserAPI {
 			return Response.status(Status.BAD_REQUEST).entity("Invalid Data").build();
 
 		Transaction txn = datastore.newTransaction();
-
 		Key emailKey = KeyStore.emailKeyFactory(data.getEmail());
-
 		try {
 			Entity email = txn.get(emailKey);
 
@@ -71,31 +73,23 @@ public class UserResource implements UserAPI {
 			if(data.getRole() == 4) {
 				return Response.status(Status.FORBIDDEN).entity(ConstantFactory.INSUFFICIENT_PERMISSIONS.getDesc()).build();
 			}
+			String activationToken = generateActivationToken(data.getUsername());
 
-			user = Entity.newBuilder(userKey) // TODO @GMFields faltam itens a serem adicionados na base de dados - a
-												// ser discutido!
+			user = Entity.newBuilder(userKey)
 					.set("user_name", data.getName()).set("user_pwd", DigestUtils.sha512Hex(data.getPassword()))
 					.set("user_email", data.getEmail()).set("user_role", data.getRole())
 					.set("user_state", ConstantFactory.INATIVO_STATE.getDesc())
 					.set("user_creation_time", Timestamp.now())
 					.set("user_department", data.getDepartment())
 					.set("user_reviews", new ArrayList<>())
+					.set("activation_token", activationToken)
 					.build();
 
 			txn.add(user);
-			/*
-			try {
-				EmailSender emailSender = EmailSender.getInstance();
-				emailSender.sendEmail("emailDosDiscipulos", data.getEmail(), "Sending with SendGrid is Fun", "and easy to do anywhere, even with Java");
-			} catch (IOException ex) {
-				// Handle exception
-			}
-			 */
-
 			LOG.info("User registered: " + data.getUsername());
 			txn.commit();
-			return Response.status(Status.CREATED).entity(g.toJson(user)).build(); // TODO @GMFields verificar se é preciso enviar
-																			// "data" - método não tem tag @produces
+			sender.sendActivationEmail(data.getEmail(), activationToken);
+			return Response.status(Status.CREATED).entity(g.toJson(user)).build();
 		} catch (Exception e) {
 			txn.rollback();
 			LOG.severe(e.getMessage());
@@ -130,7 +124,6 @@ public class UserResource implements UserAPI {
 
 			if (user == null) {
 				txn.rollback();
-				LOG.warning("Failed login attempt! User with email: " + email + " does not exist");
 				return Response.status(Status.NOT_FOUND).build();
 			}
 
@@ -175,22 +168,16 @@ public class UserResource implements UserAPI {
 	@Override
 	public Response userLogout(String tokenObjStr) {
 		AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
-
 		LOG.fine("Attempt to logout user: " + tokenObj.getUsername());
-
 		Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
-
 		Transaction txn = datastore.newTransaction();
+
 		try {
 			Entity tokenE = txn.get(tokenKey);
-
 			if (tokenE == null) {
 				txn.rollback();
 				return Response.status(Status.NOT_FOUND).build();
 			}
-
-
-
 
 			txn.delete(tokenKey);
 			txn.commit();
@@ -217,15 +204,13 @@ public class UserResource implements UserAPI {
 		try {
 			Entity user = datastore.get(userKey);
 
-			// Deveria haver verificação?
-
 			String email = user.getString("user_email");
 			String password = user.getString("user_pwd");
 			String name = user.getString("user_name");
 			int role = (int) user.getLong("user_role");
-			String state = user.getString("user_state"); // Ativo ou não
+			String state = user.getString("user_state");
 			String department = user.getString("user_department");
-			String profile = user.contains("user_profile") ? user.getString("user_profile") : ""; // Publico ou privado
+			String profile = user.contains("user_profile") ? user.getString("user_profile") : "";
 			String landline = user.contains("user_landline") ? user.getString("user_landline") : "";
 			String phoneNumber = user.contains("user_phone") ? user.getString("user_phone") : "";
 			String occupation = user.contains("user_occupation") ? user.getString("user_occupation") : "";
@@ -320,8 +305,6 @@ public class UserResource implements UserAPI {
 
 			txn.delete(userKey);
 			LOG.info("User deleted: " + tokenObj.getUsername());
-
-
 			txn.delete(tokenKey);
 			txn.commit();
 			return Response.status(Response.Status.OK).build();
@@ -334,7 +317,60 @@ public class UserResource implements UserAPI {
 				txn.rollback();
 			}
 		}
+	}
+
+	@Override
+	public Response activateAccount(String activationToken) {
+
+	boolean isTokenValid = verifyActivationToken(activationToken);
+
+        if (isTokenValid) {
+		activateUserAccount(activationToken);
+		return Response.status(Status.OK).build();
+	} else {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+	}
+}
+
+	private boolean verifyActivationToken(String activationToken) {
+		boolean isValid = false;
+		String tokenParts[] = activationToken.split(",");
+		String token = tokenParts[0];
+		String username = tokenParts[1];
+
+		if(token != null && !token.isEmpty() && !username.isEmpty() && username != null ) {
+			isValid = true;
+		}
+		Key userKey = KeyStore.userKeyFactory(username);
+		Entity user = datastore.get(userKey);
+
+		if(user.getString("activation_token").equals(token)) {
+			isValid = true;
+		}
+		return isValid;
+	}
+
+	private void activateUserAccount(String activationToken) {
+		String tokenParts[] = activationToken.split(",");
+		String token = tokenParts[0];
+		String username = tokenParts[1];
+
+		Key userKey = KeyStore.userKeyFactory(username);
+		Entity user = datastore.get(userKey);
+
+		user = Entity.newBuilder(user)
+				.set("user_state", "ATIVO")
+				.build();
+		datastore.update(user);
+
 
 	}
+
+	private String generateActivationToken(String username) {
+		String randomUUID = UUID.randomUUID().toString();
+		String token = randomUUID+","+username;
+		return token;
+	}
+
 
 }
