@@ -107,8 +107,6 @@ public class ChatResource implements ChatApi {
                 return resp;
             }
 
-
-
             Query<Entity> query = Query.newEntityQueryBuilder()
                     .setKind("Post")
                     .setFilter(PropertyFilter.eq("id", post.getId()))
@@ -332,20 +330,39 @@ public class ChatResource implements ChatApi {
     }
 
     @Override
-    public Response listUserBookmarks(String username, String tokenObjStr) {
+    public Response listUserBookmarks(String username, String tokenObjStr, String cursorObjStr) {
         AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
+
+        Cursor cursorObj = null;
+        if (!cursorObjStr.equals("")) {
+            String[] byteArrayValues = cursorObjStr.replace("[", "").replace("]", "").replaceAll("\\s+", "").split(",");
+            byte[] byteArray = new byte[byteArrayValues.length];
+
+            for (int i = 0; i < byteArrayValues.length; i++) {
+                byteArray[i] = (byte) Integer.parseInt(byteArrayValues[i]);
+            }
+
+            cursorObj = Cursor.copyFrom(byteArray);
+        }
 
         Response resp = verifyToken(tokenObjStr);
         if (resp != null) {
             return resp;
         }
 
-        Query<Entity> query = Query.newEntityQueryBuilder()
+        EntityQuery.Builder query = Query.newEntityQueryBuilder()
                 .setKind("Post")
                 .setFilter(PropertyFilter.hasAncestor(KeyStore.userKeyFactory(username)))
-                .build();
+                .setLimit(4);
 
-        QueryResults<Entity> results = datastore.run(query);
+        if (cursorObj != null) {
+            LOG.warning(cursorObj.toString());
+            query.setStartCursor(cursorObj);
+        } else {
+            query.setStartCursor(pageCursor);
+        }
+
+        QueryResults<Entity> results = datastore.run(query.build());
         if (!results.hasNext()) {
             return Response.status(Response.Status.NOT_FOUND).entity("There are no anomalies!").build();
         }
@@ -361,7 +378,65 @@ public class ChatResource implements ChatApi {
             resultList.add(p);
         }
 
-        return Response.ok(g.toJson(resultList)).build();
+        Cursor nextPage = results.getCursorAfter();
+
+        return Response.ok(g.toJson(resultList) + g.toJson(nextPage)).build();
+    }
+
+    @Override
+    public Response listUserPosts(String tokenObjStr, String cursorObjStr) {
+        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
+
+        String username = tokenObj.getUsername();
+
+        Cursor cursorObj = null;
+        if (!cursorObjStr.equals("")) {
+            String[] byteArrayValues = cursorObjStr.replace("[", "").replace("]", "").replaceAll("\\s+", "").split(",");
+            byte[] byteArray = new byte[byteArrayValues.length];
+
+            for (int i = 0; i < byteArrayValues.length; i++) {
+                byteArray[i] = (byte) Integer.parseInt(byteArrayValues[i]);
+            }
+
+            cursorObj = Cursor.copyFrom(byteArray);
+        }
+
+        Response resp = verifyToken(tokenObjStr);
+        if (resp != null) {
+            return resp;
+        }
+
+        EntityQuery.Builder query = Query.newEntityQueryBuilder()
+                .setKind("Post")
+                .setFilter(PropertyFilter.eq("author", username))
+                .setLimit(4);
+
+        if (cursorObj != null) {
+            LOG.warning(cursorObj.toString());
+            query.setStartCursor(cursorObj);
+        } else {
+            query.setStartCursor(pageCursor);
+        }
+
+        QueryResults<Entity> results = datastore.run(query.build());
+        if (!results.hasNext()) {
+            return Response.status(Response.Status.NOT_FOUND).entity("There are no anomalies!").build();
+        }
+
+        List<Post> resultList = new ArrayList<>();
+
+        while (results.hasNext()) {
+            Entity e = results.next();
+            Post p = new Post(e.getString("question"), e.getString("content"), (int) e.getLong("votes"),
+                    (int) e.getLong("repliesCount"), (int) e.getLong("views"),
+                    e.getString("created_at"),
+                    e.getString("author"), e.getKey().getName());
+            resultList.add(p);
+        }
+
+        Cursor nextPage = results.getCursorAfter();
+
+        return Response.ok(g.toJson(resultList) + g.toJson(nextPage)).build();
     }
 
     @Override
@@ -411,7 +486,6 @@ public class ChatResource implements ChatApi {
          * }
          */
         Cursor cursorObj = null;
-        LOG.warning(cursorObjStr);
         if (!cursorObjStr.equals("")) {
             String[] byteArrayValues = cursorObjStr.replace("[", "").replace("]", "").replaceAll("\\s+", "").split(",");
             byte[] byteArray = new byte[byteArrayValues.length];
@@ -455,10 +529,8 @@ public class ChatResource implements ChatApi {
         return Response.ok(g.toJson(resultList) + g.toJson(nextPage)).build();
     }
 
-    private Response verifyToken(String tokenObjStr){
+    private Response verifyToken(String tokenObjStr) {
         AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Pode ser passado como AuthToken
-
-
 
         Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
         Entity token = datastore.get(tokenKey);
@@ -467,7 +539,7 @@ public class ChatResource implements ChatApi {
             return Response.status(Response.Status.FORBIDDEN).build();
         }
 
-        if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
+        if (token.getLong("token_expirationdata") < System.currentTimeMillis()) {
             return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
         }
 
