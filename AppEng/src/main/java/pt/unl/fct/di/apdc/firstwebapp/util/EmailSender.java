@@ -11,6 +11,9 @@ public class EmailSender {
 
     private static final String SENDGRID_API_KEY = "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";
     private static final String ACCOUNT_ACTIVATION_MESSAGE= "Bem vindo à EduVersity. Por favor ativa a tua conta clicando no link: ";
+
+    private static final String DOCENTE_WELCOME_MESSAGE= "Bem vindo à EduVersity. Por favor contacte um admnistrador para se autenticar e ativar a sua conta ";
+
     private static final String FROM_EMAIL = "amddiscipulos@gmail.com";
     private static final String SUBJECT = "Ativação da conta";
 
@@ -29,6 +32,12 @@ public class EmailSender {
         String activationLink = "https://helical-ascent-385614.oa.r.appspot.com/rest/users/activate?activationToken=" + activationToken;
         String emailBody = ACCOUNT_ACTIVATION_MESSAGE+activationLink;
         sendEmail(FROM_EMAIL, toEmail, SUBJECT, emailBody);
+    }
+
+    public void sendDocenteWelcomeEmail(String toEmail) throws IOException {
+        String emailBody = DOCENTE_WELCOME_MESSAGE;
+        sendEmail(FROM_EMAIL, toEmail, SUBJECT, emailBody);
+
     }
 
 

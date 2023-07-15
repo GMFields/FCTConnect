@@ -88,7 +88,11 @@ public class UserResource implements UserAPI {
 			txn.add(user);
 			LOG.info("User registered: " + data.getUsername());
 			txn.commit();
-			sender.sendActivationEmail(data.getEmail(), activationToken);
+			if(data.getRole() < 3) {
+				sender.sendActivationEmail(data.getEmail(), activationToken);
+			} else {
+				sender.sendDocenteWelcomeEmail(data.getEmail());
+			}
 			return Response.status(Status.CREATED).entity(g.toJson(user)).build();
 		} catch (Exception e) {
 			txn.rollback();
