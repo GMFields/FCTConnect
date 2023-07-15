@@ -341,18 +341,19 @@ public class UserResource implements UserAPI {
 		if(token != null && !token.isEmpty() && !username.isEmpty() && username != null ) {
 			isValid = true;
 		}
+		LOG.info(String.valueOf(isValid));
 		Key userKey = KeyStore.userKeyFactory(username);
 		Entity user = datastore.get(userKey);
 
 		if(user.getString("activation_token").equals(token)) {
 			isValid = true;
 		}
+
 		return isValid;
 	}
 
 	private void activateUserAccount(String activationToken) {
 		String tokenParts[] = activationToken.split(",");
-		String token = tokenParts[0];
 		String username = tokenParts[1];
 
 		Key userKey = KeyStore.userKeyFactory(username);
@@ -362,8 +363,6 @@ public class UserResource implements UserAPI {
 				.set("user_state", "ATIVO")
 				.build();
 		datastore.update(user);
-
-
 	}
 
 	private String generateActivationToken(String username) {

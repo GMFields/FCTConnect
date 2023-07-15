@@ -26,9 +26,8 @@ public class EmailSender {
     }
 
     public void sendActivationEmail(String toEmail, String activationToken) throws IOException {
-        String activationLink = "https://helical-ascent-385614.oa.r.appspot.com/rest/users/activate?token=" + activationToken;
+        String activationLink = "https://helical-ascent-385614.oa.r.appspot.com/rest/users/activate?activationToken=" + activationToken;
         String emailBody = ACCOUNT_ACTIVATION_MESSAGE+activationLink;
-
         sendEmail(FROM_EMAIL, toEmail, SUBJECT, emailBody);
     }
 
