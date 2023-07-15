@@ -319,6 +319,82 @@ public class ChatResource implements ChatApi {
     }
 
     @Override
+    public Response unbookmarkPost(String postId, String username, String tokenObjStr) {
+        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
+        LOG.fine("User: " + tokenObj.getUsername() + " is attempting to post to forum!");
+
+        Key userKey = KeyStore.userKeyFactory(username);
+
+        Transaction txn = datastore.newTransaction();
+
+        try {
+            Response resp = verifyToken(tokenObjStr);
+            if (resp != null) {
+                return resp;
+            }
+
+            Query<Entity> query = Query.newEntityQueryBuilder()
+                    .setKind("Post")
+                    .setFilter(PropertyFilter.eq("id", postId))
+                    .build();
+
+            QueryResults<Entity> results = datastore.run(query);
+
+            if (!results.hasNext()) {
+                txn.rollback();
+                return Response.status(Response.Status.FORBIDDEN).build();
+            }
+
+            Entity post = results.next();
+            Entity user = txn.get(userKey);
+
+            if (user == null) {
+                txn.rollback();
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+
+            KeyFactory newPostKey = datastore.newKeyFactory();
+            PathElement a = PathElement.of("Users", username);
+
+            if (post.getKey().getAncestors().contains(a)) {
+                txn.rollback();
+                return Response.status(Status.CREATED).build();
+            }
+
+            for (PathElement p : post.getKey().getAncestors()) {
+                if (!p.equals(a))
+                    newPostKey.addAncestor(p);
+            }
+
+            Entity postEntity = Entity.newBuilder(newPostKey.setKind("Post").newKey(postId))
+                    .set("question", post.getString("question"))
+                    .set("content", post.getString("content"))
+                    .set("votes", post.getLong("votes"))
+                    .set("repliesCount", post.getLong("repliesCount"))
+                    .set("views", post.getLong("views"))
+                    .set("created_at", post.getString("created_at"))
+                    .set("author", post.getString("author"))
+                    .set("id", postId)
+                    .build();
+
+            txn.delete(post.getKey());
+            txn.put(postEntity);
+
+            txn.commit();
+
+            return Response.status(Response.Status.OK).build();
+        } catch (Exception e) {
+            txn.rollback();
+            LOG.severe("An error occurred while reporting anomaly: " + e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            if (txn.isActive()) {
+                txn.rollback();
+            }
+        }
+    }
+
+    @Override
     public Response listUserBookmarks(String username, String tokenObjStr, String cursorObjStr) {
 
         Cursor cursorObj = null;
@@ -425,6 +501,39 @@ public class ChatResource implements ChatApi {
         Cursor nextPage = results.getCursorAfter();
 
         return Response.ok(g.toJson(resultList) + g.toJson(nextPage)).build();
+    }
+
+    @Override
+    public Response searchPost(String tokenObjStr, String substring) {
+
+        Response resp = verifyToken(tokenObjStr);
+        if (resp != null) {
+            return resp;
+        }
+
+        Query<Entity> query = Query.newEntityQueryBuilder()
+                .setKind("Post")
+                .build();
+
+        QueryResults<Entity> results = datastore.run(query);
+        if (!results.hasNext()) {
+            return Response.status(Response.Status.NOT_FOUND).entity("There are no Posts!").build();
+        }
+
+        List<Post> resultList = new ArrayList<>();
+
+        while (results.hasNext()) {
+            Entity e = results.next();
+            if (e.getString("question").contains(substring)) {
+                Post p = new Post(e.getString("question"), e.getString("content"), (int) e.getLong("votes"),
+                        (int) e.getLong("repliesCount"), (int) e.getLong("views"),
+                        e.getString("created_at"),
+                        e.getString("author"), e.getKey().getName());
+                resultList.add(p);
+            }
+        }
+
+        return Response.ok(g.toJson(resultList)).build();
     }
 
     @Override
