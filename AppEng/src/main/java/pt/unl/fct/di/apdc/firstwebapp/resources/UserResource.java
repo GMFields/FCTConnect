@@ -4,7 +4,6 @@ import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.*;
 
 import com.google.gson.Gson;
-import io.grpc.netty.shaded.io.netty.util.Constant;
 import pt.unl.fct.di.apdc.firstwebapp.api.UserAPI;
 import pt.unl.fct.di.apdc.firstwebapp.factory.ConstantFactory;
 import pt.unl.fct.di.apdc.firstwebapp.factory.KeyStore;
@@ -12,14 +11,12 @@ import pt.unl.fct.di.apdc.firstwebapp.factory.KeyStore;
 import org.apache.commons.codec.digest.DigestUtils;
 import pt.unl.fct.di.apdc.firstwebapp.util.*;
 
-//import com.google.gson.Gson;
-
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-import javax.validation.constraints.Email;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.*;
@@ -29,16 +26,15 @@ import javax.ws.rs.core.Response.Status;
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 public class UserResource implements UserAPI {
 	Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-	// DatastoreOptions.newBuilder().setHost("http://localhost:8081").setProjectId("helical-ascent-385614").build().getService();
-
 	private final Gson g = new Gson();
 
 	private static final Logger LOG = Logger.getLogger(UserResource.class.getName());
 
 	private EmailSender sender = EmailSender.getInstance();
+	private static final String GENERATED_PASSWORD_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()";
+	private static final int GENERATED_PASSWORD_LENGTH = 10;
 
-	public UserResource() {
-	}
+	public UserResource() {}
 
 	@Override
 	public Response registerUser(ProfileData data) {
@@ -336,6 +332,62 @@ public class UserResource implements UserAPI {
 	}
 }
 
+	@Override
+	public Response forgotPassword(String email) {
+		Key emailKey = KeyStore.emailKeyFactory(email);
+		Transaction txn = datastore.newTransaction();
+
+		try {
+			Entity emailEntity = txn.get(emailKey);
+			if (emailEntity == null) {
+				txn.rollback();
+				return Response.status(Status.NOT_FOUND).entity("Email doesn't exist").build();
+			}
+			String resetToken = generateResetToken(email);
+
+			Key forgottenPasswordKey = datastore.newKeyFactory()
+					.setKind("ForgottenPasswords")
+					.newKey(resetToken);
+			Entity forgottenPasswordEntity = Entity.newBuilder(forgottenPasswordKey)
+					.set("reset_token", resetToken)
+					.build();
+			txn.add(forgottenPasswordEntity);
+
+			sender.sendResetPasswordEmail(email, resetToken);
+
+			txn.commit();
+			return Response.status(Status.OK).build();
+		} catch (Exception e) {
+			txn.rollback();
+			LOG.severe(e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		} finally {
+			if (txn.isActive()) {
+				txn.rollback();
+			}
+		}
+	}
+	@Override
+	public Response resetPassword(String resetToken) throws IOException {
+		String email = validateResetToken(resetToken);
+
+		if (email == null) {
+			return Response.status(Status.BAD_REQUEST).entity("Invalid or expired reset token").build();
+		}
+
+		String generatedPassword = generatePassword();
+
+		boolean isPasswordUpdated = updateUserPassword(email, generatedPassword);
+
+		if (!isPasswordUpdated) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Failed to reset password").build();
+		}
+
+		sender.sendResetPasswordConfirmationEmail(email, generatedPassword);
+
+		return Response.status(Status.OK).build();
+	}
+
 	private boolean verifyActivationToken(String activationToken) {
 		boolean isValid = false;
 		String tokenParts[] = activationToken.split(",");
@@ -373,6 +425,57 @@ public class UserResource implements UserAPI {
 		String randomUUID = UUID.randomUUID().toString();
 		String token = randomUUID+","+username;
 		return token;
+	}
+
+	private String generateResetToken(String email) {
+		String randomUUID = UUID.randomUUID().toString();
+		String token = randomUUID+","+email;
+		return token;
+	}
+
+	private String generatePassword() {
+		StringBuilder sb = new StringBuilder(GENERATED_PASSWORD_LENGTH);
+		Random random = new Random();
+
+		for (int i = 0; i < GENERATED_PASSWORD_LENGTH; i++) {
+			int randomIndex = random.nextInt(GENERATED_PASSWORD_CHARS.length());
+			sb.append(GENERATED_PASSWORD_CHARS.charAt(randomIndex));
+		}
+		return sb.toString();
+	}
+
+	private String validateResetToken(String resetToken) {
+		Key forgotKey = datastore.newKeyFactory().setKind("ForgottenPasswords").newKey(resetToken);
+		Entity lostEntity = datastore.get(forgotKey);
+
+		if(lostEntity == null) {
+			return null;
+		}
+
+		String email = lostEntity.getKey().getName().split(",")[1];
+
+		if(!email.equals(resetToken.split(",")[1])) {
+			return null;
+		}
+
+		return email;
+	}
+
+	private boolean updateUserPassword(String email, String newPassword) {
+		Key emailKey = KeyStore.emailKeyFactory(email);
+		Entity emailEntity = datastore.get(emailKey);
+		Key userKey = KeyStore.userKeyFactory(emailEntity.getString("user_username"));
+		Entity user = datastore.get(userKey);
+		try {
+			user = Entity.newBuilder(user)
+					.set("user_pwd", DigestUtils.sha512Hex(newPassword))
+					.build();
+			datastore.update(user);
+		} catch(DatastoreException e) {
+			return false;
+		}
+
+		return true;
 	}
 
 

@@ -6,6 +6,7 @@ import pt.unl.fct.di.apdc.firstwebapp.util.ProfileData;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 
 //@Path(UserAPI.PATH)
 public interface UserAPI {
@@ -98,8 +99,23 @@ public interface UserAPI {
     @Consumes(MediaType.APPLICATION_JSON)
     Response deleteAccount(@QueryParam("tokenObj") String tokenObjStr);
 
+    /**
+     * Activates the user's account
+     * @param activationToken the activation token to authenticate and activate the account
+     * @return 200: if the account was successfully activated;
+     *         500: if there was an error.
+     */
     @GET
     @Path("/activate")
     Response activateAccount(@QueryParam("activationToken") String activationToken);
+
+    @GET
+    @Path("/forgotpw")
+    Response forgotPassword(@QueryParam("user_email") String email);
+
+    @GET
+    @Path("/reset")
+    Response resetPassword(@QueryParam("resetToken") String resetToken) throws IOException;
+
 
 }
