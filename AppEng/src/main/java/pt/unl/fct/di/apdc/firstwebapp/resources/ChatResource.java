@@ -97,8 +97,6 @@ public class ChatResource implements ChatApi {
         AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Pode ser passado como TokenClass
         LOG.fine("User: " + tokenObj.getUsername() + " is attempting to post to forum!");
 
-        Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
-
         Transaction txn = datastore.newTransaction();
 
         try {
@@ -152,8 +150,6 @@ public class ChatResource implements ChatApi {
         AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Pode ser passado como TokenClass
         LOG.fine("User: " + tokenObj.getUsername() + " is attempting to post to forum!");
 
-        Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
-
         if (reply.getContent().isEmpty()) {
             LOG.warning("Empty post!");
             return Response.status(Response.Status.BAD_REQUEST).build();
@@ -203,8 +199,6 @@ public class ChatResource implements ChatApi {
         AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Pode ser passado como TokenClass
         LOG.fine("User: " + tokenObj.getUsername() + " is attempting to post to forum!");
 
-        Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
-
         Transaction txn = datastore.newTransaction();
 
         try {
@@ -249,12 +243,9 @@ public class ChatResource implements ChatApi {
     }
 
     @Override
-    public Response bookmarkPost(String postId, String username, String tokenObjStr) { // TODO um user n pode dar
-                                                                                       // 2 vezes bookmark
-        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Pode ser passado como TokenClass
+    public Response bookmarkPost(String postId, String username, String tokenObjStr) {
+        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
         LOG.fine("User: " + tokenObj.getUsername() + " is attempting to post to forum!");
-
-        Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
 
         Key userKey = KeyStore.userKeyFactory(username);
 
@@ -285,8 +276,6 @@ public class ChatResource implements ChatApi {
                 txn.rollback();
                 return Response.status(Response.Status.BAD_REQUEST).build();
             }
-
-            LOG.warning("aaa");
 
             KeyFactory newPostKey = datastore.newKeyFactory();
             PathElement a = PathElement.of("Users", username);
@@ -331,7 +320,6 @@ public class ChatResource implements ChatApi {
 
     @Override
     public Response listUserBookmarks(String username, String tokenObjStr, String cursorObjStr) {
-        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
 
         Cursor cursorObj = null;
         if (!cursorObjStr.equals("")) {
