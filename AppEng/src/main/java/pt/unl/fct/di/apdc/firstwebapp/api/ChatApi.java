@@ -41,11 +41,28 @@ public interface ChatApi {
         Response bookmarkPost(@QueryParam("postId") String postId, @QueryParam("username") String username,
                         @QueryParam("tokenObj") String tokenObjString);
 
+        @POST
+        @Path("/removebookmark")
+        Response unbookmarkPost(@QueryParam("postId") String postId, @QueryParam("username") String username,
+                        @QueryParam("tokenObj") String tokenObjString);
+
         @GET
         @Produces(MediaType.APPLICATION_JSON)
         @Path("/listbookmarks")
         Response listUserBookmarks(@QueryParam("username") String username,
-                        @QueryParam("tokenObj") String tokenObjStr);
+                        @QueryParam("tokenObj") String tokenObjStr, @QueryParam("cursorObj") String cursorObjStr);
+
+        @GET
+        @Produces(MediaType.APPLICATION_JSON)
+        @Path("/listuserposts")
+        Response listUserPosts(@QueryParam("tokenObj") String tokenObjStr,
+                        @QueryParam("cursorObj") String cursorObjStr);
+
+        @GET
+        @Produces(MediaType.APPLICATION_JSON)
+        @Path("/listsearched")
+        Response searchPost(@QueryParam("tokenObj") String tokenObjStr,
+                        @QueryParam("substring") String substring);
 
         @GET
         @Produces(MediaType.APPLICATION_JSON)

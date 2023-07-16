@@ -31,6 +31,8 @@ public class ChatResource implements ChatApi {
 
     private final Gson g = new Gson();
 
+    private final AdminResource admin = new AdminResource();
+
     Cursor pageCursor;
 
     @Override
@@ -79,6 +81,8 @@ public class ChatResource implements ChatApi {
             txn.put(postEntity);
 
             txn.commit();
+            admin.sendNotification("New Post Added",
+                    String.format("%s just added a new Post", tokenObj.getUsername()), "general");
 
             return Response.status(Response.Status.OK).build();
         } catch (Exception e) {
@@ -97,8 +101,6 @@ public class ChatResource implements ChatApi {
         AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Pode ser passado como TokenClass
         LOG.fine("User: " + tokenObj.getUsername() + " is attempting to post to forum!");
 
-        Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
-
         Transaction txn = datastore.newTransaction();
 
         try {
@@ -106,8 +108,6 @@ public class ChatResource implements ChatApi {
             if (resp != null) {
                 return resp;
             }
-
-
 
             Query<Entity> query = Query.newEntityQueryBuilder()
                     .setKind("Post")
@@ -154,8 +154,6 @@ public class ChatResource implements ChatApi {
         AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Pode ser passado como TokenClass
         LOG.fine("User: " + tokenObj.getUsername() + " is attempting to post to forum!");
 
-        Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
-
         if (reply.getContent().isEmpty()) {
             LOG.warning("Empty post!");
             return Response.status(Response.Status.BAD_REQUEST).build();
@@ -187,6 +185,8 @@ public class ChatResource implements ChatApi {
             }
 
             txn.commit();
+            admin.sendNotification("New Reply Added",
+                    String.format("%s just added a new Reply", tokenObj.getUsername()), post.getString("author"));
 
             return Response.status(Response.Status.OK).build();
         } catch (Exception e) {
@@ -204,8 +204,6 @@ public class ChatResource implements ChatApi {
     public Response updateReply(Post reply, String tokenObjStr) {
         AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Pode ser passado como TokenClass
         LOG.fine("User: " + tokenObj.getUsername() + " is attempting to post to forum!");
-
-        Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
 
         Transaction txn = datastore.newTransaction();
 
@@ -251,12 +249,9 @@ public class ChatResource implements ChatApi {
     }
 
     @Override
-    public Response bookmarkPost(String postId, String username, String tokenObjStr) { // TODO um user n pode dar
-                                                                                       // 2 vezes bookmark
-        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Pode ser passado como TokenClass
+    public Response bookmarkPost(String postId, String username, String tokenObjStr) {
+        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
         LOG.fine("User: " + tokenObj.getUsername() + " is attempting to post to forum!");
-
-        Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
 
         Key userKey = KeyStore.userKeyFactory(username);
 
@@ -287,8 +282,6 @@ public class ChatResource implements ChatApi {
                 txn.rollback();
                 return Response.status(Response.Status.BAD_REQUEST).build();
             }
-
-            LOG.warning("aaa");
 
             KeyFactory newPostKey = datastore.newKeyFactory();
             PathElement a = PathElement.of("Users", username);
@@ -332,20 +325,114 @@ public class ChatResource implements ChatApi {
     }
 
     @Override
-    public Response listUserBookmarks(String username, String tokenObjStr) {
+    public Response unbookmarkPost(String postId, String username, String tokenObjStr) {
         AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
+        LOG.fine("User: " + tokenObj.getUsername() + " is attempting to post to forum!");
+
+        Key userKey = KeyStore.userKeyFactory(username);
+
+        Transaction txn = datastore.newTransaction();
+
+        try {
+            Response resp = verifyToken(tokenObjStr);
+            if (resp != null) {
+                return resp;
+            }
+
+            Query<Entity> query = Query.newEntityQueryBuilder()
+                    .setKind("Post")
+                    .setFilter(PropertyFilter.eq("id", postId))
+                    .build();
+
+            QueryResults<Entity> results = datastore.run(query);
+
+            if (!results.hasNext()) {
+                txn.rollback();
+                return Response.status(Response.Status.FORBIDDEN).build();
+            }
+
+            Entity post = results.next();
+            Entity user = txn.get(userKey);
+
+            if (user == null) {
+                txn.rollback();
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+
+            KeyFactory newPostKey = datastore.newKeyFactory();
+            PathElement a = PathElement.of("Users", username);
+
+            if (!post.getKey().getAncestors().contains(a)) {
+                txn.rollback();
+                return Response.status(Status.CREATED).build();
+            }
+
+            for (PathElement p : post.getKey().getAncestors()) {
+                if (!p.equals(a))
+                    newPostKey.addAncestor(p);
+            }
+
+            Entity postEntity = Entity.newBuilder(newPostKey.setKind("Post").newKey(postId))
+                    .set("question", post.getString("question"))
+                    .set("content", post.getString("content"))
+                    .set("votes", post.getLong("votes"))
+                    .set("repliesCount", post.getLong("repliesCount"))
+                    .set("views", post.getLong("views"))
+                    .set("created_at", post.getString("created_at"))
+                    .set("author", post.getString("author"))
+                    .set("id", postId)
+                    .build();
+
+            txn.delete(post.getKey());
+            txn.put(postEntity);
+
+            txn.commit();
+
+            return Response.status(Response.Status.OK).build();
+        } catch (Exception e) {
+            txn.rollback();
+            LOG.severe("An error occurred while reporting anomaly: " + e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            if (txn.isActive()) {
+                txn.rollback();
+            }
+        }
+    }
+
+    @Override
+    public Response listUserBookmarks(String username, String tokenObjStr, String cursorObjStr) {
+
+        Cursor cursorObj = null;
+        if (!cursorObjStr.equals("")) {
+            String[] byteArrayValues = cursorObjStr.replace("[", "").replace("]", "").replaceAll("\\s+", "").split(",");
+            byte[] byteArray = new byte[byteArrayValues.length];
+
+            for (int i = 0; i < byteArrayValues.length; i++) {
+                byteArray[i] = (byte) Integer.parseInt(byteArrayValues[i]);
+            }
+
+            cursorObj = Cursor.copyFrom(byteArray);
+        }
 
         Response resp = verifyToken(tokenObjStr);
         if (resp != null) {
             return resp;
         }
 
-        Query<Entity> query = Query.newEntityQueryBuilder()
+        EntityQuery.Builder query = Query.newEntityQueryBuilder()
                 .setKind("Post")
                 .setFilter(PropertyFilter.hasAncestor(KeyStore.userKeyFactory(username)))
-                .build();
+                .setLimit(4);
 
-        QueryResults<Entity> results = datastore.run(query);
+        if (cursorObj != null) {
+            LOG.warning(cursorObj.toString());
+            query.setStartCursor(cursorObj);
+        } else {
+            query.setStartCursor(pageCursor);
+        }
+
+        QueryResults<Entity> results = datastore.run(query.build());
         if (!results.hasNext()) {
             return Response.status(Response.Status.NOT_FOUND).entity("There are no anomalies!").build();
         }
@@ -359,6 +446,97 @@ public class ChatResource implements ChatApi {
                     e.getString("created_at"),
                     e.getString("author"), e.getKey().getName());
             resultList.add(p);
+        }
+
+        Cursor nextPage = results.getCursorAfter();
+
+        return Response.ok(g.toJson(resultList) + g.toJson(nextPage)).build();
+    }
+
+    @Override
+    public Response listUserPosts(String tokenObjStr, String cursorObjStr) {
+        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
+
+        String username = tokenObj.getUsername();
+
+        Cursor cursorObj = null;
+        if (!cursorObjStr.equals("")) {
+            String[] byteArrayValues = cursorObjStr.replace("[", "").replace("]", "").replaceAll("\\s+", "").split(",");
+            byte[] byteArray = new byte[byteArrayValues.length];
+
+            for (int i = 0; i < byteArrayValues.length; i++) {
+                byteArray[i] = (byte) Integer.parseInt(byteArrayValues[i]);
+            }
+
+            cursorObj = Cursor.copyFrom(byteArray);
+        }
+
+        Response resp = verifyToken(tokenObjStr);
+        if (resp != null) {
+            return resp;
+        }
+
+        EntityQuery.Builder query = Query.newEntityQueryBuilder()
+                .setKind("Post")
+                .setFilter(PropertyFilter.eq("author", username))
+                .setLimit(4);
+
+        if (cursorObj != null) {
+            LOG.warning(cursorObj.toString());
+            query.setStartCursor(cursorObj);
+        } else {
+            query.setStartCursor(pageCursor);
+        }
+
+        QueryResults<Entity> results = datastore.run(query.build());
+        if (!results.hasNext()) {
+            return Response.status(Response.Status.NOT_FOUND).entity("There are no anomalies!").build();
+        }
+
+        List<Post> resultList = new ArrayList<>();
+
+        while (results.hasNext()) {
+            Entity e = results.next();
+            Post p = new Post(e.getString("question"), e.getString("content"), (int) e.getLong("votes"),
+                    (int) e.getLong("repliesCount"), (int) e.getLong("views"),
+                    e.getString("created_at"),
+                    e.getString("author"), e.getKey().getName());
+            resultList.add(p);
+        }
+
+        Cursor nextPage = results.getCursorAfter();
+
+        return Response.ok(g.toJson(resultList) + g.toJson(nextPage)).build();
+    }
+
+    @Override
+    public Response searchPost(String tokenObjStr, String substring) {
+
+        Response resp = verifyToken(tokenObjStr);
+        if (resp != null) {
+            return resp;
+        }
+
+        Query<Entity> query = Query.newEntityQueryBuilder()
+                .setKind("Post")
+                .build();
+
+        QueryResults<Entity> results = datastore.run(query);
+        if (!results.hasNext()) {
+            return Response.status(Response.Status.NOT_FOUND).entity("There are no Posts!").build();
+        }
+
+        List<Post> resultList = new ArrayList<>();
+
+        while (results.hasNext()) {
+            Entity e = results.next();
+            if (e.getString("question").contains(substring)) {
+                Post p = new Post(e.getString("question"), e.getString("content"), (int) e.getLong("votes"),
+                        (int) e.getLong("repliesCount"), (int) e.getLong("views"),
+                        e.getString("created_at"),
+                        e.getString("author"), e.getKey().getName());
+                resultList.add(p);
+            }
         }
 
         return Response.ok(g.toJson(resultList)).build();
@@ -411,7 +589,6 @@ public class ChatResource implements ChatApi {
          * }
          */
         Cursor cursorObj = null;
-        LOG.warning(cursorObjStr);
         if (!cursorObjStr.equals("")) {
             String[] byteArrayValues = cursorObjStr.replace("[", "").replace("]", "").replaceAll("\\s+", "").split(",");
             byte[] byteArray = new byte[byteArrayValues.length];
@@ -455,10 +632,8 @@ public class ChatResource implements ChatApi {
         return Response.ok(g.toJson(resultList) + g.toJson(nextPage)).build();
     }
 
-    private Response verifyToken(String tokenObjStr){
+    private Response verifyToken(String tokenObjStr) {
         AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Pode ser passado como AuthToken
-
-
 
         Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
         Entity token = datastore.get(tokenKey);
@@ -467,7 +642,7 @@ public class ChatResource implements ChatApi {
             return Response.status(Response.Status.FORBIDDEN).build();
         }
 
-        if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
+        if (token.getLong("token_expirationdata") < System.currentTimeMillis()) {
             return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
         }
 
