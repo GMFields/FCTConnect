@@ -1,5 +1,4 @@
-import {GoogleMap, useJsApiLoader, Marker} from "@react-google-maps/api";
-import React, {useState, useEffect} from "react";
+import React, {useState} from "react";
 import Cookies from "js-cookie";
 import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
@@ -17,18 +16,14 @@ import ChatIcon from '@material-ui/icons/Chat';
 import HomeIcon from "@material-ui/icons/Home";
 import clsx from "clsx";
 
-
 const drawerWidth = 200;
 
 const useStyles = makeStyles((theme) => ({
-  map:{
-    height:"100vh",
-
-  },
   smallButton : {
     width:"100%",
   },
   appBar: {
+    marginBottom: "0.75rem",
     backgroundColor: "#2596be"
   },
   menuButton: {
@@ -58,11 +53,6 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 const Map = (props) => {
-  const {isLoaded } = useJsApiLoader({
-    id:"google-map-script",
-    googleMapsApiKey:"AIzaSyAZELnglG_oCx4z-ITNEq0YNpmiFrctW5s",
-    
-  });
 
   const token = Cookies.get('token');
   const classes = useStyles();
@@ -101,84 +91,6 @@ const Map = (props) => {
       .catch(error => {
         // Handle network error
         console.error("Logout failed:", error);
-      });
-  };
-  const position = {
-    lat:38.66156674841695,
-    lng: -9.20545026264386
-  }
-  const [markerName, setMarkerName] = useState("");
-
-  const [markers, setMarkers] = useState([]);
-  const [showMarkers, setShowMarkers] = useState(false);
-
-  const handleShowMarkers = () => {
-    const token = Cookies.get('token');
-    let username = '';
-    
-    try {
-      const tokenData = JSON.parse(atob(token.split('.')[1]));
-      username = tokenData.username || '';
-    } catch (error) {
-      console.error('Erro ao decodificar o token:', error);
-    }
-    
-    console.log(username);
-    // Use o nome de usuário conforme necessário
-    
-
-    fetch(`https://helical-ascent-385614.oa.r.appspot.com/rest/waypoint/list/${username}?tokenObj=${token}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json; charset=utf-8",
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-      // Lógica para lidar com a resposta do backend
-      console.log("Lista de waypoints obtida com sucesso:", data);
-      // Atualizar o estado dos marcadores com os dados retornados
-      setMarkers(data);
-
-      // Exibir os marcadores
-      setShowMarkers(true);
-      })
-      .catch((error) => {
-        // Lógica para lidar com erros na solicitação
-        console.error("Erro ao obter lista de waypoints:", error);
-      });
-  };
-  
-
-  const handleMapClick = (event) => {
-    
-    const markerPosition = {
-      lat:parseFloat(event.latLng.lat()),
-      lng:parseFloat(event.latLng.lng()) 
-    }
-
-    const newMarker = {
-      "latitude": markerPosition.lat,
-      "longitude": markerPosition.lng,
-      "name" : markerName
-    }
-
-    fetch(`https://helical-ascent-385614.oa.r.appspot.com/rest/waypoint/add?tokenObj=${token}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json; charset=utf-8",
-      },
-      body: JSON.stringify(newMarker), // Enviar os dados do novo marcador
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        // Lógica para lidar com a resposta do backend
-        console.log("Marcador adicionado com sucesso:", data);
-        setMarkers((prevMarkers) => [...prevMarkers, newMarker]);
-      })
-      .catch((error) => {
-        // Lógica para lidar com erros na solicitação
-        console.error("Erro ao adicionar marcador:", error);
       });
   };
 
@@ -253,33 +165,7 @@ const Map = (props) => {
         </IconButton>
         </div>
       </Drawer>
-        <div className={classes.map}>
-          { isLoaded ? (
-            <GoogleMap 
-            mapContainerStyle={{width: "100%", height: "100%"}}
-            center={position}
-            zoom={15}
-            onClick={handleMapClick}
-            >
-              {markers.map((marker, index) => (
-            <Marker key={index} position={{ lat: marker.latitude, lng: marker.longitude }} label={(index + 1).toString()} />
-          ))}
-          <input
-            type="text"
-            name="markerName"
-            value={markerName}
-            onChange={(e) => setMarkerName(e.target.value)}
-          />
-          <button onClick={handleShowMarkers}>Mostrar todos os marcadores</button>
-         { /*<MDBContainer className={classes.content1}>
-          <button onClick={handleMapClick}> Adicionar novo marcador</button>
-          <input type="text" name="name" value={newMarker.name} required></input>
-          </MDBContainer>*/}
-            </GoogleMap>
-          ):(<></>)
-          }
 
-        </div>
 
         </div>
 

@@ -20,10 +20,10 @@ export const UploadAvatar = () =>{
     }, [preview])
 
     return (
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "40%" }}>
-      <div style={{ width: "20%", height: "20%" }}>
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+      <div style={{ width: "400px", height: "300px" }}>
         <Avatar width={400} height={300} onCrop={onCrop} onClose={onClose} src={src} />
-        {preview && <img src={preview} style={{ width: "20%", height: "20%", borderRadius: "50%" }} />}
+        {preview && <img src={preview} style={{ width: "100px", height: "100px", borderRadius: "50%" }} />}
       </div>
     </div>
     );

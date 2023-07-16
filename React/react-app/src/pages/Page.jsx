@@ -27,7 +27,6 @@ import CalendarMonthIcon from '@material-ui/icons/CalendarToday';
 import ChatIcon from '@material-ui/icons/Chat';
 
 import clsx from "clsx";
-import { UploadAvatar } from './UploadAvatar';
 const drawerWidth = 200;
 
 const useStyles = makeStyles((theme) => ({
@@ -43,27 +42,25 @@ const useStyles = makeStyles((theme) => ({
   },
   appBar: {
     marginBottom: "0.75rem",
-    background: "#2596be", //"linear-gradient(to right, #27C1FA, #14D466)",
+    background: "linear-gradient(to right, #27C1FA, #14D466)",
   },
   menuButton: {
-    marginRight: "1rem",
-    //width:"20%",
+    marginRight: "1rem"
   },
   drawer: {
-    width: drawerWidth,
-    
+    width: drawerWidth
   },
   drawerPaper: {
     width: drawerWidth,
-    background: "#2596be",// "linear-gradient(to right, #27C1FA, #14D466)",
+    background: "linear-gradient(to right, #27C1FA, #14D466)",
   },
   drawerIcon: {
     marginRight: theme.spacing(1),
-    color: "#fffff",
+    color: "#000000",
     fontSize: "1rem"
   },
   drawerText: {
-    color: "#ffffff",
+    color: "#000000",
     fontSize: "0.9rem"
   },
   content1: {
@@ -289,7 +286,6 @@ const Page = (props) => {
                     className={clsx(classes.cardImage, "rounded-circle")}
                     style={{ width: "100px", height: "100px" }}
                     fluid
-                    
                   />
                 <MDBCol lg="8">
                 <MDBCard className="mb-4">
