@@ -12,7 +12,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 @Path("/anomaly")
@@ -49,7 +51,7 @@ public class AnomalyResource implements AnomalyAPI {
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
 
-            if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
+            if (token.getLong("token_expirationdata") < System.currentTimeMillis()) {
                 txn.rollback();
                 return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
             }
@@ -85,8 +87,9 @@ public class AnomalyResource implements AnomalyAPI {
     }
 
     @Override
-    public Response listApprovedAnomalies(String tokenObjStr) {
-        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Pode ser passado como TokenClass
+    public Response listApprovedAnomalies(String tokenObjStr, String cursor) {
+        int pageSize = 10;
+        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
 
         Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
 
@@ -98,19 +101,22 @@ public class AnomalyResource implements AnomalyAPI {
             return Response.status(Response.Status.FORBIDDEN).build();
         }
 
-        if(token.getLong("token_expirationdata") < System.currentTimeMillis()){
+        if (token.getLong("token_expirationdata") < System.currentTimeMillis()) {
             txn.rollback();
             return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
         }
 
-
-
-        Query<Entity> query = Query.newEntityQueryBuilder()
+        EntityQuery.Builder queryBuilder = Query.newEntityQueryBuilder()
                 .setKind("Anomaly")
                 .setFilter(StructuredQuery.PropertyFilter.eq("is_anomaly_approved", true))
-                .build();
+                .setLimit(pageSize);
 
-        QueryResults<Entity> results = datastore.run(query);
+        if (cursor != null) {
+            queryBuilder.setStartCursor(Cursor.fromUrlSafe(cursor));
+        }
+
+        QueryResults<Entity> results = datastore.run(queryBuilder.build());
+
         if (!results.hasNext()) {
             return Response.status(Response.Status.NOT_FOUND).entity("There are no anomalies!").build();
         }
@@ -126,24 +132,29 @@ public class AnomalyResource implements AnomalyAPI {
             anomalyData.add(entity.getString("anomaly_ID"));
             resultList.add(anomalyData);
         }
+
+        Cursor nextPageCursor = results.getCursorAfter();
         txn.commit();
-        return Response.ok(g.toJson(resultList)).build();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("anomalies", resultList);
+        response.put("cursor", nextPageCursor.toUrlSafe());
+
+        return Response.ok(g.toJson(response)).build();
     }
+
+
+
 
     @Override
     public Response approveAnomaly(String tokenObjStr, String anomalyID) {
-
         Response r = verifyAdmin(tokenObjStr);
-
         if (r != null) {
             return r;
         }
 
-
-
         Key anomalyKey = KeyStore.anomalyKeyFactory(anomalyID);
         Transaction txn = datastore.newTransaction();
-
         try {
             Entity anomalyEntity = txn.get(anomalyKey);
             if (anomalyEntity == null) {
@@ -172,18 +183,12 @@ public class AnomalyResource implements AnomalyAPI {
 
     @Override
     public Response solveAnomaly(String tokenObjStr, String anomalyID) {
-
         Response r = verifyAdmin(tokenObjStr);
-
         if (r != null) {
             return r;
         }
-
-
-
         Key anomalyKey = KeyStore.anomalyKeyFactory(anomalyID);
         Transaction txn = datastore.newTransaction();
-
         try {
             Entity anomalyEntity = txn.get(anomalyKey);
             if (anomalyEntity == null) {
@@ -209,18 +214,42 @@ public class AnomalyResource implements AnomalyAPI {
             }
         }
     }
-
     @Override
-    public Response listAllAnomalies(String tokenObjStr) {
-
+    public Response solveAllAnomalies(String tokenObjStr) {
         Response r = verifyAdmin(tokenObjStr);
-
         if (r != null) {
             return r;
         }
 
+        Query<Entity> query = Query.newEntityQueryBuilder()
+                .setKind("Anomaly")
+                .setFilter(StructuredQuery.PropertyFilter.eq("is_anomaly_approved", false))
+                .build();
+
+        QueryResults<Entity> results = datastore.run(query);
+        if (!results.hasNext()) {
+            return Response.status(Response.Status.NOT_FOUND).entity("There are no unapproved anomalies!").build();
+        }
+
+        while (results.hasNext()) {
+            Entity anomalyEntity = results.next();
+            anomalyEntity = Entity.newBuilder(anomalyEntity)
+                    .set("is_anomaly_approved", true)
+                    .build();
+            datastore.update(anomalyEntity);
+        }
+
+        LOG.info("All anomalies approved successfully");
+        return Response.status(Response.Status.OK).entity("All anomalies approved successfully").build();
+    }
 
 
+    @Override
+    public Response listAllAnomalies(String tokenObjStr) {
+        Response r = verifyAdmin(tokenObjStr);
+        if (r != null) {
+            return r;
+        }
         Query<Entity> query = Query.newEntityQueryBuilder()
                 .setKind("Anomaly")
                 .build();
@@ -247,18 +276,12 @@ public class AnomalyResource implements AnomalyAPI {
 
     @Override
     public Response deleteAnomaly(String tokenObjStr, String anomalyID) {
-
-
-
         Response r = verifyAdmin(tokenObjStr);
-
         if (r != null) {
             return r;
         }
-
         Key anomalyKey = KeyStore.anomalyKeyFactory(anomalyID);
         Transaction txn = datastore.newTransaction();
-
         try {
             Entity anomalyEntity = txn.get(anomalyKey);
             if (anomalyEntity == null) {
@@ -283,11 +306,9 @@ public class AnomalyResource implements AnomalyAPI {
     }
 
     private Response verifyAdmin(String tokenObjStr) {
-        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Pode ser passado como AuthToken
-
+        AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
         Key adminKey = KeyStore.userKeyFactory(tokenObj.getUsername());
         Entity user = datastore.get(adminKey);
-
         Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
         Entity token = datastore.get(tokenKey);
 

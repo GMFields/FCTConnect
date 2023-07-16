@@ -24,7 +24,7 @@ public interface AnomalyAPI {
     @GET
     @Path("/list")
     @Produces(MediaType.APPLICATION_JSON)
-    Response listApprovedAnomalies(@QueryParam("tokenObj") String tokenObjStr);
+    Response listApprovedAnomalies(@QueryParam("tokenObj") String tokenObjStr, @QueryParam("cursor") String cursor);
 
     /**
      * Approves an anomaly so it can be seen by everyone.
@@ -64,6 +64,9 @@ public interface AnomalyAPI {
     @Produces(MediaType.APPLICATION_JSON)
     Response deleteAnomaly(@QueryParam("tokenObj") String tokenObjStr, @PathParam("anomalyID") String anomalyID);
 
+    @PUT
+    @Path("/solveall")
+    Response solveAllAnomalies(@QueryParam("tokenObj") String tokenObjStr);
 
 
 
