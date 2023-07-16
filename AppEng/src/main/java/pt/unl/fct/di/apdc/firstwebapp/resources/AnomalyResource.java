@@ -53,7 +53,7 @@ public class AnomalyResource implements AnomalyAPI {
 
             if (token.getLong("token_expirationdata") < System.currentTimeMillis()) {
                 txn.rollback();
-                return Response.status(Response.Status.FORBIDDEN).entity("data expirada").build();
+                return Response.status(Response.Status.FORBIDDEN).entity("Token expirado").build();
             }
 
             AnomalyData anomaly = new AnomalyData(anomalyDescription, tokenObj.getUsername());
