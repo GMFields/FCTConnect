@@ -27,6 +27,7 @@ import CalendarMonthIcon from '@material-ui/icons/CalendarToday';
 import ChatIcon from '@material-ui/icons/Chat';
 
 import clsx from "clsx";
+import { UploadAvatar } from './UploadAvatar';
 const drawerWidth = 200;
 
 const useStyles = makeStyles((theme) => ({
@@ -42,25 +43,27 @@ const useStyles = makeStyles((theme) => ({
   },
   appBar: {
     marginBottom: "0.75rem",
-    background: "linear-gradient(to right, #27C1FA, #14D466)",
+    background: "#2596be", //"linear-gradient(to right, #27C1FA, #14D466)",
   },
   menuButton: {
-    marginRight: "1rem"
+    marginRight: "1rem",
+    //width:"20%",
   },
   drawer: {
-    width: drawerWidth
+    width: drawerWidth,
+    
   },
   drawerPaper: {
     width: drawerWidth,
-    background: "linear-gradient(to right, #27C1FA, #14D466)",
+    background: "#2596be",// "linear-gradient(to right, #27C1FA, #14D466)",
   },
   drawerIcon: {
     marginRight: theme.spacing(1),
-    color: "#000000",
+    color: "#fffff",
     fontSize: "1rem"
   },
   drawerText: {
-    color: "#000000",
+    color: "#ffffff",
     fontSize: "0.9rem"
   },
   content1: {
@@ -179,6 +182,7 @@ const Page = (props) => {
         console.log('Profile data result:', data);
         // Set profile data
         setProfileData(data);
+        console.log(profileData.username);
         // Set form data with profile data
         setFormData(data);
       })
@@ -281,11 +285,12 @@ const Page = (props) => {
               <MDBCard className="mb-4">
                 <MDBCardBody className="text-center">
                 <MDBCardImage
-                    src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp"
+                    src={`https://helical-ascent-385614.appspot.com/gcs/helical-ascent-385614.appspot.com/${profileData[0]}_pfp`}
                     alt="avatar"
                     className={clsx(classes.cardImage, "rounded-circle")}
                     style={{ width: "100px", height: "100px" }}
                     fluid
+                    
                   />
                 <MDBCol lg="8">
                 <MDBCard className="mb-4">

@@ -33,9 +33,9 @@ const useStyles = makeStyles((theme) => ({
     width:"100%",
   },
   appBar: {
-    height: "1%",
     marginBottom: "0.75rem",
-    background: "linear-gradient(to right, #27C1FA, #14D466)",
+    background: "#2596be",
+    //"linear-gradient(to right, #27C1FA, #14D466)",
   },
   menuButton: {
     marginRight: "1rem"
@@ -45,15 +45,15 @@ const useStyles = makeStyles((theme) => ({
   },
   drawerPaper: {
     width: drawerWidth,
-    background: "#6ECBDF",
+    background: "#2596be",//"#6ECBDF",
   },
   drawerIcon: {
     marginRight: theme.spacing(1),
-    color: "#000000",
+    color: "#ffffff",
     fontSize: "1rem"
   },
   drawerText: {
-    color: "#000000",
+    color: "#ffffff",
     fontSize: "0.9rem"
   },
   content: {
