@@ -150,6 +150,40 @@ public class ChatResource implements ChatApi {
     }
 
     @Override
+    public Response removePost(String postId, String tokenObjStr) {
+        Transaction txn = datastore.newTransaction();
+
+        try {
+            Response resp = verifyToken(tokenObjStr);
+            if (resp != null) {
+                return resp;
+            }
+
+            Key postKey = KeyStore.postKeyFactory(postId);
+            Entity post = txn.get(postKey);
+
+            if (post == null) {
+                txn.rollback();
+                return Response.status(Status.BAD_REQUEST).build();
+            }
+
+            txn.delete(postKey);
+
+            txn.commit();
+
+            return Response.status(Response.Status.OK).build();
+        } catch (Exception e) {
+            txn.rollback();
+            LOG.severe("An error occurred while reporting anomaly: " + e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            if (txn.isActive()) {
+                txn.rollback();
+            }
+        }
+    }
+
+    @Override
     public Response addReply(Post reply, String tokenObjStr) {
         AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class); // Pode ser passado como TokenClass
         LOG.fine("User: " + tokenObj.getUsername() + " is attempting to post to forum!");
@@ -543,18 +577,7 @@ public class ChatResource implements ChatApi {
     }
 
     @Override
-    public Response listReply(String parentId/* String tokenObjStr */) {
-        // AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
-
-        // Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
-        // Entity token = datastore.get(tokenKey);
-
-        /*
-         * if (token == null) {
-         * return Response.status(Response.Status.FORBIDDEN).build();
-         * }
-         */
-
+    public Response listReply(String parentId) {
         Query<Entity> query = Query.newEntityQueryBuilder()
                 .setKind("Reply")
                 .setFilter(PropertyFilter.hasAncestor(KeyStore.postKeyFactory(parentId)))
@@ -577,17 +600,7 @@ public class ChatResource implements ChatApi {
     }
 
     @Override
-    public Response listPosts(String cursorObjStr/* String tokenObjStr */) {
-        // AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
-
-        // Key tokenKey = KeyStore.tokenKeyFactory(tokenObj.getTokenID());
-        // Entity token = datastore.get(tokenKey);
-
-        /*
-         * if (token == null) {
-         * return Response.status(Response.Status.FORBIDDEN).build();
-         * }
-         */
+    public Response listPosts(String cursorObjStr) {
         Cursor cursorObj = null;
         if (!cursorObjStr.equals("")) {
             String[] byteArrayValues = cursorObjStr.replace("[", "").replace("]", "").replaceAll("\\s+", "").split(",");

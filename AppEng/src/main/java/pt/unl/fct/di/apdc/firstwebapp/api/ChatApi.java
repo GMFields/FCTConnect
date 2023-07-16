@@ -1,6 +1,7 @@
 package pt.unl.fct.di.apdc.firstwebapp.api;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -23,6 +24,10 @@ public interface ChatApi {
         @Consumes(MediaType.APPLICATION_JSON)
         @Path("/updatepost")
         Response updatePost(Post post, @QueryParam("tokenObj") String tokenObjStr);
+
+        @DELETE
+        @Path("/removepost")
+        Response removePost(@QueryParam("postId") String postId, @QueryParam("tokenObj") String tokenObjStr);
 
         @POST
         @Consumes(MediaType.APPLICATION_JSON)
