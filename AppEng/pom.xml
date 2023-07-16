@@ -1,31 +1,32 @@
- <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-  
-  <modelVersion>4.0.0</modelVersion>
-  
-  <groupId>Firstwebapp</groupId>
-  <artifactId>Firstwebapp</artifactId>
-  <version>0.0.1</version>
-  
-  <packaging>war</packaging>
-  
-  <name>FirstWebApplication</name>
-  <description>ADC 2023 Example Application</description>
 
-  <properties>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>Firstwebapp</groupId>
+	<artifactId>Firstwebapp</artifactId>
+	<version>0.0.1</version>
+
+	<packaging>war</packaging>
+
+	<name>FirstWebApplication</name>
+	<description>ADC 2023 Example Application</description>
+
+	<properties>
 		<appengine.maven.plugin.version>2.4.0</appengine.maven.plugin.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<maven.compiler.source>11</maven.compiler.source>
 		<maven.compiler.target>11</maven.compiler.target>
 		<maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
-  </properties>
+	</properties>
 
-  	<dependencyManagement>
+	<dependencyManagement>
 		<dependencies>
 			<dependency>
 				<groupId>com.google.cloud</groupId>
 				<artifactId>libraries-bom</artifactId>
-				<version>26.10.0</version>  <!--Mudamos do 9 para o 10 -> Se der buracada mudar de volta.-->  
+				<version>26.10.0</version>  <!--Mudamos do 9 para o 10 -> Se der buracada mudar de volta.-->
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -119,9 +120,9 @@
 			<artifactId>google-cloud-datastore</artifactId>
 		</dependency>
 		<dependency>
-            <groupId>com.google.cloud</groupId>
-            <artifactId>google-cloud-storage</artifactId>
-        </dependency>
+			<groupId>com.google.cloud</groupId>
+			<artifactId>google-cloud-storage</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>com.pusher</groupId>
 			<artifactId>pusher-http-java</artifactId>
@@ -154,80 +155,40 @@
 	<build>
 		<!-- To allow interaction with Gcloud client through maven-->
 		<outputDirectory>${project.build.directory}/${project.build.finalName}/WEB-INF/classes</outputDirectory>
-	<plugins>
-		<plugin>
+		<plugins>
+			<plugin>
 				<groupId>com.google.cloud.tools</groupId>
 				<artifactId>appengine-maven-plugin</artifactId>
 				<version>${appengine.maven.plugin.version}</version>
 			</plugin>
-		<plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-resources-plugin</artifactId>
-			<version>3.2.0</version>
-			<executions>
-				<execution>
-					<id>copy-resources</id>
-					<phase>process-resources</phase>
-					<goals>
-						<goal>copy-resources</goal>
-					</goals>
-					<configuration>
-						<outputDirectory>${project.build.directory}/Firstwebapp-0.0.1</outputDirectory>
-						<resources>
-							<resource>
-								<directory>../React/react-app/build</directory>
-								<filtering>false</filtering>
-							</resource>
-						</resources>
-					</configuration>
-				</execution>
-			</executions>
-		</plugin>
-		<plugin>
-            <groupId>com.github.eirslett</groupId>
-            <artifactId>frontend-maven-plugin</artifactId>
-            <version>1.12.1</version>
-            <configuration>
-                <workingDirectory>../React/react-app</workingDirectory>
-                <installDirectory>target</installDirectory>
-            </configuration>
-            
-            <executions>
-                <execution>
-                    <id>install node and npm</id>
-                    <goals>
-                        <goal>install-node-and-npm</goal>
-                    </goals>
-                    <configuration>
-                        <nodeVersion>v14.16.0</nodeVersion>
-                        <npmVersion>6.14.11</npmVersion>
-                    </configuration>
-                </execution>
-                <execution>
-                    <id>npm install</id>
-                    <goals>
-                        <goal>npm</goal>
-                    </goals>
-                    <configuration>
-                        <arguments>install</arguments>
-                    </configuration>
-                </execution>
-                <execution>
-                    <id>npm run build</id>
-                    <goals>
-                        <goal>npm</goal>
-                    </goals>
-                    <configuration>
-                        <arguments>run build</arguments>
-                    </configuration>
-                </execution>
-            </executions>
-        </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.2.0</version>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/Firstwebapp-0.0.1</outputDirectory>
+							<resources>
+								<resource>
+									<directory>../React/react-app/build</directory>
+									<filtering>false</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 
 
 
-		<!-- Copy static resources to the webapp directory -->
-		<!-- Copy static resources to the webapp directory -->
-	</plugins>
+			<!-- Copy static resources to the webapp directory -->
+			<!-- Copy static resources to the webapp directory -->
+		</plugins>
 	</build>
 </project>
