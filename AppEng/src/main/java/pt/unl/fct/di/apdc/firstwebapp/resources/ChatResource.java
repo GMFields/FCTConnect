@@ -31,6 +31,8 @@ public class ChatResource implements ChatApi {
 
     private final Gson g = new Gson();
 
+    private final AdminResource admin = new AdminResource();
+
     Cursor pageCursor;
 
     @Override
@@ -79,6 +81,8 @@ public class ChatResource implements ChatApi {
             txn.put(postEntity);
 
             txn.commit();
+            admin.sendNotification("New Post Added",
+                    String.format("%s just added a new Post", tokenObj.getUsername()), "general");
 
             return Response.status(Response.Status.OK).build();
         } catch (Exception e) {
@@ -181,6 +185,8 @@ public class ChatResource implements ChatApi {
             }
 
             txn.commit();
+            admin.sendNotification("New Reply Added",
+                    String.format("%s just added a new Reply", tokenObj.getUsername()), post.getString("author"));
 
             return Response.status(Response.Status.OK).build();
         } catch (Exception e) {
@@ -356,7 +362,7 @@ public class ChatResource implements ChatApi {
             KeyFactory newPostKey = datastore.newKeyFactory();
             PathElement a = PathElement.of("Users", username);
 
-            if (post.getKey().getAncestors().contains(a)) {
+            if (!post.getKey().getAncestors().contains(a)) {
                 txn.rollback();
                 return Response.status(Status.CREATED).build();
             }
