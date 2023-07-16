@@ -19,6 +19,8 @@ class _RegisterPageState extends State<RegisterPage> {
   late TextEditingController confirmPasswordController;
   String? _selectedDepartmentDropdownValue;
   String? _selectedRoleDropdownValue;
+  final Color kPrimaryColor = const Color.fromARGB(255, 21, 39, 141);
+
 
 
   @override
@@ -38,8 +40,8 @@ class _RegisterPageState extends State<RegisterPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(
-            'Name',
+          const Text(
+            'Nome',
             style: kLabelStyle,
           ),
           const SizedBox(height: 10.0),
@@ -54,14 +56,14 @@ class _RegisterPageState extends State<RegisterPage> {
                 color: Colors.black,
                 fontFamily: 'RobotoSlab',
               ),
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.only(top: 14.0),
-                prefixIcon: const Icon(
+                contentPadding: EdgeInsets.only(top: 14.0),
+                prefixIcon: Icon(
                   Icons.person,
                   color: Colors.black,
                 ),
-                hintText: 'Enter your name',
+                hintText: 'Insira o seu nome',
                 hintStyle: kHintTextStyle,
               ),
             ),
@@ -77,7 +79,7 @@ class _RegisterPageState extends State<RegisterPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(
+          const Text(
             'Username',
             style: kLabelStyle,
           ),
@@ -93,14 +95,14 @@ class _RegisterPageState extends State<RegisterPage> {
                 color: Colors.black,
                 fontFamily: 'RobotoSlab',
               ),
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.only(top: 14.0),
-                prefixIcon: const Icon(
+                contentPadding: EdgeInsets.only(top: 14.0),
+                prefixIcon: Icon(
                   Icons.person_outline_rounded,
                   color: Colors.black,
                 ),
-                hintText: 'Enter your username',
+                hintText: 'Insira o seu username',
                 hintStyle: kHintTextStyle,
               ),
             ),
@@ -116,7 +118,7 @@ class _RegisterPageState extends State<RegisterPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(
+          const Text(
             'Email',
             style: kLabelStyle,
           ),
@@ -132,14 +134,14 @@ class _RegisterPageState extends State<RegisterPage> {
                 color: Colors.black,
                 fontFamily: 'RobotoSlab',
               ),
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.only(top: 14.0),
-                prefixIcon: const Icon(
+                contentPadding: EdgeInsets.only(top: 14.0),
+                prefixIcon: Icon(
                   Icons.email,
                   color: Colors.black,
                 ),
-                hintText: 'Enter your email',
+                hintText: 'Insira o seu email',
                 hintStyle: kHintTextStyle,
             ),
           ),
@@ -155,7 +157,7 @@ Widget _buildPassword() {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text(
+        const Text(
           'Password',
           style: kLabelStyle,
         ),
@@ -174,14 +176,14 @@ Widget _buildPassword() {
               color: Colors.black,
               fontFamily: 'RobotoSlab',
             ),
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               border: InputBorder.none,
-              contentPadding: const EdgeInsets.only(top: 14.0),
-              prefixIcon: const Icon(
+              contentPadding: EdgeInsets.only(top: 14.0),
+              prefixIcon: Icon(
                 Icons.key,
                 color: Colors.black,
               ),
-              hintText: 'Enter your password',
+              hintText: 'Insira a sua password',
               hintStyle: kHintTextStyle,
             ),
           ),
@@ -197,8 +199,8 @@ Widget _buildPasswordConfirmation() {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text(
-          'Confirm password',
+        const Text(
+          'Confirma a password',
           style: kLabelStyle,
         ),
         const SizedBox(height: 10.0),
@@ -216,14 +218,14 @@ Widget _buildPasswordConfirmation() {
               color: Colors.black,
               fontFamily: 'RobotoSlab',
             ),
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               border: InputBorder.none,
-              contentPadding: const EdgeInsets.only(top: 14.0),
-              prefixIcon: const Icon(
+              contentPadding: EdgeInsets.only(top: 14.0),
+              prefixIcon: Icon(
                 Icons.key,
                 color: Colors.black,
               ),
-              hintText: 'Confirm your password',
+              hintText: 'Confirme a sua password',
               hintStyle: kHintTextStyle,
             ),
           ),
@@ -258,12 +260,12 @@ Widget _buildRegisterBtn() {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(30.0),
             ),
-            backgroundColor: const Color(0xFFEDEDED),
+            backgroundColor: kPrimaryColor,
           ),
           child: const Text(
-            'REGISTER',
+            'REGISTAR',
             style: TextStyle(
-              color: Colors.black,
+              color: Color.fromARGB(255, 255, 255, 255),
               letterSpacing: 1.5,
               fontSize: 18.0,
               fontWeight: FontWeight.bold,
@@ -288,7 +290,7 @@ Widget _buildSigninBTN() {
         text: const TextSpan(
           children: [
             TextSpan(
-              text: 'Already have an Account? ',
+              text: 'Já tem uma conta? ',
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 18.0,
@@ -296,7 +298,7 @@ Widget _buildSigninBTN() {
               ),
             ),
             TextSpan(
-              text: 'Sign In',
+              text: 'Faça login',
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 18.0,
@@ -320,7 +322,7 @@ Future<void> registerButtonPressed(BuildContext context, String name, String use
       context: context,
       builder: (context) {
         return const AlertDialog(
-          content: Text("Passwords do not match!"),
+          content: Text("As passwords têm que ser iguais!"),
         );
       },
     );
@@ -332,7 +334,7 @@ Future<void> registerButtonPressed(BuildContext context, String name, String use
       context: context,
       builder: (context) {
         return const AlertDialog(
-          content: Text("Email and password are not compliant!"),
+          content: Text("Por favor insira um email e password válidos!"),
         );
       },
     );
@@ -343,7 +345,7 @@ Future<void> registerButtonPressed(BuildContext context, String name, String use
       context: context,
       builder: (context) {
         return const AlertDialog(
-          content: Text("Email is not compliant!"),
+          content: Text("Por favor insira um email válido!"),
         );
       },
     );
@@ -355,7 +357,7 @@ Future<void> registerButtonPressed(BuildContext context, String name, String use
         context: context,
         builder: (context) {
           return const AlertDialog(
-            content: Text("Password is not compliant!"),
+            content: Text("Por favor insira uma password válida!"),
           );
         },
       );
@@ -363,42 +365,66 @@ Future<void> registerButtonPressed(BuildContext context, String name, String use
     }
     else {
       
-    String res = await Authentication.registerUser(name, username, email, password, role, department);
-    switch(res) {
-      case "success":
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => Login()),
-        );
-        break;
-      case "user already exists": 
-        await showDialog(
-          context: context,
-          builder: (context) {
-            return const AlertDialog(
-              content: Text("Username already exists!"),
-            );
-          },
-        );
-        break;
-      case "email already exists":
-      await showDialog(context: context, builder: (context) {
-        return const AlertDialog(
-          content: Text("Email already exists!"),
-        );
-      });
-      break;
-      case "error": {
-        await showDialog(context: context, builder: (context) {
+String res = await Authentication.registerUser(name, username, email, password, role, department);
+switch (res) {
+  case "success":
+    if (role == 'Aluno' || role == 'Funcionário') {
+      await showDialog(
+        context: context,
+        builder: (context) {
           return const AlertDialog(
-            content: Text("Something went wrong!"),
+            content: Text("Conta criada com sucesso. Verifique o seu email para ativar a conta!"),
           );
-        });
-      }
-    } 
+        },
+      );
+    } else if (role == 'Docente') {
+      await showDialog(
+        context: context,
+        builder: (context) {
+          return const AlertDialog(
+            content: Text("Conta criada com sucesso. Aguarde que um administrador ative a sua conta!"),
+          );
+        },
+      );
+    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Login()),
+    );
+    break;
+  case "user already exists":
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return const AlertDialog(
+          content: Text("Este username já existe!"),
+        );
+      },
+    );
+    break;
+  case "email already exists":
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return const AlertDialog(
+          content: Text("Este email já existe!"),
+        );
+      },
+    );
+    break;
+  case "error":
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return const AlertDialog(
+          content: Text("Oops! Aconteceu um erro!"),
+        );
+      },
+    );
+    break;
+    }
   }
-
-  }
+}
 
   Widget _buildDropdownDepartmentButton() {
     return Padding(
@@ -406,7 +432,7 @@ Future<void> registerButtonPressed(BuildContext context, String name, String use
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(
+          const Text(
             'Departamento',
             style: kLabelStyle,
           ),
@@ -448,8 +474,6 @@ Future<void> registerButtonPressed(BuildContext context, String name, String use
                 'DCSA',
                 'DCM',
                 'DCEA'
-
-                // Add more options as needed
               ].map<DropdownMenuItem<String>>((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
@@ -469,7 +493,7 @@ Future<void> registerButtonPressed(BuildContext context, String name, String use
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(
+          const Text(
             'Função',
             style: kLabelStyle,
           ),
@@ -546,7 +570,7 @@ Widget build(BuildContext context) {
               const Padding(
                 padding: EdgeInsets.only(top: 50),
                 child: Text(
-                  "Register",
+                  "Registo",
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,

@@ -22,23 +22,26 @@ class _RestaurantListPageState extends State<RestaurantListPage> {
   Map<String, dynamic>? token;
   late String authToken;
   bool isAdmin = false;
-  final Color kPrimaryColor = const Color(0xff5c6bc0);
-  final TextStyle kDialogStyle = const TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold);
+  //final Color kPrimaryColor = const Color.fromARGB(255, 21, 39, 141);
+  final Color kPrimaryColor = Color.fromARGB(255, 10, 82, 134);
 
+  final TextStyle kDialogStyle = const TextStyle(
+      color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold);
 
   final snackBar = const SnackBar(
-    content: Text('Restaurante adicionado com sucesso', style: TextStyle(color: Colors.white)),
+    content: Text('Restaurante adicionado com sucesso',
+        style: TextStyle(color: Colors.white)),
     backgroundColor: Colors.green,
   );
 
   @override
   void initState() {
     super.initState();
-    
-     getTokenFromCache();
+
+    getTokenFromCache();
   }
 
-   Future<void> getTokenFromCache() async {
+  Future<void> getTokenFromCache() async {
     final prefs = await SharedPreferences.getInstance();
     final cachedToken = prefs.getString('token');
     if (cachedToken == null) {
@@ -50,18 +53,18 @@ class _RestaurantListPageState extends State<RestaurantListPage> {
     });
     fetchAllRestaurants();
     checkAdminRole();
-   }
+  }
 
-   Future<void> checkAdminRole() async {
+  Future<void> checkAdminRole() async {
     var userRole = token!['role'].toString();
     setState(() {
       isAdmin = userRole == '4';
-    }); 
+    });
   }
 
-
   Future<void> fetchAllRestaurants() async {
-    final List<Restaurant> fetchedRestaurants = await fetchRestaurants(authToken);
+    final List<Restaurant> fetchedRestaurants =
+        await fetchRestaurants(authToken);
     setState(() {
       restaurants = fetchedRestaurants;
     });
@@ -74,27 +77,33 @@ class _RestaurantListPageState extends State<RestaurantListPage> {
       final Restaurant newRestaurant = _formController.getRestaurant();
       final String r = await addRestaurant(authToken, newRestaurant);
       print(authToken);
-           if (r == 'success') {
+      if (r == 'success') {
         // ignore: use_build_context_synchronously
         showDialog(
           context: context,
           builder: (context) => const AlertDialog(
-            title: Text('Restaurante adicionado com sucesso', style: TextStyle(color: Colors.green, fontSize: 16)),
+            title: Text('Restaurante adicionado com sucesso',
+                style: TextStyle(color: Colors.green, fontSize: 16)),
             content: Icon(Icons.check_circle, color: Colors.green, size: 100),
             backgroundColor: Colors.white,
           ),
         );
 
-      // ignore: use_build_context_synchronously
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const RestaurantListPage()));
+        // ignore: use_build_context_synchronously
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const RestaurantListPage()));
       }
       _formController.clear();
     } else {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Erro', style: TextStyle(color: Colors.red, fontSize: 16)),
-          content: const Text('Por favor preencha todos os campos.', style: TextStyle(fontWeight: FontWeight.bold)),
+          title: const Text('Erro',
+              style: TextStyle(color: Colors.red, fontSize: 16)),
+          content: const Text('Por favor preencha todos os campos.',
+              style: TextStyle(fontWeight: FontWeight.bold)),
           actions: [
             ElevatedButton(
               onPressed: () => Navigator.pop(context),
@@ -107,59 +116,63 @@ class _RestaurantListPageState extends State<RestaurantListPage> {
   }
 
   void _showAddRestaurantDialog() {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: const Text('Adiciona um novo restaurante'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            controller: _formController.restaurantNameController,
-            decoration: const InputDecoration(
-              labelText: 'Nome do restaurante',
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Adiciona um novo restaurante'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _formController.restaurantNameController,
+              decoration: const InputDecoration(
+                labelText: 'Nome do restaurante',
+              ),
             ),
+            TextField(
+              controller: _formController.locationController,
+              decoration: const InputDecoration(
+                labelText: 'Localização',
+              ),
+            ),
+            TextField(
+              controller: _formController.managersController,
+              decoration: const InputDecoration(
+                labelText: 'Managers',
+              ),
+            ),
+            TextField(
+              controller: _formController.bannerUrlController,
+              decoration: const InputDecoration(
+                labelText: 'Banner URL',
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _addNewRestaurant();
+            },
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all<Color>(kPrimaryColor),
+            ),
+            child: const Text('Adicionar'),
           ),
-          TextField(
-            controller: _formController.locationController,
-            decoration: const InputDecoration(
-              labelText: 'Localização',
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all<Color>(kPrimaryColor),
             ),
-          ),
-          TextField(
-            controller: _formController.managersController,
-            decoration: const InputDecoration(
-              labelText: 'Managers',
-            ),
-          ),
-          TextField(
-            controller: _formController.bannerUrlController,
-            decoration: const InputDecoration(
-              labelText: 'Banner URL',
-            ),
+            child: const Text('Cancelar'),
           ),
         ],
       ),
-      actions: [
-        ElevatedButton(
-          onPressed: () {
-            Navigator.pop(context);
-            _addNewRestaurant();
-          },
-          child: const Text('Adicionar'),
-        ),
-        ElevatedButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancelar'),
-        ),
-      ],
-    ),
-  );
-}
+    );
+  }
 
-
-
- @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: const CustomNavigationDrawer(),
@@ -193,8 +206,11 @@ class _RestaurantListPageState extends State<RestaurantListPage> {
                         child: CachedNetworkImage(
                           imageUrl: restaurant.url,
                           fit: BoxFit.cover,
-                          placeholder: (context, url) => Center(child: CircularProgressIndicator(color: kPrimaryColor)),
-                          errorWidget: (context, url, error) => Icon(Icons.error, color: kPrimaryColor),
+                          placeholder: (context, url) => Center(
+                              child: CircularProgressIndicator(
+                                  color: kPrimaryColor)),
+                          errorWidget: (context, url, error) =>
+                              Icon(Icons.error, color: kPrimaryColor),
                         ),
                       ),
                       subtitle: Padding(
@@ -204,12 +220,16 @@ class _RestaurantListPageState extends State<RestaurantListPage> {
                           children: [
                             Text(
                               restaurant.name,
-                              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
+                              style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               restaurant.location,
-                              style: const TextStyle(fontWeight: FontWeight.bold),
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 4),
                             Row(
@@ -217,12 +237,13 @@ class _RestaurantListPageState extends State<RestaurantListPage> {
                                 Text(
                                   restaurant.numberOfRatings == 0
                                       ? 'Sem avaliações'
-                                      : 'Classificação: ${restaurant.rating / restaurant.numberOfRatings} (${restaurant.numberOfRatings})',
-                                      
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                      : 'Classificação: ${(restaurant.rating / restaurant.numberOfRatings).toStringAsFixed(1)} (${restaurant.numberOfRatings})',
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold),
                                 ),
-                              const SizedBox(width: 4),
-                              const Icon(Icons.star, color: Colors.amber, size: 20),
+                                const SizedBox(width: 4),
+                                const Icon(Icons.star,
+                                    color: Colors.amber, size: 20),
                               ],
                             ),
                           ],
@@ -232,8 +253,8 @@ class _RestaurantListPageState extends State<RestaurantListPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                RestaurantInfoPage(restaurant: restaurant, authToken: authToken),
+                            builder: (context) => RestaurantInfoPage(
+                                restaurant: restaurant, authToken: authToken),
                           ),
                         );
                       },
@@ -252,8 +273,9 @@ class _RestaurantListPageState extends State<RestaurantListPage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(0),
                     ),
-                  ), 
-                  child: const Text('Adicionar novo restaurante', style: TextStyle(color: Colors.white)),
+                  ),
+                  child: const Text('Adicionar novo restaurante',
+                      style: TextStyle(color: Colors.white)),
                 ),
               ),
           ],

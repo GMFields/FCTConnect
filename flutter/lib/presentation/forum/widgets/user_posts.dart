@@ -1,220 +1,133 @@
-import 'dart:async';
 import 'dart:convert';
 
-import '../screens/home_screen.dart';
+import 'package:discipulos_flutter/presentation/forum/widgets/posts.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 import '../models/author_model.dart';
-import '../models/error_popup.dart';
 import '../models/post_model.dart';
 import '../models/replies_model.dart';
 import '../screens/post_screen.dart';
 
-import 'package:http/http.dart' as http;
-
-class Posts extends StatefulWidget {
-  final int selectedIndex;
-  const Posts({required this.selectedIndex});
-
+class UserPosts extends StatefulWidget {
   @override
-  _PostsState createState() => _PostsState();
+  State<StatefulWidget> createState() {
+    return _UserPostsState();
+  }
 }
 
-late List<dynamic> reserve;
-
-Future<void> bookmarkPost(String id, BuildContext context) async {
+Future<void> deletePost(Question post) async {
   final prefs = await SharedPreferences.getInstance();
   final token = prefs.getString('token');
   if (token == null) {
     throw Exception('Token not found in cache');
   }
+  print("token: " + token);
 
-  Map<String, dynamic> tokenData = json.decode(token);
-  String user_username = tokenData['username'] ?? '';
+  final url = Uri.parse(
+    'http://helical-ascent-385614.oa.r.appspot.com/rest/forum/removepost',
+  ).replace(
+    queryParameters: {'tokenObj': token, 'postId': post.id},
+  );
+  print("url: " + url.toString());
 
-  print("aaaa");
-  print(user_username);
-
-  final response = await http.post(Uri.parse(
-          "https://helical-ascent-385614.oa.r.appspot.com/rest/forum/addbookmark")
-      .replace(queryParameters: {
-    'postId': id,
-    'username': user_username,
-    'tokenObj': token
-  }));
+  final response = await http.delete(url);
 
   if (response.statusCode == 200) {
-    print("bookmarked successfully");
-    await prefs.setString('bookmarksCursor', "");
-  } else if (response.statusCode == 201) {
-    // ignore: use_build_context_synchronously
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return const ErrorPopup(
-          errorMessage: "Already Bookmarked",
-        );
-      },
-    );
-  }
-}
-
-Future<void> likePost(Question question) async {
-  final prefs = await SharedPreferences.getInstance();
-  final token = prefs.getString('token');
-  if (token == null) {
-    throw Exception('Token not found in cache');
-  }
-
-  var data = {
-    'question': question.question,
-    'content': question.content,
-    'votes': question.votes + 1,
-    'repliesCount': question.repliesCount,
-    'views': question.views,
-    'created_at': question.created_at,
-    'author': question.author.name,
-    'id': question.id,
-  };
-
-  question.votes += 1;
-
-  final response = await http.post(
-      Uri.parse(
-              "https://helical-ascent-385614.oa.r.appspot.com/rest/forum/updatepost")
-          .replace(queryParameters: {'tokenObj': token}),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(data));
-
-  if (response.statusCode == 200) {
-    print("liked successfully");
+    await prefs.setString('userPostsCursor', "");
+  } else if (response.statusCode == 404) {
   } else {
-    throw Exception('Failed to fetch posts');
+    throw Exception('Failed to fetch asked locations');
   }
 }
 
-Future<void> updatePost(Question question) async {
+Future<List<dynamic>> getUserPosts() async {
   final prefs = await SharedPreferences.getInstance();
   final token = prefs.getString('token');
+  final cursor = prefs.getString('userPostsCursor');
   if (token == null) {
     throw Exception('Token not found in cache');
   }
+  print("token: " + token);
 
-  var data = {
-    'question': question.question,
-    'content': question.content,
-    'votes': question.votes,
-    'repliesCount': question.repliesCount,
-    'views': question.views + 1,
-    'created_at': question.created_at,
-    'author': question.author.name,
-    'id': question.id,
-  };
-
-  question.views += 1;
-
-  final response = await http.post(
-      Uri.parse(
-              "https://helical-ascent-385614.oa.r.appspot.com/rest/forum/updatepost")
-          .replace(queryParameters: {'tokenObj': token}),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(data));
-
-  if (response.statusCode == 200) {
-    print("updated successfully");
-  } else {
-    throw Exception('Failed to fetch anomalies');
-  }
-}
-
-Future<int> getPosts() async {
-  final prefs = await SharedPreferences.getInstance();
-  final cursor = prefs.getString('pageCursor');
-
-  final response = await http.get(
-    Uri.parse(
-            "https://helical-ascent-385614.oa.r.appspot.com/rest/forum/listpost")
-        .replace(queryParameters: {'cursorObj': cursor}),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
+  final url = Uri.parse(
+    'http://helical-ascent-385614.oa.r.appspot.com/rest/forum/listuserposts',
+  ).replace(
+    queryParameters: {
+      'tokenObj': token,
+      'cursorObj': cursor,
     },
   );
+  print("url: " + url.toString());
 
+  final response = await http.get(url);
+
+  List<dynamic> modifiedResponse = [];
   if (response.statusCode == 200) {
-    print("${response.body.split("]")[0]}]");
-    setupQuestions("${response.body.split("]")[0]}]");
+    modifiedResponse = await setupUserPosts("${response.body.split("]")[0]}]");
 
-    String? body = prefs.getString('questions') ?? "";
-
-    print("${response.body.split("]")[0].replaceFirst("[", "")}]"
-        .contains("${body.replaceFirst("]", "")}"));
-
-    await prefs.setString('questions',
+    String? body = prefs.getString('userposts') ?? "";
+    await prefs.setString('userposts',
         "${body.replaceFirst("]", "")}${response.body.split("]")[0].replaceFirst("[", "")}]");
 
-    await prefs.setString('pageCursor',
-        response.body.split('"bytes":')[1].replaceFirst(',"hash":0}}', ""));
+    if (response.body.split('"bytes":').length > 1) {
+      await prefs.setString('userPostsCursor',
+          response.body.split('"bytes":')[1].replaceFirst(',"hash":0}}', ""));
+    }
 
-    reserve = questions;
-    await getUsername();
-    return 200;
+    return modifiedResponse;
   } else if (response.statusCode == 404) {
-    String? body = prefs.getString('questions');
+    String? body = prefs.getString('userposts');
     print(body);
     body = "[${body?.replaceAll("},", "}").replaceAll("}", "},")}]"
         .replaceAll(",]", "]")
         .replaceAll("]]", "]");
-    setupQuestions(body);
-    await getUsername();
-
-    return 404;
+    modifiedResponse = await setupUserPosts(body);
+    return modifiedResponse;
   } else {
-    throw Exception('Failed to fetch anomalies');
+    throw Exception('Failed to fetch asked locations');
   }
 }
 
-void setupQuestions(String body) {
-  print(body);
+Future<List> setupUserPosts(String body) async {
   List<dynamic> postList = jsonDecode(body);
+  List<dynamic> newList = [];
+  print(body);
 
-  postList = (postList.map((json) {
-    return Question(
-        question: json['question'],
-        content: json['content'],
-        votes: json['votes'],
-        repliesCount: json['repliesCount'],
-        views: json['views'],
-        created_at: json['created_at'],
-        id: json['id'],
-        author: Author(name: json['author'], imageUrl: ''),
-        replies: replies);
-  }).toList());
-  postList.forEach((e) {
+  await Future.wait(postList.map((json) async {
+    Question question = Question(
+      question: json['question'],
+      content: json['content'],
+      votes: json['votes'],
+      repliesCount: json['repliesCount'],
+      views: json['views'],
+      created_at: json['created_at'],
+      id: json['id'],
+      author: Author(name: json['author'], imageUrl: ''),
+      replies: replies,
+    );
+
     bool equals = false;
 
-    for (int i = 0; i < questions.length; i++) {
-      if (questions[i].question == e.question) equals = true;
+    for (int i = 0; i < newList.length; i++) {
+      if (newList[i].question == question.question) {
+        equals = true;
+        break;
+      }
     }
 
-    if (!equals) questions.add(e);
-  });
-  questions.sort(((a, b) => a.created_at.compareTo(b.created_at)));
+    if (!equals) {
+      newList.add(question);
+      await loadImage(question);
+    }
+  }).toList());
+
+  newList.sort((a, b) => a.created_at.compareTo(b.created_at));
+  return newList;
 }
 
-getUsername() async {
-  final prefs = await SharedPreferences.getInstance();
-  final token = prefs.getString('token');
-  if (token == null) {
-    throw Exception('Token not found in cache');
-  }
-
-  Map<String, dynamic> tokenData = json.decode(token);
-  username = tokenData['username'] ?? '';
-}
-
-late ImageProvider backgroundImage;
 Future<void> loadImage(Question question) async {
   if (question.author.backgroundImage != null) {
     return;
@@ -230,39 +143,83 @@ Future<void> loadImage(Question question) async {
   }
 }
 
-class _PostsState extends State<Posts> {
+class _UserPostsState extends State<UserPosts> {
+  List<dynamic> userPosts = [];
+  final Color kPrimaryColor = const Color.fromARGB(255, 21, 39, 141);
+
   @override
   void initState() {
     super.initState();
+    fetchLocationRequests();
+  }
+
+  Future<void> fetchLocationRequests() async {
+    try {
+      userPosts = await getUserPosts();
+      userPosts.forEach((element) async {
+        await loadImage(element);
+      });
+      setState(() {});
+    } catch (error) {
+      // Handle the error appropriately, e.g., show an error message
+      print('Error fetching location requests: $error');
+    }
+  }
+
+  void _showConfirmationDialog(BuildContext context, Question question) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Text('Confirmar Exclusão do Post '),
+          content: Text(
+              'Tem a certeza de que pretende eliminar este Post? Esta ação não pode ser desfeita.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(); // Close the dialog
+              },
+              child: Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                // Perform the account deletion logic here
+                deletePost(question);
+                Navigator.of(dialogContext).pop(); // Close the dialog
+              },
+              child: Text(
+                'Remover',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      Center(
-        child: IconButton(
-            onPressed: () {
-              setState(() {
-                questions = reserve;
-              });
-            },
-            icon: Icon(MdiIcons.refresh, size: 20, color: Colors.blue)),
-      ),
-      Column(
-        children: questions
-            .map((question) => FutureBuilder<void>(
-                future: loadImage(question),
-                builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
-                  } else if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  } else {
-                    return GestureDetector(
-                      onDoubleTap: () {
-                        setState(() {
-                          questions = reserve;
-                        });
+    return Scaffold(
+        appBar: AppBar(
+          backgroundColor: kPrimaryColor,
+          title: Text('Os Teus Posts'),
+        ),
+        body: RefreshIndicator(
+          color: Colors
+              .blue, // Customize the color of the pull-to-refresh indicator
+          backgroundColor: Colors
+              .white, // Customize the background color of the pull-to-refresh indicator
+          onRefresh: () async {
+            setState(() {
+              fetchLocationRequests(); // Update your data source with the new data
+            });
+          },
+          child: ListView(
+            children: userPosts
+                .map((question) => GestureDetector(
+                      onLongPress: () {
+                        _showConfirmationDialog(context, question);
                       },
                       onTap: () {
                         updatePost(question);
@@ -462,11 +419,10 @@ class _PostsState extends State<Posts> {
                           ),
                         ),
                       ),
-                    );
-                  }
-                }))
-            .toList(),
-      )
-    ]);
+                    ))
+                .toList(),
+          ),
+          // Your list items go here
+        ));
   }
 }

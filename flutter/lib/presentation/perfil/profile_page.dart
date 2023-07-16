@@ -30,8 +30,9 @@ class _Profile extends State<Profile> {
   Uint8List? _imageBytes;
   TextEditingController _confirmarApagarConta = TextEditingController();
   bool _vaiApagarConta = false;
-  bool _isLoadingImage = false;
   late CloudApi api;
+  //final Color kPrimaryColor = const Color.fromARGB(255, 21, 39, 141);
+  final Color kPrimaryColor = Color.fromARGB(255, 10, 82, 134);
 
   @override
   void initState() {
@@ -99,9 +100,7 @@ class _Profile extends State<Profile> {
   }
 
   Future<void> getFromBucket() async {
-    setState(() {
-      _isLoadingImage = true;
-    });
+    setState(() {});
 
     String username = token?['username'];
     String filename = '$username\_pfp';
@@ -109,7 +108,6 @@ class _Profile extends State<Profile> {
 
     setState(() {
       _imageBytes = bytes;
-      _isLoadingImage = false;
     });
   }
 
@@ -171,18 +169,15 @@ class _Profile extends State<Profile> {
     if (token == null) {
       throw Exception('Token not found in cache');
     }
-    print("token: " + token);
-    final tokenObj = jsonDecode(token);
 
     final url = Uri.parse(
       'http://helical-ascent-385614.oa.r.appspot.com/rest/users/delete/',
     ).replace(
       queryParameters: {'tokenObj': token},
     );
-    print("url: " + url.toString());
 
     final response = await http.delete(url);
-    if(response.statusCode == 200) {
+    if (response.statusCode == 200) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => Login()),
@@ -198,7 +193,7 @@ class _Profile extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     if (token == null) {
-      return CircularProgressIndicator();
+      return const CircularProgressIndicator();
     }
     return Scaffold(
       drawer: const CustomNavigationDrawer(),
@@ -206,13 +201,14 @@ class _Profile extends State<Profile> {
         title: const Text(
           "Perfil",
           style: TextStyle(
-            color: Color.fromARGB(255, 0, 0, 0),
+            color: Color.fromARGB(255, 255, 255, 255),
             fontSize: 20,
             fontFamily: 'RobotoSlab',
           ),
         ),
-        backgroundColor: const Color.fromARGB(255, 237, 237, 237),
-        iconTheme: const IconThemeData(color: Colors.black),
+        backgroundColor: kPrimaryColor,
+        iconTheme:
+            const IconThemeData(color: Color.fromARGB(255, 255, 255, 255)),
       ),
       body: SingleChildScrollView(
         child: Container(
@@ -256,12 +252,19 @@ class _Profile extends State<Profile> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 255, 196, 0),
+                    backgroundColor: kPrimaryColor,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30.0),
                     ),
                   ),
-                  child: Text("Editar Perfil", style: kLabelStyle),
+                  child: const Text(
+                    "Editar Perfil",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontFamily: 'RobotoSlab',
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 30),
@@ -274,19 +277,31 @@ class _Profile extends State<Profile> {
                     logOut();
                     SharedPreferences.getInstance().then((prefs) {
                       prefs.clear().then((value) {
-                       Navigator.pushReplacementNamed(context, '/login');
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => Login()),
+                        );
                       });
-                      //Fazer logout no servidor
                     });
                   },
-                  textColor: Colors.black),
+                  textColor: Colors.black
+                ),
+                ProfileMenuWidget(
+                  title: "Mudar password",
+                  icon: Icons.password,
+                  onPress: () {
+                    _showChangePasswordDialog(context);
+                  },
+                  textColor: const Color.fromARGB(255, 0, 0, 0)
+                ),
               ProfileMenuWidget(
                   title: "Apagar conta",
                   icon: Icons.delete,
                   onPress: () {
                     _showDeleteAccountConfirmation(context);
                   },
-                  textColor: Colors.red),
+                  textColor: Colors.red
+                ),
             ],
           ),
         ),
@@ -294,13 +309,70 @@ class _Profile extends State<Profile> {
     );
   }
 
+  Future<void> _showChangePasswordDialog(BuildContext context) async {
+  String newPassword = '';
+
+  await showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Mudar password'),
+        content: TextField(
+          onChanged: (value) {
+            newPassword = value;
+          },
+          obscureText: true,
+          decoration: const InputDecoration(hintText: 'Introduza a nova password'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () {
+              _callChangePasswordAPI(newPassword);
+              Navigator.of(context).pop();
+            },
+            child: const Text('Mudar'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+Future<void> _callChangePasswordAPI(String newPassword) async {
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('token');
+  if (token == null) {
+    throw Exception('Token not found in cache');
+  }
+
+  final url = Uri.parse(
+    'http://helical-ascent-385614.oa.r.appspot.com/rest/users/changepwd/',
+  ).replace(
+    queryParameters: {'tokenObj': token, 'password' : newPassword},
+  );
+
+  final response = await http.post(url);
+
+  if (response.statusCode == 200) {
+    print("sucesso");
+  } else {
+    print("erro");
+  }
+}
+
+
   Future<void> logOut() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     if (token == null) {
       throw Exception('Token not found in cache');
     }
-    print("token: " + token);
     final tokenObj = jsonDecode(token);
 
     final url = Uri.parse(
@@ -308,7 +380,15 @@ class _Profile extends State<Profile> {
     ).replace(
       queryParameters: {'tokenObj': token},
     );
-    print("url: " + url.toString());
+
+    final response = await http.delete(url);
+
+    if(response.statusCode == 200) {
+      print("sucesso");
+    } else {
+      print("erro");
+    }
 
   }
+
 }

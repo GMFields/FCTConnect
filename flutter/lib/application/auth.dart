@@ -41,8 +41,7 @@ class Authentication {
 
   static Future<String> fetchAuthenticateGAE(
       String email, String password) async {
-    final url = Uri.parse(
-        'https://helical-ascent-385614.oa.r.appspot.com/rest/users/login?email=$email&password=$password');
+    final url = Uri.parse('https://helical-ascent-385614.oa.r.appspot.com/rest/users/login?email=$email&password=${Uri.encodeComponent(password)}');
 
     final response = await http.post(
       url,
@@ -91,7 +90,6 @@ class Authentication {
 
     String roleValue;
 
-    // Check the value of the 'role' string and assign the appropriate role value
     if (role == 'Aluno') {
       roleValue = '1';
     } else if (role == 'Funcionário') {
@@ -99,7 +97,6 @@ class Authentication {
     } else if (role == 'Docente') {
       roleValue = '3';
     } else {
-      // Handle other cases or set a default value if needed
       roleValue = '0';
     }
     print(roleValue);

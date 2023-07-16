@@ -11,11 +11,14 @@ class Anomaly {
   final String description;
   final bool isSolved;
 
-  Anomaly({required this.creator, required this.description, required this.isSolved});
+  Anomaly(
+      {required this.creator,
+      required this.description,
+      required this.isSolved});
 }
 
 class AnomalyListPage extends StatefulWidget {
-  const AnomalyListPage({super.key});
+  const AnomalyListPage({Key? key}) : super(key: key);
 
   @override
   _AnomalyListPageState createState() => _AnomalyListPageState();
@@ -23,24 +26,29 @@ class AnomalyListPage extends StatefulWidget {
 
 class _AnomalyListPageState extends State<AnomalyListPage> {
   List<Anomaly> anomalies = [];
+  final Color kPrimaryColor = const Color.fromARGB(255, 10, 82, 134);
+  bool isLoading = false;
+  String? nextPageCursor;
 
   @override
   void initState() {
     super.initState();
-    fetchAnomalies();
+    fetchAnomalies(null);
   }
 
-  Future<void> fetchAnomalies() async {
+  Future<void> fetchAnomalies(String? cursor) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     if (token == null) {
       throw Exception('Token not found in cache');
     }
-    final response = await http.get(Uri.parse("https://helical-ascent-385614.oa.r.appspot.com/rest/anomaly/list")
-    .replace(queryParameters: {'tokenObj': token}));
+    final url = Uri.parse("https://helical-ascent-385614.oa.r.appspot.com/rest/anomaly/list")
+        .replace(queryParameters: {'tokenObj': token, 'cursor': cursor});
+    final response = await http.get(url);
 
     if (response.statusCode == 200) {
-      final List<dynamic> anomalyList = jsonDecode(response.body);
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      final List<dynamic> anomalyList = data['anomalies'];
       setState(() {
         anomalies = anomalyList.map((json) {
           return Anomaly(
@@ -49,205 +57,222 @@ class _AnomalyListPageState extends State<AnomalyListPage> {
             isSolved: json[2] == 'true',
           );
         }).toList();
+        nextPageCursor = data['cursor'];
       });
     } else {
       throw Exception('Failed to fetch anomalies');
     }
   }
 
-  
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    drawer: const CustomNavigationDrawer(),
-    appBar: AppBar(
-      title: const Text(
-        'Anomalias',
-        style: TextStyle(
-          color: Color.fromARGB(255, 0, 0, 0),
-          fontSize: 20,
-          fontFamily: 'RobotoSlab',
-        ),
-      ),
-      backgroundColor: const Color.fromARGB(255, 237, 237, 237),
-      iconTheme: const IconThemeData(color: Colors.black),
-    ),
-    body: Column(
-      children: [
-        Expanded(
-          child: ListView.separated(
-            itemCount: anomalies.length,
-            separatorBuilder: (context, index) => const Divider(),
-            itemBuilder: (context, index) {
-              final anomaly = anomalies[index];
-              final solvedText = anomaly.isSolved ? 'Sim' : 'Não';
-              final textStyle = TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.bold,
-                color: anomaly.isSolved ? Colors.green : Colors.red,
-              );
-
-              return GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AnomalyDetailPage(anomaly: anomaly),
-                    ),
-                  );
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(16.0),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8.0),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 3.0,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Autor: ${anomaly.creator}',
-                        style: const TextStyle(
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8.0),
-                      Row( 
-                        children: [
-                          const Text(
-                            'Resolvido? ',
-                            style: TextStyle(
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            solvedText,
-                            style: textStyle,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16.0),
-          child: ElevatedButton(
-            onPressed: () { 
-               Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => AddAnomalyPage()),
-             );               
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color.fromARGB(255, 255, 196, 0),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30.0),
-              ),
-            ),
-            child: Text('Adicionar anomalia', style: kLabelStyle),
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-
-
-}
-class AnomalyDetailPage extends StatelessWidget {
-  final Anomaly anomaly;
-
-  AnomalyDetailPage({super.key, required this.anomaly});
-
   @override
   Widget build(BuildContext context) {
-    final decodedDescription = utf8.decode(anomaly.description.runes.toList());
-    
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Detalhes da anomalia',
+          'Anomalias',
           style: TextStyle(
-            color: Color.fromARGB(255, 0, 0, 0),
-            fontSize: 20,
+            color: Colors.white,
+            fontSize: 24,
             fontFamily: 'RobotoSlab',
           ),
         ),
-        backgroundColor: const Color.fromARGB(255, 237, 237, 237),
-        iconTheme: const IconThemeData(color: Colors.black),
+        backgroundColor: kPrimaryColor,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Text(
-                'Autor: ${anomaly.creator}',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            const Divider(),
-            const SizedBox(height: 10),
-            const Text(
-              'Descrição:',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              decodedDescription,
-              style: const TextStyle(
-                fontSize: 18,
-              ),
-            ),
-            const SizedBox(height: 10),
-            const Divider(),
-            const SizedBox(height: 10),
-            Row(
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.separated(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              itemCount: anomalies.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 10.0),
+              itemBuilder: (context, index) {
+                final anomaly = anomalies[index];
+                return Card(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                  elevation: 5,
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: anomaly.isSolved ? Colors.green : Colors.red,
+                      child: Icon(
+                        anomaly.isSolved ? Icons.check : Icons.close,
+                        color: Colors.white,
+                      ),
+                    ),
+                    title: Text(
+                      'Autor: ${anomaly.creator}',
+                      style: const TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    subtitle: Text(
+                      'Resolvido? ${anomaly.isSolved ? "Sim" : "Não"}',
+                      style: TextStyle(
+                        fontSize: 16.0,
+                        color: anomaly.isSolved ? Colors.green : Colors.red,
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AnomalyDetailPage(anomaly: anomaly),
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                const Text(
-                  'Resolvido? ',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
+                ElevatedButton(
+                  onPressed: isLoading || nextPageCursor == null
+                      ? null
+                      : () {
+                          fetchAnomalies(null);
+                        },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: kPrimaryColor,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                    ),
                   ),
+                  child: const Text('Voltar ao inicio', style: TextStyle(fontSize: 16.0)),
                 ),
-                Text(
-                  anomaly.isSolved ? 'Sim' : 'Não',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                    color: anomaly.isSolved ? Colors.green : Colors.red,
+                 ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => AddAnomalyPage()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: kPrimaryColor,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                    ),
                   ),
+                  child: const Text('Adicionar anomalia', style: TextStyle(fontSize: 16.0)),
+                ),
+                 ElevatedButton(
+                  onPressed: isLoading || nextPageCursor == null
+                      ? null
+                      : () {
+                          fetchAnomalies(nextPageCursor);
+                        },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: kPrimaryColor,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                    ),
+                  ),
+                  child: isLoading
+                      ? const CircularProgressIndicator()
+                      : const Text('Carregar mais', style: TextStyle(fontSize: 16.0)),
                 ),
               ],
             ),
           ],
         ),
-      ),
     );
   }
 }
 
+class AnomalyDetailPage extends StatelessWidget {
+  final Anomaly anomaly;
+  final Color kPrimaryColor = const Color.fromARGB(255, 10, 82, 134);
+
+  const AnomalyDetailPage({Key? key, required this.anomaly}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final decodedDescription = utf8.decode(anomaly.description.runes.toList());
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Detalhes da Anomalia',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontFamily: 'RobotoSlab',
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        backgroundColor: kPrimaryColor,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Card(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          elevation: 5,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Text(
+                    'Autor: ${anomaly.creator}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Divider(),
+                const SizedBox(height: 10),
+                const Text(
+                  'Descrição:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  decodedDescription,
+                  style: const TextStyle(
+                    fontSize: 18,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Divider(),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    const Text(
+                      'Resolvido? ',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
+                    ),
+                    Text(
+                      anomaly.isSolved ? 'Sim' : 'Não',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                        color: anomaly.isSolved ? Colors.green : Colors.red,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

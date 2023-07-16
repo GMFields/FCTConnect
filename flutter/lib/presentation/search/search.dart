@@ -36,6 +36,8 @@ class _SearchAppState extends State<SearchApp> {
   List<User> _searchResults = [];
   late CloudApi api;
   late Uint8List? image;
+  //final Color kPrimaryColor = const Color.fromARGB(255, 21, 39, 141);
+  final Color kPrimaryColor = Color.fromARGB(255, 10, 82, 134);
 
   @override
   void dispose() {
@@ -50,6 +52,7 @@ class _SearchAppState extends State<SearchApp> {
       home: Scaffold(
         drawer: const CustomNavigationDrawer(),
         appBar: AppBar(
+          backgroundColor: kPrimaryColor,
           title: TextField(
             controller: _searchController,
             onChanged: (value) {
@@ -58,13 +61,14 @@ class _SearchAppState extends State<SearchApp> {
               });
             },
             onEditingComplete: () async {
-              await performSearch(
-                  _searchText); // Call performSearch function when the "tick" button is pressed
-              FocusScope.of(context)
-                  .unfocus(); // Hide the keyboard after search
+              await performSearch(_searchText);
+              // ignore: use_build_context_synchronously
+              FocusScope.of(context).unfocus();
             },
-            decoration: InputDecoration(
-              hintText: 'Search',
+            style: TextStyle(color: Colors.white),
+            decoration: const InputDecoration(
+              hintText: 'Procurar',
+              hintStyle: TextStyle(color: Colors.white),
             ),
           ),
         ),
@@ -78,8 +82,9 @@ class _SearchAppState extends State<SearchApp> {
                   openUserProfile(user, _searchText);
                 },
                 child: Container(
-                  padding: EdgeInsets.all(10),
-                  margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                  padding: const EdgeInsets.all(10),
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                   decoration: BoxDecoration(
                     color: Colors.grey[200],
                     borderRadius: BorderRadius.circular(5),
@@ -100,17 +105,17 @@ class _SearchAppState extends State<SearchApp> {
                           } else if (snapshot.hasError) {
                             image = null;
                             print("Error: ${snapshot.error}");
-                            return Icon(Icons.person);
+                            return const Icon(Icons.person);
                           } else {
                             image = null;
-                            return Icon(Icons.person);
+                            return const Icon(Icons.person);
                           }
                         },
                       ),
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
                       Text(
                         user.name,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -141,7 +146,6 @@ class _SearchAppState extends State<SearchApp> {
         'username': username,
       },
     );
-    print("url: " + url.toString());
 
     final response = await http.get(url);
 
@@ -181,6 +185,7 @@ class _SearchAppState extends State<SearchApp> {
       print("image nulo");
     }
 
+    // ignore: use_build_context_synchronously
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -190,9 +195,6 @@ class _SearchAppState extends State<SearchApp> {
               username: username,
               role: user.role)),
     );
-
-    // Implement the logic to open the user's profile page
-    // You can navigate to a new page and pass the user object as arguments
   }
 
   Future<void> _initializeApi() async {
@@ -201,9 +203,6 @@ class _SearchAppState extends State<SearchApp> {
   }
 
   Future<Uint8List?> getFromBucket(String username) async {
-    print("passa aqui");
-
-    print("username: " + username);
     String filename = '$username\_pfp';
     Uint8List? bytes = await api.getFile(filename);
     if (bytes == null) {

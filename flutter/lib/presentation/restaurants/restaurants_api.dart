@@ -110,6 +110,7 @@ Future<List<Review>> fetchReviews(String token, String restaurantName) async {
   Future<List<Dish>> fetchSoups(String token, String restaurantName) async {
     final response = await http.get(Uri.parse("https://helical-ascent-385614.oa.r.appspot.com/rest/restaurant/$restaurantName/soups")
     .replace(queryParameters: {'tokenObj': token}),
+        headers: {'Accept-Charset': 'utf-8'},
     );
 
     if(response.statusCode == 200) {

@@ -10,6 +10,8 @@ class AddAnomalyPage extends StatefulWidget {
 
 class _AddAnomalyPageState extends State<AddAnomalyPage> {
   TextEditingController _descriptionController = TextEditingController();
+  //final Color kPrimaryColor = const Color.fromARGB(255, 21, 39, 141);
+  final Color kPrimaryColor = Color.fromARGB(255, 10, 82, 134);
 
   @override
   void dispose() {
@@ -32,7 +34,7 @@ class _AddAnomalyPageState extends State<AddAnomalyPage> {
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('Error'),
-          content: const Text('Anomaly description cannot be empty.'),
+          content: const Text('A descrição da anomalia não pode ser vazia.'),
           actions: [
             TextButton(
               onPressed: () {
@@ -46,11 +48,11 @@ class _AddAnomalyPageState extends State<AddAnomalyPage> {
       return;
     }
 
-      final body = jsonEncode(description);
-
+    final body = jsonEncode(description);
 
     final response = await http.post(
-      Uri.parse("https://helical-ascent-385614.oa.r.appspot.com/rest/anomaly/report?tokenObj=$token"),
+      Uri.parse(
+          "https://helical-ascent-385614.oa.r.appspot.com/rest/anomaly/report?tokenObj=$token"),
       headers: {'Content-Type': 'application/json'},
       body: body,
     );
@@ -61,12 +63,12 @@ class _AddAnomalyPageState extends State<AddAnomalyPage> {
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('Success'),
-          content: Text('Anomalia reportada com sucesso!. ID: ${response.body}'),
+          content:
+              Text('Anomalia reportada com sucesso!. ID: ${response.body}'),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
-                Navigator.pop(context); // Navigate back to the previous page
               },
               child: const Text('OK'),
             ),
@@ -97,15 +99,17 @@ class _AddAnomalyPageState extends State<AddAnomalyPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Adicionar anomalia',
-        style: TextStyle(
-            color: Color.fromARGB(255, 0, 0, 0),
+        title: const Text(
+          'Adicionar anomalia',
+          style: TextStyle(
+            color: Color.fromARGB(255, 255, 255, 255),
             fontSize: 20,
             fontFamily: 'RobotoSlab',
           ),
         ),
-        backgroundColor: const Color.fromARGB(255, 237, 237, 237),
-        iconTheme: const IconThemeData(color: Colors.black),
+        backgroundColor: kPrimaryColor,
+        iconTheme:
+            const IconThemeData(color: Color.fromARGB(255, 255, 255, 255)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -132,7 +136,7 @@ class _AddAnomalyPageState extends State<AddAnomalyPage> {
             ElevatedButton(
               onPressed: _saveAnomaly,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 255, 196, 0),
+                backgroundColor: kPrimaryColor,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30.0),
                 ),

@@ -6,14 +6,13 @@ class Review {
   final String restaurantName;
   final String reviewID;
 
-  Review({
-    required this.creationData,
-    required this.author,
-    required this.description,
-    required this.rating,
-    required this.restaurantName,
-    required this.reviewID
-  });
+  Review(
+      {required this.creationData,
+      required this.author,
+      required this.description,
+      required this.rating,
+      required this.restaurantName,
+      required this.reviewID});
 
   factory Review.fromJson(Map<String, dynamic> json) {
     return Review(
@@ -36,5 +35,4 @@ class Review {
       'reviewID': reviewID,
     };
   }
-
 }

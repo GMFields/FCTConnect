@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:discipulos_flutter/presentation/askLocation/Answered.dart';
+import 'package:discipulos_flutter/presentation/welcome/widgets/navigation_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -45,6 +46,8 @@ Future<List<String>> getAskedLocations() async {
 
 class _AskLocationAppState extends State<AskLocationApp> {
   Map<String, String> locationRequests = {};
+  //final Color kPrimaryColor = const Color.fromARGB(255, 21, 39, 141);
+  final Color kPrimaryColor = Color.fromARGB(255, 10, 82, 134);
 
   @override
   void initState() {
@@ -56,6 +59,7 @@ class _AskLocationAppState extends State<AskLocationApp> {
     try {
       List<String> fetchedLocationRequests = await getAskedLocations();
       setState(() {
+        // ignore: prefer_for_elements_to_map_fromiterable
         locationRequests = Map.fromIterable(
           fetchedLocationRequests,
           key: (request) => request,
@@ -63,7 +67,6 @@ class _AskLocationAppState extends State<AskLocationApp> {
         );
       });
     } catch (error) {
-      // Handle the error appropriately, e.g., show an error message
       print('Error fetching location requests: $error');
     }
   }
@@ -74,12 +77,12 @@ class _AskLocationAppState extends State<AskLocationApp> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Pedido de localização'),
+          title: const Text('Pedido de localização'),
           content: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               TextField(
                 controller: textFieldController,
                 onChanged: (value) {
@@ -87,7 +90,7 @@ class _AskLocationAppState extends State<AskLocationApp> {
                     locationRequests[locationRequest] = value;
                   });
                 },
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Onde estás?',
                   border: OutlineInputBorder(),
                 ),
@@ -109,7 +112,10 @@ class _AskLocationAppState extends State<AskLocationApp> {
                 // Close the dialog
                 Navigator.of(context).pop();
               },
-              child: Text('Enviar'),
+              child: const Text(
+                'Enviar',
+                style: TextStyle(color: Color.fromARGB(199, 40, 64, 183)),
+              ),
             ),
           ],
         );
@@ -121,24 +127,26 @@ class _AskLocationAppState extends State<AskLocationApp> {
   Widget build(BuildContext context) {
     TextEditingController textFieldController = TextEditingController();
     return Scaffold(
+      drawer: const CustomNavigationDrawer(),
       appBar: AppBar(
-        title: Text('Pedidos de localização'),
+        backgroundColor: kPrimaryColor,
+        title: const Text('Pedidos de localização'),
         actions: [
           IconButton(
-            icon: Icon(Icons.add),
+            icon: const Icon(Icons.add),
             onPressed: () {
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: Text('Pedir localização'),
+                    title: const Text('Pedir localização'),
                     content: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         TextField(
                           controller: textFieldController,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             labelText: 'username',
                             border: OutlineInputBorder(),
                           ),
@@ -155,7 +163,7 @@ class _AskLocationAppState extends State<AskLocationApp> {
                           // Close the dialog
                           Navigator.of(context).pop();
                         },
-                        child: Text('Pedir'),
+                        child: const Text('Pedir'),
                       ),
                     ],
                   );
@@ -167,7 +175,7 @@ class _AskLocationAppState extends State<AskLocationApp> {
             },
           ),
           IconButton(
-            icon: Icon(Icons.swap_calls),
+            icon: const Icon(Icons.swap_calls),
             onPressed: () {
               Navigator.pop(context);
               Navigator.of(context).push(MaterialPageRoute(

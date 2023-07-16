@@ -61,6 +61,8 @@ Future<Map<String, String>> getAnsweredLocations() async {
 
 class _AnsweredLocationAppState extends State<AnsweredLocationApp> {
   Map<String, String> locationRequests = {};
+  //final Color kPrimaryColor = const Color.fromARGB(255, 21, 39, 141);
+  final Color kPrimaryColor = Color.fromARGB(255, 10, 82, 134);
 
   @override
   void initState() {
@@ -83,16 +85,15 @@ class _AnsweredLocationAppState extends State<AnsweredLocationApp> {
     TextEditingController textFieldController = TextEditingController();
     return Scaffold(
       appBar: AppBar(
-        title: Text('Pedidos respondidos'),
+        backgroundColor: kPrimaryColor,
+        title: const Text('Pedidos respondidos'),
         actions: [
           IconButton(
-            icon: Icon(Icons.swap_calls),
+            icon: const Icon(Icons.swap_calls),
             onPressed: () {
               Navigator.pop(context);
               Navigator.of(context).push(
                   MaterialPageRoute(builder: ((context) => AskLocationApp())));
-              // Perform an action when the button is pressed
-              // For example, refresh the location requests
               // ...
             },
           )
@@ -102,7 +103,12 @@ class _AnsweredLocationAppState extends State<AnsweredLocationApp> {
         children: locationRequests.keys.map((locationRequest) {
           final location = locationRequests[locationRequest];
           return ListTile(
-            title: Text('A localização de $locationRequest é $location'),
+            title: Text(
+                'A resposta ao pedido de localização feita a $locationRequest é: $location',
+                style: const TextStyle(
+                    fontSize: 20,
+                    fontFamily: 'Roboto',
+                    fontWeight: FontWeight.bold)),
           );
         }).toList(),
       ),

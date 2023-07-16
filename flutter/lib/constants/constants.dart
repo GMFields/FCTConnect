@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
 
-final kHintTextStyle = const TextStyle(
+const kHintTextStyle = TextStyle(
   color: Colors.black26,
   fontFamily: 'RobotoSlab',
+
 );
 
-final kLabelStyle = const TextStyle(
+const kLabelStyle = TextStyle(
   color: Colors.black,
   fontWeight: FontWeight.bold,
   fontFamily: 'RobotoSlab',
 );  
 
 final kBoxDecorationStyle = BoxDecoration(
-  color: Color(0xFFEDEDED),
+  color:  Color.fromARGB(190, 215, 214, 235),
   borderRadius: BorderRadius.circular(10.0),
-  boxShadow: [
-    const BoxShadow(
+  boxShadow: const [
+    BoxShadow(
       color: Colors.black12,
       blurRadius: 6.0,
       offset: Offset(0, 2),
@@ -23,7 +24,7 @@ final kBoxDecorationStyle = BoxDecoration(
   ],
 );
 
-final titleTextStyle = const TextStyle(
+const titleTextStyle = TextStyle(
   color: Colors.black,
   fontSize: 10.0,
   fontWeight: FontWeight.bold,

@@ -31,6 +31,8 @@ class _CalendarAppState extends State<sharedCalendar> {
   DateTime _firstDay = DateTime.now().subtract(const Duration(days: 30));
   DateTime _lastDay = DateTime.now().add(const Duration(days: 150));
   Map<DateTime, List<Event>> _events = {};
+  //final Color kPrimaryColor = const Color.fromARGB(255, 21, 39, 141);
+  final Color kPrimaryColor = Color.fromARGB(255, 10, 82, 134);
 
   @override
   void initState() {
@@ -129,6 +131,7 @@ class _CalendarAppState extends State<sharedCalendar> {
     );
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: kPrimaryColor,
         title: const Text('Calendário'),
       ),
       body: SingleChildScrollView(
@@ -165,7 +168,9 @@ class _CalendarAppState extends State<sharedCalendar> {
               },
               calendarStyle: const CalendarStyle(
                 selectedDecoration: BoxDecoration(
-                  color: Colors.blue,
+                  //color: Color.fromARGB(199, 40, 64, 183),
+                  color: Color.fromARGB(255, 10, 82, 134),
+
                   shape: BoxShape.circle,
                 ),
                 todayDecoration: BoxDecoration(

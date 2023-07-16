@@ -17,6 +17,8 @@ class _LoginState extends State<Login> {
   late TextEditingController emailController;
   late TextEditingController passwordController;
   bool _isPasswordVisible = false;
+  //final Color kPrimaryColor = const Color.fromARGB(255, 21, 39, 141);
+  final Color kPrimaryColor = Color.fromARGB(255, 10, 82, 134);
 
   @override
   void initState() {
@@ -60,7 +62,7 @@ class _LoginState extends State<Login> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(
+          const Text(
             'Email',
             style: kLabelStyle,
           ),
@@ -76,14 +78,14 @@ class _LoginState extends State<Login> {
                 color: Colors.black,
                 fontFamily: 'RobotoSlab',
               ),
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.only(top: 14.0),
-                prefixIcon: const Icon(
+                contentPadding: EdgeInsets.only(top: 14.0),
+                prefixIcon: Icon(
                   Icons.email,
                   color: Colors.black,
                 ),
-                hintText: 'Enter your Email',
+                hintText: 'Insira o seu email',
                 hintStyle: kHintTextStyle,
               ),
             ),
@@ -100,7 +102,7 @@ class _LoginState extends State<Login> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(
+          const Text(
             'Password',
             style: kLabelStyle,
           ),
@@ -135,7 +137,7 @@ class _LoginState extends State<Login> {
                     });
                   },
                 ),
-                hintText: 'Enter your password',
+                hintText: 'Insira a sua password',
                 hintStyle: kHintTextStyle,
               ),
             ),
@@ -153,10 +155,10 @@ class _LoginState extends State<Login> {
         child: TextButton(
           onPressed: () {
             Navigator.push(context,
-                MaterialPageRoute(builder: (context) => ForgotPasswordPage()));
+                MaterialPageRoute(builder: (context) =>  ForgotPasswordPage()));
           },
-          child: Text(
-            'Forgot Password?',
+          child: const Text(
+            'Esqueceu-se da password?',
             style: kLabelStyle,
           ),
         ),
@@ -179,12 +181,12 @@ class _LoginState extends State<Login> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30.0),
               ),
-              backgroundColor: const Color(0xFFEDEDED),
+              backgroundColor: kPrimaryColor,
             ),
             child: const Text(
               'LOGIN',
               style: TextStyle(
-                color: Colors.black,
+                color: Color.fromARGB(255, 255, 255, 255),
                 letterSpacing: 1.5,
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
@@ -209,7 +211,7 @@ class _LoginState extends State<Login> {
           text: const TextSpan(
             children: [
               TextSpan(
-                text: 'Don\'t have an Account? ',
+                text: 'Não tem conta? ',
                 style: TextStyle(
                   color: Colors.black,
                   fontSize: 18.0,
@@ -217,7 +219,7 @@ class _LoginState extends State<Login> {
                 ),
               ),
               TextSpan(
-                text: 'Sign Up',
+                text: 'Registe-se',
                 style: TextStyle(
                   color: Colors.black,
                   fontSize: 18.0,
@@ -241,7 +243,7 @@ class _LoginState extends State<Login> {
         context: context,
         builder: (context) {
           return const AlertDialog(
-            content: Text("Invalid password!"),
+            content: Text("Password inválida!"),
           );
         },
       );
@@ -261,7 +263,7 @@ class _LoginState extends State<Login> {
         context: context,
         builder: (context) {
           return const AlertDialog(
-            content: Text("User not found!"),
+            content: Text("Utilizador não encontrado!"),
           );
         },
       );
@@ -270,7 +272,7 @@ class _LoginState extends State<Login> {
         context: context,
         builder: (context) {
           return const AlertDialog(
-            content: Text("Wrong password!"),
+            content: Text("Password errada!"),
           );
         },
       );
@@ -279,7 +281,7 @@ class _LoginState extends State<Login> {
         context: context,
         builder: (context) {
           return const AlertDialog(
-            content: Text("Account is not active, contact an admin!"),
+            content: Text("A sua conta não está ativa. Por favor contacte um adminstrador!"),
           );
         },
       );
@@ -288,7 +290,7 @@ class _LoginState extends State<Login> {
         context: context,
         builder: (context) {
           return const AlertDialog(
-            content: Text("Something went wrong!"),
+            content: Text("Oops! Aconteceu um erro!"),
           );
         },
       );
@@ -304,7 +306,7 @@ class _LoginState extends State<Login> {
             decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage(
-                    'assets/images/FCT.png'), // Replace 'assets/images/FCT.png' with the path to your background image
+                    'assets/images/FCT.png'),
                 fit: BoxFit.cover,
               ),
             ),
@@ -323,9 +325,9 @@ class _LoginState extends State<Login> {
                 const Padding(
                   padding: EdgeInsets.only(top: 80),
                   child: Text(
-                    "Sign In",
+                    "Login",
                     style: TextStyle(
-                      fontSize: 24,
+                      fontSize: 34,
                       fontWeight: FontWeight.bold,
                       fontFamily: 'RobotoSlab',
                       color: Colors.black,

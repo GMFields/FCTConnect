@@ -2,13 +2,14 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:discipulos_flutter/presentation/askLocation/askLocation.dart';
 import 'package:discipulos_flutter/presentation/forum/screens/home_screen.dart';
-import 'package:discipulos_flutter/presentation/login/login_page.dart';
 import 'package:discipulos_flutter/presentation/mapas/waypoint.dart';
 import 'package:discipulos_flutter/presentation/restaurants/restaurants.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:badges/badges.dart' as badges;
 
 import '../../anomaly/anomaly.dart';
+import '../../askLocation/startBeams.dart';
 import '../../calendar/calendar.dart';
 import '../../perfil/profile_page.dart';
 import '../welcome.dart';
@@ -23,6 +24,7 @@ class CustomNavigationDrawer extends StatefulWidget {
 
 class _CustomNavigationDrawerState extends State<CustomNavigationDrawer> {
   Uint8List? _imageBytes;
+  final Color kPrimaryColor = const Color.fromARGB(255, 21, 39, 141);
 
   @override
   void initState() {
@@ -41,7 +43,6 @@ class _CustomNavigationDrawerState extends State<CustomNavigationDrawer> {
       });
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +97,18 @@ class _CustomNavigationDrawerState extends State<CustomNavigationDrawer> {
               }
 
               return Container(
-                color: const Color.fromARGB(255, 237, 237, 237),
+                //color: kPrimaryColor,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color.fromARGB(255, 10, 82, 134),
+                      Color.fromARGB(255, 10, 82, 134),
+                      Color.fromARGB(255, 10, 82, 134)
+                    ],
+                  ),
+                ),
                 padding: EdgeInsets.only(
                   top: 16 + MediaQuery.of(context).padding.top,
                   bottom: 16,
@@ -121,13 +133,13 @@ class _CustomNavigationDrawerState extends State<CustomNavigationDrawer> {
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.w600,
-                        color: Color.fromARGB(255, 0, 0, 0),
+                        color: Color.fromARGB(255, 255, 255, 255),
                       ),
                     ),
                     Text(
                       email,
                       style: const TextStyle(
-                        color: Color.fromARGB(255, 0, 0, 0),
+                        color: Color.fromARGB(255, 255, 255, 255),
                         fontSize: 16,
                       ),
                     ),
@@ -170,9 +182,17 @@ class _CustomNavigationDrawerState extends State<CustomNavigationDrawer> {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.forum_rounded),
+            leading: badges.Badge(
+              child: const Icon(Icons.forum_outlined),
+              badgeContent: const Text(""),
+              position: badges.BadgePosition.topStart(),
+              showBadge: isPostsUnread,
+            ),
             title: const Text('Forum'),
-            onTap: () {
+            onTap: () async {
+              isPostsUnread = false;
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setString('pageCursor', "");
               Navigator.pop(context);
               Navigator.of(context)
                   .push(MaterialPageRoute(builder: ((context) => HomePage())));
@@ -193,7 +213,7 @@ class _CustomNavigationDrawerState extends State<CustomNavigationDrawer> {
             onTap: () {
               Navigator.pop(context);
               Navigator.of(context).push(MaterialPageRoute(
-                  builder: ((context) => RestaurantListPage())));
+                  builder: ((context) => const RestaurantListPage())));
             },
           ),
           ListTile(
@@ -206,9 +226,16 @@ class _CustomNavigationDrawerState extends State<CustomNavigationDrawer> {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.location_on),
+            leading: badges.Badge(
+              child: const Icon(
+                  Icons.location_on_outlined), // Replace with your widget
+              badgeContent: const Text(""),
+              position: badges.BadgePosition.topStart(),
+              showBadge: isLocationUnread,
+            ),
             title: const Text('Pedir localização'),
             onTap: () {
+              isLocationUnread = false;
               Navigator.pop(context);
               Navigator.of(context).push(
                   MaterialPageRoute(builder: ((context) => AskLocationApp())));

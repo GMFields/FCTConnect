@@ -2,16 +2,12 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:discipulos_flutter/application/api.dart';
-import 'package:discipulos_flutter/presentation/login/login_page.dart';
-import 'package:discipulos_flutter/presentation/perfil/update_profile.dart';
 import 'package:discipulos_flutter/presentation/search/sharedCalendar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../constants/constants.dart';
-import '../welcome/widgets/navigation_drawer.dart';
-import '../perfil/widgets/profile_menu.dart';
 
 class searchProfile extends StatefulWidget {
   final String email;
@@ -36,6 +32,8 @@ class _searchProfile extends State<searchProfile> {
   Map<String, dynamic>? token;
   String? email;
   Uint8List? _imageBytes;
+  //final Color kPrimaryColor = const Color.fromARGB(255, 21, 39, 141);
+  final Color kPrimaryColor = Color.fromARGB(255, 10, 82, 134);
 
   late CloudApi api;
 
@@ -86,23 +84,21 @@ class _searchProfile extends State<searchProfile> {
   @override
   Widget build(BuildContext context) {
     if (token == null) {
-      return CircularProgressIndicator();
+      return const CircularProgressIndicator();
     }
     return Scaffold(
-      drawer: const CustomNavigationDrawer(),
       appBar: AppBar(
         title: const Text(
           "Perfil",
           style: TextStyle(
-            color: Color.fromARGB(255, 0, 0, 0),
+            color: Color.fromARGB(255, 255, 255, 255),
             fontSize: 20,
             fontFamily: 'RobotoSlab',
           ),
         ),
-        backgroundColor: const Color.fromARGB(255, 237, 237, 237),
-        iconTheme: const IconThemeData(
-            color:
-                Colors.black), // Set the navigation drawer icon color to black
+        backgroundColor: kPrimaryColor,
+        iconTheme:
+            const IconThemeData(color: Color.fromARGB(255, 255, 255, 255)),
       ),
       body: SingleChildScrollView(
         child: Container(
@@ -134,7 +130,7 @@ class _searchProfile extends State<searchProfile> {
               Text(convertRoleToString(widget.role), style: kLabelStyle),
               Text(widget.email ?? "Error! No Mail", style: kLabelStyle),
               const SizedBox(height: 20),
-              SizedBox(
+              const SizedBox(
                 width: 200,
               ),
               const SizedBox(height: 30),
@@ -148,19 +144,20 @@ class _searchProfile extends State<searchProfile> {
                             sharedCalendar(username: widget.username)),
                   );
                 },
-                child: Text(
+                style: ElevatedButton.styleFrom(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  backgroundColor: kPrimaryColor,
+                ),
+                child: const Text(
                   'Calendário',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  primary: Colors.blue,
                 ),
               ),
               const SizedBox(height: 10),

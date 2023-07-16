@@ -36,7 +36,6 @@ class _PopularTopics extends State {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     loadPosts();
   }
@@ -50,8 +49,8 @@ class _PopularTopics extends State {
             itemCount: contents.length > 4 ? 4 : contents.length,
             itemBuilder: (BuildContext context, int index) {
               return Container(
-                padding: EdgeInsets.all(10.0),
-                margin: EdgeInsets.only(left: 20.0),
+                padding: const EdgeInsets.all(10.0),
+                margin: const EdgeInsets.only(left: 20.0),
                 height: 180,
                 width: 170,
                 decoration: BoxDecoration(
@@ -59,7 +58,7 @@ class _PopularTopics extends State {
                   borderRadius: BorderRadius.circular(24.0),
                 ),
                 child: Padding(
-                  padding: EdgeInsets.all(15.0),
+                  padding: const EdgeInsets.all(15.0),
                   child: GestureDetector(
                     onDoubleTap: () {
                       setState(() {
@@ -81,17 +80,17 @@ class _PopularTopics extends State {
                           contents[index].author.name,
                           style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 22,
+                              fontSize: 16,
                               fontWeight: FontWeight.w600,
                               letterSpacing: 1.2),
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          "${contents[index].question.length <= 50 ? contents[index].question : contents[index].question.substring(0, 50)}..",
-                          style: TextStyle(
+                          "${contents[index].question.length <= 15 ? contents[index].question : contents[index].question.substring(0, 15)}..",
+                          style: const TextStyle(
                               color: Colors.white,
                               fontSize: 18,
-                              letterSpacing: .7),
+                              letterSpacing: .1),
                         ),
                         const SizedBox(height: 10),
                         const SizedBox(height: 10),
@@ -103,7 +102,7 @@ class _PopularTopics extends State {
                                       contents[index].repliesCount,
                                       contents[index].views)
                                   .toStringAsFixed(2),
-                          style: TextStyle(
+                          style: const TextStyle(
                               color: Colors.white,
                               fontSize: 14,
                               letterSpacing: .7),

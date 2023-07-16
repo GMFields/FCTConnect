@@ -1,17 +1,16 @@
-import 'package:dio/dio.dart';
+import 'package:discipulos_flutter/presentation/welcome/widgets/navigation_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:duration_picker/duration_picker.dart';
-import 'package:intl/intl.dart';
 
 void main() {
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    supportedLocales: [
-      const Locale('pt', 'PT'), //
+    supportedLocales: const [
+      Locale('pt', 'PT'),
     ],
     locale: const Locale('pt', 'PT'),
     home: CalendarApp(),
@@ -42,6 +41,8 @@ class _CalendarAppState extends State<CalendarApp> {
   DateTime _firstDay = DateTime.now().subtract(const Duration(days: 30));
   DateTime _lastDay = DateTime.now().add(const Duration(days: 150));
   Map<DateTime, List<Event>> _events = {};
+  //final Color kPrimaryColor = const Color.fromARGB(255, 21, 39, 141);
+  final Color kPrimaryColor = Color.fromARGB(255, 10, 82, 134);
 
   @override
   void initState() {
@@ -59,8 +60,6 @@ class _CalendarAppState extends State<CalendarApp> {
     final url = Uri.parse(
             'http://helical-ascent-385614.oa.r.appspot.com/rest/calendar/getall')
         .replace(queryParameters: {'tokenObj': token, 'username': username});
-    print("url: " + url.toString());
-
     final headers = {
       'Content-Type': 'application/json',
     };
@@ -97,23 +96,14 @@ class _CalendarAppState extends State<CalendarApp> {
           0,
         );
 
-        print("Events for selectedDate: " + events[_selectedDate].toString());
-
         setState(() {
           events[y] ??= [];
           events[y]!.add(event);
         });
-
-        print("Events for parsedDate: " + events[parsedDate].toString());
-        print("Events for selectedDate: " + events[_selectedDate].toString());
       }
 
       events.forEach((date, eventList) {
-        print("Date: $date");
-        eventList.forEach((event) {
-          print("Event: ${event.title}");
-          // Print other event properties as needed
-        });
+        eventList.forEach((event) {});
       });
     } else if (response.statusCode == 404) {
       print("User not found");
@@ -130,9 +120,6 @@ class _CalendarAppState extends State<CalendarApp> {
   }
 
   void deleteEvent(Event event) async {
-    // Perform the event deletion logic here
-    // You can remove the event from the _events map or perform any other desired actions
-
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     if (token == null) {
@@ -174,7 +161,6 @@ class _CalendarAppState extends State<CalendarApp> {
           actions: [
             TextButton(
               onPressed: () {
-                // Delete the event here
                 deleteEvent(event);
                 Navigator.of(context).pop();
               },
@@ -236,11 +222,18 @@ class _CalendarAppState extends State<CalendarApp> {
       0,
     );
     return Scaffold(
+      drawer: const CustomNavigationDrawer(),
       appBar: AppBar(
+        backgroundColor: kPrimaryColor,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('Calendário'),
+            const Text('Calendário',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontFamily: 'Roboto',
+                  fontWeight: FontWeight.w600,
+                )),
             Row(
               children: [
                 IconButton(
@@ -248,8 +241,7 @@ class _CalendarAppState extends State<CalendarApp> {
                     showDialog(
                       context: context,
                       builder: (BuildContext context) {
-                        String textFieldValue =
-                            ''; // Variable to hold the value of the text field
+                        String textFieldValue = '';
                         return AlertDialog(
                           title: const Text('Adicionar Permissão'),
                           content: Column(
@@ -257,8 +249,7 @@ class _CalendarAppState extends State<CalendarApp> {
                             children: [
                               TextField(
                                 onChanged: (value) {
-                                  textFieldValue =
-                                      value; // Update the value of the text field
+                                  textFieldValue = value;
                                 },
                                 decoration: const InputDecoration(
                                   labelText: 'username',
@@ -269,11 +260,8 @@ class _CalendarAppState extends State<CalendarApp> {
                           actions: [
                             TextButton(
                               onPressed: () {
-                                // Perform the action when the button inside the popup is pressed
-                                // Replace this with your desired functionality
                                 addPermission(textFieldValue);
-                                print('Text Field Value: $textFieldValue');
-                                Navigator.of(context).pop(); // Close the popup
+                                Navigator.of(context).pop();
                               },
                               child: const Text('Adicionar'),
                             ),
@@ -281,21 +269,16 @@ class _CalendarAppState extends State<CalendarApp> {
                         );
                       },
                     );
-                    // Perform the action when the icon is pressed
-                    // Replace this with your desired functionality
-                    print('First icon pressed');
                   },
-                  icon: Icon(
-                      Icons.draw_outlined), // Replace with your desired icon
+                  icon: const Icon(Icons.add_reaction_rounded),
                 ),
-                const SizedBox(width: 8), // Adjust the spacing as needed
+                const SizedBox(width: 8),
                 IconButton(
                   onPressed: () {
                     showDialog(
                       context: context,
                       builder: (BuildContext context) {
-                        String textFieldValue =
-                            ''; // Variable to hold the value of the text field
+                        String textFieldValue = '';
                         return AlertDialog(
                           title: const Text('Remover Permissão'),
                           content: Column(
@@ -303,8 +286,7 @@ class _CalendarAppState extends State<CalendarApp> {
                             children: [
                               TextField(
                                 onChanged: (value) {
-                                  textFieldValue =
-                                      value; // Update the value of the text field
+                                  textFieldValue = value;
                                 },
                                 decoration: const InputDecoration(
                                   labelText: 'username',
@@ -315,11 +297,8 @@ class _CalendarAppState extends State<CalendarApp> {
                           actions: [
                             TextButton(
                               onPressed: () {
-                                // Perform the action when the button inside the popup is pressed
-                                // Replace this with your desired functionality
                                 removePermission(textFieldValue);
-                                print('Text Field Value: $textFieldValue');
-                                Navigator.of(context).pop(); // Close the popup
+                                Navigator.of(context).pop();
                               },
                               child: const Text('Remover'),
                             ),
@@ -327,12 +306,8 @@ class _CalendarAppState extends State<CalendarApp> {
                         );
                       },
                     );
-                    // Perform the action when the icon is pressed
-                    // Replace this with your desired functionality
-                    print('Second icon pressed');
                   },
-                  icon: Icon(
-                      Icons.person_remove), // Replace with your desired icon
+                  icon: const Icon(Icons.person_remove_alt_1),
                 ),
               ],
             ),
@@ -363,8 +338,6 @@ class _CalendarAppState extends State<CalendarApp> {
                   0,
                   0,
                 );
-                print("Selected Date: $z");
-                print("Events for selectedDate: " + _events[z].toString());
               },
               onFormatChanged: (format) {
                 setState(() {
@@ -373,7 +346,9 @@ class _CalendarAppState extends State<CalendarApp> {
               },
               calendarStyle: const CalendarStyle(
                 selectedDecoration: BoxDecoration(
-                  color: Colors.blue,
+                  //color: Color.fromARGB(255, 21, 39, 141),
+                  color: Color.fromARGB(255, 10, 82, 134),
+
                   shape: BoxShape.circle,
                 ),
                 todayDecoration: BoxDecoration(
@@ -408,6 +383,11 @@ class _CalendarAppState extends State<CalendarApp> {
               onPressed: () {
                 _showAddEventDialog(context);
               },
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all<Color>(
+                  kPrimaryColor,
+                ),
+              ),
               child: const Text('Adicionar Evento'),
             ),
             const SizedBox(height: 20),
@@ -511,6 +491,11 @@ class _CalendarAppState extends State<CalendarApp> {
                           newEventStartTime = selectedTime;
                         });
                       },
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                          kPrimaryColor,
+                        ),
+                      ),
                       child: const Text('Hora de início'),
                     ),
                   ),
@@ -525,8 +510,12 @@ class _CalendarAppState extends State<CalendarApp> {
                         setState(() {
                           newEventDuration = selectedDuration;
                         });
-                        print("duration: " + newEventDuration.toString());
                       },
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                          kPrimaryColor,
+                        ),
+                      ),
                       child: const Text('Duração '),
                     ),
                   ),
@@ -552,17 +541,9 @@ class _CalendarAppState extends State<CalendarApp> {
                   String id = addEvent(newEventTitle, newEventDescription,
                           formattedStartTime, duration)
                       .toString();
-                  print("passou aqui");
                   final event = Event(newEventTitle, newEventDescription,
                       startTime, endTime, id,
                       isCreated: true);
-
-                  print("start: " + newEventStartTime.toString());
-                  print("end : " + endTime.toString());
-                  print('duration : ${newEventDuration!.inMilliseconds}');
-
-                  print("_selectedDate: " + _selectedDate.toString());
-
                   final x = DateTime(
                     _selectedDate.year,
                     _selectedDate.month,
@@ -577,16 +558,34 @@ class _CalendarAppState extends State<CalendarApp> {
                   });
 
                   _events.forEach((date, eventList) {
-                    print("Date: $date");
-                    eventList.forEach((event) {
-                      print("Event: ${event.title}");
-                      // Print other event properties as needed
-                    });
+                    eventList.forEach((event) {});
                   });
                 }
                 Navigator.of(context).pop();
               },
-              child: const Text('Guardar'),
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all<Color>(
+                  kPrimaryColor,
+                ),
+              ),
+              child: const Text(
+                'Guardar',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all<Color>(
+                  kPrimaryColor,
+                ),
+              ),
+              child: const Text(
+                'Cancelar',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ],
         );
@@ -604,11 +603,8 @@ String _twoDigits(int n) {
 
 Future<String> addEvent(String title, String description,
     String formattedStartTime, int duration) async {
-  // Call the fetchAuthenticateGAE function to authenticate the user
   String res = await fetchEventOps(
       title, description, formattedStartTime, duration, "add");
-
-  // Return the authentication status
   return res;
 }
 
@@ -624,8 +620,6 @@ Future<String> fetchEventOps(String title, String description,
           'http://helical-ascent-385614.oa.r.appspot.com/rest/calendar/$operation')
       .replace(queryParameters: {'tokenObj': token});
 
-  print("url: " + url.toString());
-
   final headers = {
     'Content-Type': 'application/json',
   };
@@ -637,7 +631,6 @@ Future<String> fetchEventOps(String title, String description,
     'duration': duration,
   });
 
-  print("body: " + bodyEvent);
   final response = await http.post(url, headers: headers, body: bodyEvent);
 
   if (response.statusCode == 200) {

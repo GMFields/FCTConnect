@@ -20,6 +20,8 @@ class PostScreen extends StatefulWidget {
 
 class _PostScreenState extends State<PostScreen> {
   final TextEditingController _contentController = TextEditingController();
+  //final Color kPrimaryColor = const Color.fromARGB(255, 21, 39, 141);
+  final Color kPrimaryColor = Color.fromARGB(255, 10, 82, 134);
 
   void _openPostModal() {
     showModalBottomSheet(
@@ -37,23 +39,22 @@ class _PostScreenState extends State<PostScreen> {
                 TextField(
                   controller: _contentController,
                   decoration: const InputDecoration(
-                    hintText: 'Enter content',
-                    // Add any desired styling for the input field
+                    hintText: 'Escreve a tua resposta',
                   ),
                   maxLines: 4,
                 ),
                 const SizedBox(height: 16.0),
                 ElevatedButton(
                   onPressed: () {
-                    // Perform the necessary action with the entered data
                     String content = _contentController.text;
-
                     postReply(content);
-
-                    // Close the bottom sheet
                     Navigator.pop(context);
                   },
-                  child: const Text('Submit'),
+                  style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.all<Color>(kPrimaryColor),
+                  ),
+                  child: const Text('Submeter'),
                 ),
               ],
             ),
@@ -84,7 +85,9 @@ class _PostScreenState extends State<PostScreen> {
         Uri.parse(
                 "https://helical-ascent-385614.oa.r.appspot.com/rest/forum/addreply")
             .replace(queryParameters: {'tokenObj': token}),
-        headers: {'Content-Type': 'application/json'},
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
         body: jsonEncode(data));
 
     if (response.statusCode == 200) {
@@ -133,9 +136,14 @@ class _PostScreenState extends State<PostScreen> {
       return;
     }
 
-    final response = await http.get(Uri.parse(
-            "https://helical-ascent-385614.oa.r.appspot.com/rest/forum/listreply")
-        .replace(queryParameters: {'parentId': widget.question.id}));
+    final response = await http.get(
+      Uri.parse(
+              "https://helical-ascent-385614.oa.r.appspot.com/rest/forum/listreply")
+          .replace(queryParameters: {'parentId': widget.question.id}),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
 
     if (response.statusCode == 200) {
       final List<dynamic> postList = jsonDecode(response.body);
@@ -292,10 +300,9 @@ class _PostScreenState extends State<PostScreen> {
                 future: loadImages(widget.question),
                 builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator(); // Display a loading indicator while waiting for the response
+                    return CircularProgressIndicator();
                   } else if (snapshot.hasError) {
-                    return Text(
-                        'Error: ${snapshot.error}'); // Handle any errors that occurred during the request
+                    return Text('Error: ${snapshot.error}');
                   } else {
                     return Scaffold(
                       backgroundColor: Colors.white,
@@ -312,11 +319,11 @@ class _PostScreenState extends State<PostScreen> {
                                       icon: Icon(
                                         MdiIcons.arrowLeft,
                                         size: 20,
-                                        color: Colors.black,
+                                        color: Color.fromARGB(255, 0, 0, 0),
                                       )),
                                   const SizedBox(width: 5.0),
                                   const Text(
-                                    "View Post",
+                                    "Ver postagens",
                                     style: TextStyle(
                                         fontSize: 20,
                                         fontWeight: FontWeight.w600),
@@ -496,13 +503,18 @@ class _PostScreenState extends State<PostScreen> {
                               padding: const EdgeInsets.all(20.0),
                               child: ElevatedButton(
                                   onPressed: _openPostModal,
-                                  child: const Text('Write a Reply')),
+                                  style: ButtonStyle(
+                                    backgroundColor:
+                                        MaterialStateProperty.all<Color>(
+                                            kPrimaryColor),
+                                  ),
+                                  child: const Text('Escreve uma resposta')),
                             ),
                             Padding(
                               padding: const EdgeInsets.only(
                                   left: 15.0, top: 20.0, bottom: 10.0),
                               child: Text(
-                                "Replies (${widget.question.replies.length})",
+                                "Respostas (${widget.question.replies.length})",
                                 style: const TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.bold,

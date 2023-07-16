@@ -1,9 +1,15 @@
 import 'dart:convert';
 
+import 'package:discipulos_flutter/presentation/forum/widgets/bookmarked_posts.dart';
+import 'package:discipulos_flutter/presentation/forum/widgets/user_posts.dart';
+import 'package:discipulos_flutter/presentation/welcome/widgets/navigation_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../models/post_model.dart';
+import '../models/error_popup.dart';
 import '../widgets/popular_topics.dart';
 import '../widgets/posts.dart';
+import '../widgets/search_posts.dart';
 import '../widgets/top_bar.dart';
 
 import 'package:uuid/uuid.dart';
@@ -19,6 +25,8 @@ var username;
 class _HomePageState extends State<HomePage> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
+  //final Color kPrimaryColor = const Color.fromARGB(255, 21, 39, 141);
+  final Color kPrimaryColor = Color.fromARGB(255, 10, 82, 134);
 
   void _openPostModal() {
     showModalBottomSheet(
@@ -36,32 +44,31 @@ class _HomePageState extends State<HomePage> {
                 TextField(
                   controller: _titleController,
                   decoration: const InputDecoration(
-                    hintText: 'Enter title',
-                    // Add any desired styling for the input field
+                    hintText: 'Introduz o titulo',
                   ),
                 ),
                 const SizedBox(height: 16.0),
                 TextField(
                   controller: _contentController,
                   decoration: const InputDecoration(
-                    hintText: 'Enter content',
-                    // Add any desired styling for the input field
+                    hintText: 'Introduz o conteúdo',
                   ),
                   maxLines: 4,
                 ),
                 const SizedBox(height: 16.0),
                 ElevatedButton(
                   onPressed: () {
-                    // Perform the necessary action with the entered data
                     String title = _titleController.text;
                     String content = _contentController.text;
 
                     postToForum(title, content);
-
-                    // Close the bottom sheet
                     Navigator.pop(context);
                   },
-                  child: const Text('Submit'),
+                  style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.all<Color>(kPrimaryColor),
+                  ),
+                  child: const Text('Submeter'),
                 ),
               ],
             ),
@@ -74,21 +81,15 @@ class _HomePageState extends State<HomePage> {
   Future<void> postToForum(String question, String content) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
-    print("1");
-    print(token);
+
     if (token == null) {
       throw Exception('Token not found in cache');
     }
 
-    print("2");
-    print(token);
     Map<String, dynamic> tokenData = json.decode(token);
     String user_username = tokenData['username'] ?? '';
-    print("3");
-    print(token);
+
     var uuid = const Uuid();
-    print("4");
-    print(token);
 
     var data = {
       "question": question,
@@ -101,9 +102,6 @@ class _HomePageState extends State<HomePage> {
       "id": uuid.v4().toString()
     };
 
-    print("5");
-    print(token);
-
     final response = await http.post(
       Uri.parse(
               "https://helical-ascent-385614.oa.r.appspot.com/rest/forum/addpost")
@@ -115,7 +113,7 @@ class _HomePageState extends State<HomePage> {
     );
 
     if (response.statusCode == 200) {
-      print("a");
+      await prefs.setString('pageCursor', "");
     } else {
       throw Exception('Failed to add a post');
     }
@@ -132,63 +130,99 @@ class _HomePageState extends State<HomePage> {
         future: getPosts(),
         builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator(); // Display a loading indicator while waiting for the response
+            return const CircularProgressIndicator();
           } else if (snapshot.hasError) {
-            return Text(
-                'Error: ${snapshot.error}'); // Handle any errors that occurred during the request
+            return Text('Error: ${snapshot.error}');
           } else {
             return Scaffold(
+              drawer: const CustomNavigationDrawer(),
               appBar: AppBar(
                 title: const Text(
-                  "Perfil",
+                  "Forum",
                   style: TextStyle(
-                    color: Color.fromARGB(255, 0, 0, 0),
+                    color: Color.fromARGB(255, 255, 255, 255),
                     fontSize: 20,
                     fontFamily: 'RobotoSlab',
                   ),
                 ),
-                backgroundColor: const Color.fromARGB(255, 237, 237, 237),
-                iconTheme: const IconThemeData(color: Colors.black),
+                backgroundColor: kPrimaryColor,
+                iconTheme: const IconThemeData(
+                    color: Color.fromARGB(255, 255, 255, 255)),
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.search_outlined),
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (_) => SearchedPosts()));
+                    },
+                  ),
+                  const SizedBox(width: 8.0),
+                  IconButton(
+                    icon: const Icon(Icons.bookmarks_rounded),
+                    onPressed: () async {
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.setString('bookmarksCursor', "");
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (_) => BookmarkedPosts()));
+                    },
+                  ),
+                  const SizedBox(width: 8.0),
+                  IconButton(
+                    icon: const Icon(Icons.person_pin_rounded),
+                    onPressed: () async {
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.setString('userPostsCursor', "");
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (_) => UserPosts()));
+                    },
+                  ),
+                  const SizedBox(width: 8.0),
+                ],
               ),
-              backgroundColor: Theme.of(context).primaryColor,
+              //backgroundColor: const Color.fromARGB(199, 40, 64, 183),
+              backgroundColor: Color.fromARGB(255, 10, 82, 134),
               body: SafeArea(
                   child: ListView(
                 children: <Widget>[
                   Container(
                     height: 160,
                     width: MediaQuery.of(context).size.width,
-                    decoration:
-                        BoxDecoration(color: Theme.of(context).primaryColor),
+                    decoration: const BoxDecoration(
+                        //color: Color.fromARGB(199, 40, 64, 183)),
+                        color: Color.fromARGB(255, 10, 70, 110)),
                     child: Padding(
-                      padding: EdgeInsets.all(12.0),
+                      padding: const EdgeInsets.all(12.0),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Text(
-                            "Welcome, $username",
-                            style: TextStyle(
+                            "Bem vindo, $username",
+                            style: const TextStyle(
                                 fontSize: 24,
                                 color: Colors.white,
                                 fontWeight: FontWeight.w600),
                           ),
-                          SizedBox(height: 8.0),
-                          Row(
+                          const SizedBox(height: 8.0),
+                          Column(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: <Widget>[
-                              Text(
-                                "Find Posts that you wanna read.",
+                              const Text(
+                                "Encontra posts que queiras ver.",
                                 style: TextStyle(
-                                  color: Colors.white.withOpacity(0.6),
+                                  color: Colors.white,
                                   fontSize: 14.0,
                                 ),
                               ),
-                              Padding(
-                                padding: const EdgeInsets.all(20.0),
-                                child: ElevatedButton(
-                                    onPressed: _openPostModal,
-                                    child: const Text('Write a Post')),
-                              ),
+                              const SizedBox(height: 14.0),
+                              Center(
+                                  child: ElevatedButton(
+                                      onPressed: _openPostModal,
+                                      style: ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                                  kPrimaryColor)),
+                                      child: const Text('Adiciona um post'))),
                             ],
                           )
                         ],
@@ -208,7 +242,7 @@ class _HomePageState extends State<HomePage> {
                           const Padding(
                             padding: EdgeInsets.all(20.0),
                             child: Text(
-                              "Popular Topics",
+                              "Topicos populares",
                               style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
@@ -228,21 +262,36 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
                           ),
-                          Posts(selectedIndex: 0),
+                          const Posts(selectedIndex: 0),
                           Center(
                             child: RawMaterialButton(
                               onPressed: () {
-                                getPosts();
+                                setState(() {
+                                  getPosts().then((value) => {
+                                        if (value == 404)
+                                          {
+                                            showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return const ErrorPopup(
+                                                  errorMessage:
+                                                      "Não há mais posts!",
+                                                );
+                                              },
+                                            )
+                                          }
+                                      });
+                                });
                               },
                               elevation: 2.0,
-                              fillColor: Colors.blue,
-                              child: Icon(
+                              fillColor: kPrimaryColor,
+                              padding: const EdgeInsets.all(5.0),
+                              shape: const CircleBorder(),
+                              child: const Icon(
                                 Icons.add_circle_outline_outlined,
                                 color: Colors.white,
                                 size: 30.0,
                               ),
-                              padding: EdgeInsets.all(5.0),
-                              shape: CircleBorder(),
                             ),
                           )
                         ],
