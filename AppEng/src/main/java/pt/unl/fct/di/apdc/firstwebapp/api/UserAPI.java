@@ -117,5 +117,10 @@ public interface UserAPI {
     @Path("/reset")
     Response resetPassword(@QueryParam("resetToken") String resetToken) throws IOException;
 
+    @PUT
+    @Path("/changepwd")
+    @Consumes(MediaType.APPLICATION_JSON)
+    Response changePassword(@QueryParam("tokenObj") String tokenObjStr, @QueryParam("password") String password);
+
 
 }

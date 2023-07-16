@@ -34,7 +34,8 @@ public class UserResource implements UserAPI {
 	private static final String GENERATED_PASSWORD_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()";
 	private static final int GENERATED_PASSWORD_LENGTH = 10;
 
-	public UserResource() {}
+	public UserResource() {
+	}
 
 	@Override
 	public Response registerUser(ProfileData data) {
@@ -66,7 +67,7 @@ public class UserResource implements UserAPI {
 				return Response.status(Status.CONFLICT).entity(ConstantFactory.USER_EXISTS.getDesc()).build();
 			}
 
-			if(data.getRole() == 4) {
+			if (data.getRole() == 4) {
 				return Response.status(Status.FORBIDDEN).entity(ConstantFactory.INSUFFICIENT_PERMISSIONS.getDesc()).build();
 			}
 			String activationToken = generateActivationToken(data.getUsername());
@@ -84,7 +85,7 @@ public class UserResource implements UserAPI {
 			txn.add(user);
 			LOG.info("User registered: " + data.getUsername());
 			txn.commit();
-			if(data.getRole() < 3) {
+			if (data.getRole() < 3) {
 				sender.sendActivationEmail(data.getEmail(), activationToken);
 			} else {
 				sender.sendDocenteWelcomeEmail(data.getEmail());
@@ -272,8 +273,7 @@ public class UserResource implements UserAPI {
 				txn.commit();
 				return Response.status(Response.Status.OK).entity(data).build();
 			}
-		}
-		finally {
+		} finally {
 			if (txn.isActive()) {
 				txn.rollback();
 			}
@@ -322,15 +322,15 @@ public class UserResource implements UserAPI {
 	@Override
 	public Response activateAccount(String activationToken) {
 
-	boolean isTokenValid = verifyActivationToken(activationToken);
+		boolean isTokenValid = verifyActivationToken(activationToken);
 
-        if (isTokenValid) {
-		activateUserAccount(activationToken);
-		return Response.status(Status.OK).build();
-	} else {
+		if (isTokenValid) {
+			activateUserAccount(activationToken);
+			return Response.status(Status.OK).build();
+		} else {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
 	}
-}
 
 	@Override
 	public Response forgotPassword(String email) {
@@ -367,6 +367,7 @@ public class UserResource implements UserAPI {
 			}
 		}
 	}
+
 	@Override
 	public Response resetPassword(String resetToken) throws IOException {
 		String email = validateResetToken(resetToken);
@@ -386,6 +387,40 @@ public class UserResource implements UserAPI {
 		sender.sendResetPasswordConfirmationEmail(email, generatedPassword);
 
 		return Response.status(Status.OK).build();
+	}
+
+	@Override
+	public Response changePassword(String tokenObjStr, String password) {
+		AuthToken tokenObj = g.fromJson(tokenObjStr, AuthToken.class);
+
+		Key userKey = KeyStore.userKeyFactory(tokenObj.getUsername());
+
+		Transaction txn = datastore.newTransaction();
+
+		try {
+			Entity user = txn.get(userKey);
+			if (user == null) {
+				txn.rollback();
+				return Response.status(Status.NOT_FOUND).build();
+			}
+
+			user = Entity.newBuilder(user)
+					.set("user_pwd", DigestUtils.sha512Hex(password))
+					.build();
+
+			txn.update(user);
+			txn.commit();
+			return Response.status(Status.OK).build();
+
+		} catch (DatastoreException e) {
+			txn.rollback();
+			LOG.severe(e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		} finally {
+			if (txn.isActive()) {
+				txn.rollback();
+			}
+		}
 	}
 
 	private boolean verifyActivationToken(String activationToken) {
