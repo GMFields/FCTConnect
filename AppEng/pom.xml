@@ -175,7 +175,7 @@
 							<outputDirectory>${project.build.directory}/Firstwebapp-0.0.1</outputDirectory>
 							<resources>
 								<resource>
-									<directory>../React/react-app/dist</directory>
+									<directory>../React/react-app/build</directory>
 									<filtering>false</filtering>
 								</resource>
 							</resources>
@@ -223,11 +223,6 @@
 					</execution>
 				</executions>
 			</plugin>
-
-
-
-			<!-- Copy static resources to the webapp directory -->
-			<!-- Copy static resources to the webapp directory -->
 		</plugins>
 	</build>
 </project>
