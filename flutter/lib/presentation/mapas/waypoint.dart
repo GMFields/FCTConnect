@@ -155,7 +155,7 @@ void updateRoute() {
   }
 
   void _calculateRouteToMarker(double latitude, double longitude) async {
-    dir.DirectionsService.init('AIzaSyAZELnglG_oCx4z-ITNEq0YNpmiFrctW5s');
+    dir.DirectionsService.init('Google_Maps_API_Key');
  
     double startLat = currentLocation!.latitude!;
     double startLng = currentLocation!.longitude!;

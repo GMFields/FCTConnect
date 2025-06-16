@@ -1,5 +1,5 @@
-import {GoogleMap, useJsApiLoader, Marker} from "@react-google-maps/api";
-import React, {useState, useEffect} from "react";
+import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
+import React, { useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
@@ -21,12 +21,12 @@ import clsx from "clsx";
 const drawerWidth = 200;
 
 const useStyles = makeStyles((theme) => ({
-  map:{
-    height:"100vh",
+  map: {
+    height: "100vh",
 
   },
-  smallButton : {
-    width:"100%",
+  smallButton: {
+    width: "100%",
   },
   appBar: {
     backgroundColor: "#2596be"
@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
   drawerPaper: {
     width: drawerWidth,
     backgroundColor: "#2596be"
-    
+
   },
   drawerIcon: {
     marginRight: theme.spacing(1),
@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "0rem"
   },
   drawerText: {
-    color: "#ffffff", 
+    color: "#ffffff",
     fontSize: "0.9rem"
   },
   content: {
@@ -58,10 +58,10 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 const Map = (props) => {
-  const {isLoaded } = useJsApiLoader({
-    id:"google-map-script",
-    googleMapsApiKey:"AIzaSyAZELnglG_oCx4z-ITNEq0YNpmiFrctW5s",
-    
+  const { isLoaded } = useJsApiLoader({
+    id: "google-map-script",
+    googleMapsApiKey: "Google_Maps_API_Key",
+
   });
 
   const token = Cookies.get('token');
@@ -104,7 +104,7 @@ const Map = (props) => {
       });
   };
   const position = {
-    lat:38.66156674841695,
+    lat: 38.66156674841695,
     lng: -9.20545026264386
   }
   const [markerName, setMarkerName] = useState("");
@@ -114,17 +114,17 @@ const Map = (props) => {
 
   const handleShowMarkers = () => {
     let username = '';
-    
+
     try {
       const tokenData = JSON.parse(atob(token.split('.')[1]));
       username = tokenData.username || '';
     } catch (error) {
       console.error('Erro ao decodificar o token:', error);
     }
-    
+
     console.log(username);
     // Use o nome de usuário conforme necessário
-    
+
 
     fetch(`https://helical-ascent-385614.oa.r.appspot.com/rest/waypoint/list/${username}?tokenObj=${token}`, {
       method: "GET",
@@ -134,32 +134,32 @@ const Map = (props) => {
     })
       .then((response) => response.json())
       .then((data) => {
-      // Lógica para lidar com a resposta do backend
-      console.log("Lista de waypoints obtida com sucesso:", data);
-      // Atualizar o estado dos marcadores com os dados retornados
-      setMarkers(data);
+        // Lógica para lidar com a resposta do backend
+        console.log("Lista de waypoints obtida com sucesso:", data);
+        // Atualizar o estado dos marcadores com os dados retornados
+        setMarkers(data);
 
-      // Exibir os marcadores
-      setShowMarkers(true);
+        // Exibir os marcadores
+        setShowMarkers(true);
       })
       .catch((error) => {
         // Lógica para lidar com erros na solicitação
         console.error("Erro ao obter lista de waypoints:", error);
       });
   };
-  
+
 
   const handleMapClick = (event) => {
-    
+
     const markerPosition = {
-      lat:parseFloat(event.latLng.lat()),
-      lng:parseFloat(event.latLng.lng()) 
+      lat: parseFloat(event.latLng.lat()),
+      lng: parseFloat(event.latLng.lng())
     }
 
     const newMarker = {
       "latitude": markerPosition.lat,
       "longitude": markerPosition.lng,
-      "name" : markerName
+      "name": markerName
     }
 
     fetch(`https://helical-ascent-385614.oa.r.appspot.com/rest/waypoint/add?tokenObj=${token}`, {
@@ -181,9 +181,9 @@ const Map = (props) => {
       });
   };
 
-    return(
-        <div>
-        <AppBar position="static" className={classes.appBar}>
+  return (
+    <div>
+      <AppBar position="static" className={classes.appBar}>
         <Toolbar style={{ justifyContent: "space-between" }}>
           <IconButton
             edge="start"
@@ -196,7 +196,7 @@ const Map = (props) => {
           </IconButton>
           {/*<Typography variant="h6">Noticias</Typography>*/}
           <IconButton edge="end" color="inherit" aria-label="logout" onClick={handleLogout}>
-            <ExitToAppIcon/>
+            <ExitToAppIcon />
           </IconButton>
         </Toolbar>
       </AppBar>
@@ -214,75 +214,75 @@ const Map = (props) => {
         }}
       >
         <div role="presentation">
-        <IconButton   className={classes.smallButton} onClick={() => props.onFormSwitch('home')}> 
-          <HomeIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
-          <Typography variant="body1" className={classes.drawerText}>
-          Home
-          </Typography>
-        </IconButton>
-        <IconButton   className={classes.smallButton} onClick={() => props.onFormSwitch('profile')}> 
-          <AccountCircleIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
-          <Typography variant="body1" className={classes.drawerText}>
-          Perfil
-          </Typography>
-        </IconButton>
-        <IconButton className={classes.smallButton}   onClick={() => props.onFormSwitch('notificacions')}>
-          <NotificationsIcon  className={clsx(classes.drawerIcon, classes.drawerText)} />
-          <Typography variant="body1" className={classes.drawerText}>
-          Notificações
-          </Typography>
-        </IconButton>
-        <IconButton className={classes.smallButton} onClick={() => props.onFormSwitch('map')}> 
-          <MapIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
-          <Typography variant="body1" className={classes.drawerText}>
-          Mapa
-          </Typography>
-        </IconButton>
-        <IconButton className={classes.smallButton}  onClick={() => props.onFormSwitch('calendar')}>
-          <CalendarMonthIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
-          <Typography variant="body1" className={classes.drawerText}>
-          Calendário
-          </Typography>
-        </IconButton>
-        <IconButton className={classes.smallButton}>
-          <ChatIcon className={clsx(classes.drawerIcon, classes.drawerText)} onClick={() => props.onFormSwitch('chat')} />
-          <Typography variant="body1" className={classes.drawerText}>
-          Chat
-          </Typography>
-        </IconButton>
+          <IconButton className={classes.smallButton} onClick={() => props.onFormSwitch('home')}>
+            <HomeIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
+            <Typography variant="body1" className={classes.drawerText}>
+              Home
+            </Typography>
+          </IconButton>
+          <IconButton className={classes.smallButton} onClick={() => props.onFormSwitch('profile')}>
+            <AccountCircleIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
+            <Typography variant="body1" className={classes.drawerText}>
+              Perfil
+            </Typography>
+          </IconButton>
+          <IconButton className={classes.smallButton} onClick={() => props.onFormSwitch('notificacions')}>
+            <NotificationsIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
+            <Typography variant="body1" className={classes.drawerText}>
+              Notificações
+            </Typography>
+          </IconButton>
+          <IconButton className={classes.smallButton} onClick={() => props.onFormSwitch('map')}>
+            <MapIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
+            <Typography variant="body1" className={classes.drawerText}>
+              Mapa
+            </Typography>
+          </IconButton>
+          <IconButton className={classes.smallButton} onClick={() => props.onFormSwitch('calendar')}>
+            <CalendarMonthIcon className={clsx(classes.drawerIcon, classes.drawerText)} />
+            <Typography variant="body1" className={classes.drawerText}>
+              Calendário
+            </Typography>
+          </IconButton>
+          <IconButton className={classes.smallButton}>
+            <ChatIcon className={clsx(classes.drawerIcon, classes.drawerText)} onClick={() => props.onFormSwitch('chat')} />
+            <Typography variant="body1" className={classes.drawerText}>
+              Chat
+            </Typography>
+          </IconButton>
         </div>
       </Drawer>
-        <div className={classes.map}>
-          { isLoaded ? (
-            <GoogleMap 
-            mapContainerStyle={{width: "100%", height: "100%"}}
+      <div className={classes.map}>
+        {isLoaded ? (
+          <GoogleMap
+            mapContainerStyle={{ width: "100%", height: "100%" }}
             center={position}
             zoom={15}
             onClick={handleMapClick}
-            >
-              {markers.map((marker, index) => (
-            <Marker key={index} position={{ lat: marker.latitude, lng: marker.longitude }} label={(index + 1).toString()} />
-          ))}
-          <input
-            type="text"
-            name="markerName"
-            value={markerName}
-            onChange={(e) => setMarkerName(e.target.value)}
-          />
-          <button onClick={handleShowMarkers}>Mostrar todos os marcadores</button>
-         { /*<MDBContainer className={classes.content1}>
+          >
+            {markers.map((marker, index) => (
+              <Marker key={index} position={{ lat: marker.latitude, lng: marker.longitude }} label={(index + 1).toString()} />
+            ))}
+            <input
+              type="text"
+              name="markerName"
+              value={markerName}
+              onChange={(e) => setMarkerName(e.target.value)}
+            />
+            <button onClick={handleShowMarkers}>Mostrar todos os marcadores</button>
+            { /*<MDBContainer className={classes.content1}>
           <button onClick={handleMapClick}> Adicionar novo marcador</button>
           <input type="text" name="name" value={newMarker.name} required></input>
           </MDBContainer>*/}
-            </GoogleMap>
-          ):(<></>)
-          }
+          </GoogleMap>
+        ) : (<></>)
+        }
 
-        </div>
+      </div>
 
-        </div>
+    </div>
 
-    )
+  )
 }
 
 export default Map;
